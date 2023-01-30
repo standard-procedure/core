@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
     Dir["spec/**/*"]
   end
 
-  spec.add_dependency "rails", ">= 7.0.4"
+  spec.add_dependency "rails", ">=  6.1"
   spec.add_dependency "acts_as_list", ">= 1.0"
   spec.add_dependency "concurrent_rails", ">= 0.4"
 end

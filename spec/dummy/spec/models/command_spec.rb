@@ -72,7 +72,20 @@ RSpec.describe StandardProcedure::HasCommands do
     end
   end
 
-  it "records an error and re-raises if an exception is raised"
+  it "records an error and re-raises if an exception is raised" do
+    class GoneWrong < StandardError
+    end
+
+    Folder.class_eval do
+      command(:gone_wrong) { |user| raise GoneWrong }
+      authorise(:gone_wrong) { |user| true }
+    end
+
+    expect { folder.gone_wrong(person) }.to raise_exception(GoneWrong)
+    action = folder.actions.first
+    expect(action).to be_failed
+    expect(action.params["error"]).to_not be_blank
+  end
 
   it "performs a command asynchronously"
 

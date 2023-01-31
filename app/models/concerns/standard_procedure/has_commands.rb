@@ -67,6 +67,9 @@ module StandardProcedure
             end
             action.update! status: "completed", params: params.merge(result: result)
             return result
+          rescue => ex
+            action.update! status: "failed", params: params.merge(error: ex.message)
+            raise ex
           ensure
             call_stack.pop
           end

@@ -16,6 +16,7 @@ module StandardProcedure
 
         def define_standard_command(name, &implementation)
           command = name.to_sym
+          available_commands << command
           instance_eval do
             define_method command do |user, **params|
               authorise! command, user
@@ -35,6 +36,14 @@ module StandardProcedure
         define_method :authorise! do |command, user|
           authorised = self.send :"authorise_#{command}?", user
           raise StandardProcedure::Action::Unauthorised if !authorised
+        end
+
+        define_method :available_commands do
+          @available_commands ||= self.class.available_commands
+        end
+
+        def available_commands
+          @available_commands ||= []
         end
 
         def is_add_command?(name)

@@ -7,6 +7,16 @@ RSpec.describe StandardProcedure::HasCommands do
   let(:document_1) { Document.create folder: folder, name: "Document 1" }
   let(:document_2) { Document.create folder: folder, name: "Document 2" }
 
+  it "knows which commands are available" do
+    Folder.class_eval do
+      command(:first_command) { |user| puts "first" }
+      command(:second_command) { |user| puts "second" }
+    end
+
+    expect(folder.available_commands).to include(:first_command)
+    expect(folder.available_commands).to include(:second_command)
+  end
+
   it "records the actions performed to the command log" do
     Folder.class_eval do
       command(:build_document) do |user, params|

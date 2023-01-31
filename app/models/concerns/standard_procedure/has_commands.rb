@@ -6,25 +6,29 @@ module StandardProcedure
       def logs_actions
         is_linked_to :actions, class_name: "StandardProcedure::Action", intermediary_class_name: "StandardProcedure::ActionLink"
 
-        def command(name, &block)
-          is_add_command?(name) ? define_add_command(name) : define_standard_command(name, &block)
+        def command(name, &implementation)
+          is_add_command?(name) ? define_add_command(name) : define_standard_command(name, &implementation)
         end
 
-        def authorise(command, &block)
-          instance_eval { define_method :"authorise_#{command}?", &block }
+        def authorise(command, &permission_check)
+          instance_eval { define_method :"authorise_#{command}?", &permission_check }
         end
 
-        def define_standard_command(name, &block)
-          instance_eval { define_method name.to_sym, &block }
+        def define_standard_command(name, &implementation)
+          command = name.to_sym
+          instance_eval do
+            define_method command do |user, **params|
+              authorise! command, user
+              user.acts_on self, command: command, **params
+            end
+            define_method :"#{command}_implementation", &implementation
+          end
         end
 
         def define_add_command(name)
-          command = name.to_sym
           association = association_from name
-          instance_eval do
-            define_method command do |user, params|
-              self.send(association).create! params
-            end
+          define_standard_command name.to_sym do |user, **params|
+            send(association).create! params
           end
         end
 
@@ -45,12 +49,27 @@ module StandardProcedure
       def is_user
         has_many :performed_actions, class_name: "StandardProcedure::Action", as: :user, dependent: :destroy
 
-        define_method :tells do |target, to: nil, **params|
-          command = to.to_sym
-          target.authorise! command, self
-          result = params.empty? ? target.send(command, self) : target.send(command, self, params)
-          action = performed_actions.create! target: target, command: "#{target.model_name.singular}_#{command}", status: "completed", params: params.merge(result: result)
-          return result
+        define_method :call_stack do
+          @call_stack ||= Concurrent::Array.new
+        end
+
+        define_method :current_context do
+          call_stack.last
+        end
+
+        define_method :acts_on do |target, command: nil, **params, &implementation|
+          action = performed_actions.create! target: target, context: current_context, command: "#{target.model_name.singular}_#{command}", status: "in_progress", params: params
+          call_stack << action
+          begin
+            user = self
+            result = target.instance_eval do
+              target.send :"#{command}_implementation", user, **params
+            end
+            action.update! status: "completed", params: params.merge(result: result)
+            return result
+          ensure
+            call_stack.pop
+          end
         end
       end
     end

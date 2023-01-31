@@ -6,6 +6,10 @@ class Folder < ApplicationRecord
   validates :name, presence: true
 
   define_command :build_document do |**params|
-    documents.create! params
+    documents.create! params.slice(:name)
+  end
+
+  authorise :build_document do |user, params|
+    user.present?
   end
 end

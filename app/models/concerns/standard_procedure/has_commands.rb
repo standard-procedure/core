@@ -15,6 +15,10 @@ module StandardProcedure
           @command_implementations ||= {}
         end
 
+        def authorisations
+          @authorisations ||= {}
+        end
+
         def available_commands
           command_implementations.keys
         end
@@ -23,8 +27,28 @@ module StandardProcedure
           command_implementations[name.to_sym] = block
         end
 
+        def authorise(command, &block)
+          authorisations[command.to_sym] = block
+        end
+
+        # For the Americans:
+        alias :authorize :authorise
+
+        def authorised?(command, params)
+          user = params[:user]
+          authorisations[command]&.call(user, params)
+        end
+
         define_method :available_commands do
           self.class.available_commands
+        end
+
+        define_method :authorisations do
+          self.class.authorisations
+        end
+
+        define_method :authorise! do |command, params|
+          raise StandardProcedure::Action::Unauthorised unless self.class.authorised? command, params
         end
       end
 
@@ -33,6 +57,8 @@ module StandardProcedure
 
         define_method :tells do |target, to: nil, **params|
           command = to.to_sym
+          params.merge!(user: self)
+          target.authorise! command, params
           target.send(command, **params).tap do |result|
             action = performed_actions.create! target: target, command: action_command_for(target, command), params: params.merge(result: result)
           end

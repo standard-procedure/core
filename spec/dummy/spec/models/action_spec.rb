@@ -26,7 +26,15 @@ RSpec.describe StandardProcedure::Action do
 
   it "nests commands within the command log"
 
-  it "does not perform a command if not authorised"
+  it "does not perform a command if not authorised" do
+    Folder.class_eval do
+      authorise :build_document do |user, params|
+        false
+      end
+    end
+
+    expect { person.tells folder, to: :build_document, name: "testfile.txt" }.to raise_exception(StandardProcedure::Action::Unauthorised)
+  end
 
   it "offers a predefined action for adding to an association"
   it "offers a predefined action for updating a model"

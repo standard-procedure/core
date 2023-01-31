@@ -1,10 +1,14 @@
 require_relative "../rails_helper"
 
-RSpec.describe StandardProcedure::Action do
+RSpec.describe StandardProcedure::HasCommands do
   let(:person) { Person.create name: "Trevor Testington" }
   let(:folder) { Folder.create name: "My Documents" }
 
   it "records the actions performed to the command log" do
+    Folder.class_eval do
+      command(:build_document) { |user, params| documents.create! params }
+      authorise(:build_document) { |user, params| true }
+    end
     document = person.tells folder, to: :build_document, name: "testfile.txt"
 
     expect(document).to_not be_nil
@@ -29,15 +33,24 @@ RSpec.describe StandardProcedure::Action do
 
   it "does not perform a command if not authorised" do
     Folder.class_eval do
-      authorise :build_document do |user, params|
-        false
-      end
+      authorise(:build_document) { |user, params| false }
     end
 
     expect { person.tells folder, to: :build_document, name: "testfile.txt" }.to raise_exception(StandardProcedure::Action::Unauthorised)
   end
 
-  it "offers a predefined action for adding to an association"
+  it "offers a predefined action for adding to an association" do
+    Folder.class_eval do
+      command :add_document
+      authorise(:add_document) { |user, params| true }
+    end
+
+    expect(folder).to respond_to :add_document
+
+    document = person.tells folder, to: :add_document, name: "testfile.txt"
+    expect(document).to_not be_nil
+    expect(document.name).to eq "testfile.txt"
+  end
   it "offers a predefined action for updating a model"
   it "offers a predefined action for deleting a model"
 end

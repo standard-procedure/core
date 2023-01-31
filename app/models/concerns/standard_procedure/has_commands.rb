@@ -6,24 +6,35 @@ module StandardProcedure
       def logs_actions
         is_linked_to :actions, class_name: "StandardProcedure::Action", intermediary_class_name: "StandardProcedure::ActionLink"
 
-        def authorisations
-          @authorisations ||= {}
-        end
-
-        def define_command(name, &block)
-          instance_eval { define_method name.to_sym, &block }
+        def command(name, &block)
+          is_add_command?(name) ? define_add_command(name) : define_standard_command(name, &block)
         end
 
         def authorise(command, &block)
           instance_eval { define_method :"authorise_#{command}?", &block }
         end
 
-        # For the Americans:
-        alias :authorize :authorise
+        def define_standard_command(name, &block)
+          instance_eval { define_method name.to_sym, &block }
+        end
 
-        define_method :authorise! do |command, params|
-          authorised = self.send :"authorise_#{command}?", command, params
+        def define_add_command(name)
+          command = name.to_sym
+          association = name.to_s.sub("add_", "").pluralize.to_sym
+          instance_eval do
+            define_method command do |user, params|
+              self.send(association).create! params
+            end
+          end
+        end
+
+        define_method :authorise! do |command, user, params|
+          authorised = self.send :"authorise_#{command}?", user, params
           raise StandardProcedure::Action::Unauthorised if !authorised
+        end
+
+        def is_add_command?(name)
+          name.to_s.starts_with? "add_"
         end
       end
 
@@ -32,9 +43,8 @@ module StandardProcedure
 
         define_method :tells do |target, to: nil, **params|
           command = to.to_sym
-          params.merge!(user: self)
-          target.authorise! command, params
-          target.send(command, **params).tap do |result|
+          target.authorise! command, self, params
+          target.send(command, self, **params).tap do |result|
             action = performed_actions.create! target: target, command: "#{target.model_name.singular}_#{command}", status: "completed", params: params.merge(result: result)
           end
         end

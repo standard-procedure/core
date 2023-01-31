@@ -4,7 +4,7 @@ PATH
     standard_procedure (0.1.0)
       acts_as_list (>= 1.0)
       concurrent_rails (>= 0.4)
-      rails (>= 7.0.4)
+      rails (>= 6.1)
 
 GEM
   remote: https://rubygems.org/

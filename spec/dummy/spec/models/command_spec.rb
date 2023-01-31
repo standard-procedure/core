@@ -7,7 +7,7 @@ RSpec.describe StandardProcedure::HasCommands do
   it "records the actions performed to the command log" do
     Folder.class_eval do
       command(:build_document) { |user, params| documents.create! params }
-      authorise(:build_document) { |user, params| true }
+      authorise(:build_document) { |user| true }
     end
     document = person.tells folder, to: :build_document, name: "testfile.txt"
 
@@ -33,7 +33,7 @@ RSpec.describe StandardProcedure::HasCommands do
 
   it "does not perform a command if not authorised" do
     Folder.class_eval do
-      authorise(:build_document) { |user, **params| false }
+      authorise(:build_document) { |user| false }
     end
 
     expect { person.tells folder, to: :build_document, name: "testfile.txt" }.to raise_exception(StandardProcedure::Action::Unauthorised)
@@ -42,7 +42,7 @@ RSpec.describe StandardProcedure::HasCommands do
   it "offers a predefined action for adding to an association" do
     Folder.class_eval do
       command :add_document
-      authorise(:add_document) { |user, **params| true }
+      authorise(:add_document) { |user| true }
     end
 
     expect(folder).to respond_to :add_document
@@ -54,8 +54,8 @@ RSpec.describe StandardProcedure::HasCommands do
 
   it "does not build predefined actions if there is no association with that name" do
     Folder.class_eval do
-      command(:add_greeting) { |user, **params| "Hello" }
-      authorise(:add_greeting) { |user, **params| true }
+      command(:add_greeting) { |user| "Hello" }
+      authorise(:add_greeting) { |user| true }
     end
     result = person.tells folder, to: :add_greeting
     expect(result).to eq "Hello"

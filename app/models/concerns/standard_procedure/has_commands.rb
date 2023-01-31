@@ -22,14 +22,14 @@ module StandardProcedure
           command = name.to_sym
           association = association_from name
           instance_eval do
-            define_method command do |user, **params|
+            define_method command do |user, params|
               self.send(association).create! params
             end
           end
         end
 
-        define_method :authorise! do |command, user, params|
-          authorised = self.send :"authorise_#{command}?", user, **params
+        define_method :authorise! do |command, user|
+          authorised = self.send :"authorise_#{command}?", user
           raise StandardProcedure::Action::Unauthorised if !authorised
         end
 
@@ -47,10 +47,10 @@ module StandardProcedure
 
         define_method :tells do |target, to: nil, **params|
           command = to.to_sym
-          target.authorise! command, self, params
-          target.send(command, self, **params).tap do |result|
-            action = performed_actions.create! target: target, command: "#{target.model_name.singular}_#{command}", status: "completed", params: params.merge(result: result)
-          end
+          target.authorise! command, self
+          result = params.empty? ? target.send(command, self) : target.send(command, self, params)
+          action = performed_actions.create! target: target, command: "#{target.model_name.singular}_#{command}", status: "completed", params: params.merge(result: result)
+          return result
         end
       end
     end

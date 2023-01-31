@@ -20,21 +20,25 @@ module StandardProcedure
 
         def define_add_command(name)
           command = name.to_sym
-          association = name.to_s.sub("add_", "").pluralize.to_sym
+          association = association_from name
           instance_eval do
-            define_method command do |user, params|
+            define_method command do |user, **params|
               self.send(association).create! params
             end
           end
         end
 
         define_method :authorise! do |command, user, params|
-          authorised = self.send :"authorise_#{command}?", user, params
+          authorised = self.send :"authorise_#{command}?", user, **params
           raise StandardProcedure::Action::Unauthorised if !authorised
         end
 
         def is_add_command?(name)
-          name.to_s.starts_with? "add_"
+          name.to_s.starts_with?("add_") && reflect_on_association(association_from(name)).present?
+        end
+
+        def association_from(name)
+          name.to_s.sub("add_", "").pluralize.to_sym
         end
       end
 

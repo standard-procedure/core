@@ -33,13 +33,20 @@ module StandardProcedure
           end
         end
 
+        define_method :authorised_to? do |command, user|
+          self.send :"authorise_#{command}?", user
+        end
+
         define_method :authorise! do |command, user|
-          authorised = self.send :"authorise_#{command}?", user
-          raise StandardProcedure::Action::Unauthorised if !authorised
+          raise StandardProcedure::Action::Unauthorised unless authorised_to?(command, user)
         end
 
         define_method :available_commands do
           @available_commands ||= self.class.available_commands
+        end
+
+        define_method :available_commands_for do |user|
+          available_commands.select { |command| authorised_to?(command, user) }.uniq
         end
 
         def available_commands

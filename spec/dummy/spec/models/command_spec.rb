@@ -2,6 +2,7 @@ require_relative "../rails_helper"
 
 RSpec.describe StandardProcedure::HasCommands do
   let(:person) { Person.create name: "Trevor Testington" }
+  let(:second_person) { Person.create name: "Stacey Soup-Spoon" }
   let(:folder) { Folder.create name: "My Documents" }
   let(:other_folder) { Folder.create name: "Other Documents" }
   let(:document_1) { Document.create folder: folder, name: "Document 1" }
@@ -15,6 +16,17 @@ RSpec.describe StandardProcedure::HasCommands do
 
     expect(folder.available_commands).to include(:first_command)
     expect(folder.available_commands).to include(:second_command)
+  end
+
+  it "knows which commands are available for a given user" do
+    Folder.class_eval do
+      command(:first_command) { |user| puts "first" }
+      authorise(:first_command) { |user| false }
+      command(:second_command) { |user| puts "second" }
+      authorise(:second_command) { |user| user.name == "Stacey Soup-Spoon" }
+    end
+    expect(folder.available_commands_for(person)).to be_empty
+    expect(folder.available_commands_for(second_person)).to eq [:second_command]
   end
 
   it "records the actions performed to the command log" do

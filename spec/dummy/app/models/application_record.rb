@@ -10,4 +10,5 @@ class ApplicationRecord < ActiveRecord::Base
   include StandardProcedure::HasCommands
   include StandardProcedure::HasFieldDefinitions
   include StandardProcedure::HasFieldValues
+  is_linked_to :actions, class_name: "StandardProcedure::Action"
 end

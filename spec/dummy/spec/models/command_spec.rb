@@ -22,9 +22,12 @@ RSpec.describe StandardProcedure::HasCommands do
   it "knows which commands are available for a given user" do
     Folder.class_eval do
       command(:first_command) { |user| puts "first" }
-      authorise(:first_command) { |user| false }
       command(:second_command) { |user| puts "second" }
-      authorise(:second_command) { |user| user.name == "Stacey Soup-Spoon" }
+    end
+    Person.class_eval do
+      def can?(command, target)
+        (command == :second_command) && (name == "Stacey Soup-Spoon")
+      end
     end
     expect(folder.available_commands_for(person)).to be_empty
     expect(folder.available_commands_for(second_person)).to eq [:second_command]
@@ -35,7 +38,11 @@ RSpec.describe StandardProcedure::HasCommands do
       command(:build_document) do |user, params|
         documents.create! params
       end
-      authorise(:build_document) { |user| true }
+    end
+    Person.class_eval do
+      def can?(command, target)
+        true
+      end
     end
     document = folder.build_document person, name: "testfile.txt"
 
@@ -58,7 +65,11 @@ RSpec.describe StandardProcedure::HasCommands do
   it "links all related models to the command" do
     Folder.class_eval do
       command(:move_document) { |user, params| params[:document].update folder: params[:destination] }
-      authorise(:move_document) { |user| true }
+    end
+    Person.class_eval do
+      def can?(command, target)
+        true
+      end
     end
 
     folder.move_document person, document: document_1, destination: other_folder
@@ -81,8 +92,11 @@ RSpec.describe StandardProcedure::HasCommands do
       command(:move_document) do |user, params|
         params[:document].update folder: params[:destination]
       end
-      authorise(:move_document) { |user| true }
-      authorise(:move_documents) { |user| true }
+    end
+    Person.class_eval do
+      def can?(command, target)
+        true
+      end
     end
 
     folder.move_documents person, documents: [document_1, document_2], destination: other_folder
@@ -101,7 +115,11 @@ RSpec.describe StandardProcedure::HasCommands do
 
     Folder.class_eval do
       command(:gone_wrong) { |user| raise GoneWrong }
-      authorise(:gone_wrong) { |user| true }
+    end
+    Person.class_eval do
+      def can?(command, target)
+        true
+      end
     end
 
     expect { folder.gone_wrong(person) }.to raise_exception(GoneWrong)
@@ -114,7 +132,12 @@ RSpec.describe StandardProcedure::HasCommands do
 
   it "does not perform a command if not authorised" do
     Folder.class_eval do
-      authorise(:build_document) { |user| false }
+      command(:build_document) { |user, **params| "should never be called" }
+    end
+    Person.class_eval do
+      def can?(command, target)
+        false
+      end
     end
 
     expect { folder.build_document person, name: "testfile.txt" }.to raise_exception(StandardProcedure::Action::Unauthorised)
@@ -123,7 +146,11 @@ RSpec.describe StandardProcedure::HasCommands do
   it "defines a predefined command for adding to an association" do
     Folder.class_eval do
       command :add_document
-      authorise(:add_document) { |user| true }
+    end
+    Person.class_eval do
+      def can?(command, target)
+        true
+      end
     end
 
     expect(folder).to respond_to :add_document
@@ -136,18 +163,23 @@ RSpec.describe StandardProcedure::HasCommands do
   it "does not build predefined `add` commands if there is no association with that name" do
     Folder.class_eval do
       command(:add_greeting) { |user| "Hello" }
-      authorise(:add_greeting) { |user| true }
+    end
+    Person.class_eval do
+      def can?(command, target)
+        true
+      end
     end
     result = folder.add_greeting person
     expect(result).to eq "Hello"
   end
 
   it "adds a predefined amend command automatically" do
-    Folder.class_eval do
-      authorise(:amend) { |user| true }
+    Person.class_eval do
+      def can?(command, target)
+        true
+      end
     end
     expect(folder.available_commands).to include(:amend)
-    expect(folder.methods).to include(:authorise_amend?)
     folder.amend person, name: "Another name"
     expect(folder.name).to eq "Another name"
     action = folder.actions.find_by command: "folder_amend"
@@ -157,7 +189,11 @@ RSpec.describe StandardProcedure::HasCommands do
   it "defines a predefined command for deleting an association" do
     Folder.class_eval do
       command :delete_child
-      authorise(:delete_child) { |user| true }
+    end
+    Person.class_eval do
+      def can?(command, target)
+        true
+      end
     end
     expect(folder.available_commands).to include(:delete_child)
     folder.delete_child person, child: sub_folder

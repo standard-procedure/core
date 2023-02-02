@@ -7,13 +7,7 @@ module StandardProcedure
         is_linked_to :actions, class_name: "StandardProcedure::Action", intermediary_class_name: "StandardProcedure::ActionLink"
 
         def command(name, &implementation)
-          return define_add_command(name) if is_add_command?(name)
-          return define_delete_command(name) if is_delete_command?(name)
-          define_standard_command(name, &implementation)
-        end
-
-        def authorise(command, &permission_check)
-          instance_eval { define_method :"authorise_#{command}?", &permission_check }
+          self.send :"define_#{command_type_for(name)}_command", name, &implementation
         end
 
         def define_standard_command(name, &implementation)
@@ -28,28 +22,26 @@ module StandardProcedure
           end
         end
 
-        def define_add_command(name)
+        def define_add_command(name, &implementation)
           association = association_from name, "add_"
           define_standard_command name.to_sym do |user, **params|
             send(association).create! params
           end
         end
 
-        def define_delete_command(name)
-          association = association_from name, "delete_"
+        def define_delete_command(name, &implementation)
           model_param = association_from name, "delete_", singular: true
           define_standard_command name.to_sym do |user, **params|
             params[model_param]&.destroy
           end
         end
 
-        define_method :authorised_to? do |command, user|
-          authorisation = :"authorise_#{command}?"
-          self.respond_to?(authorisation) && self.send(authorisation, user)
+        define_method :authorised_to? do |do_command, user|
+          user.respond_to?(:can?) ? user.can?(do_command, self) : false
         end
 
-        define_method :authorise! do |command, user|
-          raise StandardProcedure::Action::Unauthorised unless authorised_to?(command, user)
+        define_method :authorise! do |do_command, user|
+          raise StandardProcedure::Action::Unauthorised unless authorised_to? do_command, user
         end
 
         define_method :available_commands do
@@ -64,12 +56,10 @@ module StandardProcedure
           @available_commands ||= []
         end
 
-        def is_add_command?(name)
-          is_association_command?(name, "add_")
-        end
-
-        def is_delete_command?(name)
-          is_association_command?(name, "delete_")
+        def command_type_for(name)
+          return :add if is_association_command?(name, "add_")
+          return :delete if is_association_command?(name, "delete_")
+          return :standard
         end
 
         def is_association_command?(name, prefix)

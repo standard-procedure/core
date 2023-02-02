@@ -10,7 +10,7 @@ module StandardProcedure
     has_field :error
     has_linked :items
     validates :command, presence: true
-    after_save :build_links
+    after_save :link_related_items
 
     def to_s
       command
@@ -22,7 +22,7 @@ module StandardProcedure
 
     protected
 
-    def build_links
+    def link_related_items
       link_to user
       link_to target
       params.each do |key, value|

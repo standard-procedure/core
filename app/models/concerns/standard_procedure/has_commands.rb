@@ -16,7 +16,15 @@ module StandardProcedure
           instance_eval do
             define_method command do |user, **params|
               authorise! command, user
-              user.acts_on self, command: command, **params
+              action = user.build_action_for self, command: command, **params
+              user.acts_on self, action: action, command: command, **params
+            end
+            define_method :"#{command}_later" do |user, **params|
+              authorise! command, user
+              action = user.build_action_for self, command: command, **params
+              ConcurrentRails::Promises.future do
+                user.acts_on self, action: action, command: command, **params
+              end
             end
             define_method :"#{command}_implementation", &implementation
           end
@@ -87,8 +95,12 @@ module StandardProcedure
           call_stack.last
         end
 
-        define_method :acts_on do |target, command: nil, **params, &implementation|
+        define_method :build_action_for do |target, command: nil, **params|
           action = performed_actions.create! target: target, context: current_context, command: "#{target.model_name.singular}_#{command}", status: "in_progress", params: params
+        end
+
+        define_method :acts_on do |target, action: nil, command: nil, **params, &implementation|
+          raise ArgumentError "action not supplied" if action.blank?
           call_stack << action
           begin
             user = self

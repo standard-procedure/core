@@ -201,56 +201,73 @@ RSpec.describe StandardProcedure::HasCommands do
     expect(folder.actions).to include(action)
   end
 
-  it "performs a command asynchronously" do
-    # How this test works:
-    # We want to invoke a method that will be run in a background thread (using a Concurrent::Rails::Future).
-    # However, we also need to check that the action is set up correctly before the thread completes.
-    # So for the sake of this test, we use an implementation that waits until the test gives it a signal
-    # (via a Concurrent::Ruby::MVar, which is a thread-safe variable), then when it's received that signal
-    # it does the work and returns a result.
-    # The test waits till the future has got a result, then checks that the action has also been updated
-    # as expected
-    # In a real app, you probably just want to "fire and forget" a load of method calls
-    # so your method doesn't have to hang around waiting for lots of other work to complete.
-    # In that case, you can just call the _later method and ignore the future that it returns
-    Person.class_eval do
-      def can?(command, target)
-        true
-      end
-    end
-    Folder.class_eval do
-      def status
-        # normally this would not be thread-safe but we are doing
-        # all the initialisation in the main-thread so we're OK for this test
-        @status ||= Concurrent::MVar.new
-      end
+  describe "when async is switched off" do
+    it "does not allow asynchronous commands" do
+      StandardProcedure.config.async = false
 
-      command :wait_then_do_something do |user|
-        # Wait till the test gives us the go-ahead to get started
-        status.take
-        # Do some work here
-        sleep 0.1
-        # And return a result
-        :update_completed
+      Folder.class_eval do
+        command(:do_something) { |user| "whatever" }
       end
+      expect(folder.methods).to_not include(:do_something_later)
+    end
+  end
+
+  describe "when async is switched on" do
+    before do
+      StandardProcedure.config.async = true
     end
 
-    expect(folder.actions).to be_empty
-    # Calling _later will return a Concurrent::Rails::Future
-    # that we can interrogate later on to find out when the task has completed
-    future = folder.wait_then_do_something_later(person)
-    expect(future.state).to eq :pending
-    # Check that an action has been recorded for this command
-    action = folder.actions.find_by(command: "folder_wait_then_do_something")
-    expect(action).to_not be_nil
-    expect(action).to be_in_progress
-    # And now we can tell the command to do some work
-    folder.status.put :start_working
-    # We use the future#value to wait until the command has completed
-    expect(future.value).to eq :update_completed
-    # and check that the action has been updated correctly
-    action.reload
-    expect(action).to be_completed
-    expect(action.result).to eq "update_completed"
+    it "performs a command later" do
+      # How this test works:
+      # We want to invoke a method that will be run in a background thread (using a Concurrent::Rails::Future).
+      # However, we also need to check that the action is set up correctly before the thread completes.
+      # So for the sake of this test, we use an implementation that waits until the test gives it a signal
+      # (via a Concurrent::Ruby::MVar, which is a thread-safe variable), then when it's received that signal
+      # it does the work and returns a result.
+      # The test waits till the future has got a result, then checks that the action has also been updated
+      # as expected
+      # In a real app, you probably just want to "fire and forget" a load of method calls
+      # so your method doesn't have to hang around waiting for lots of other work to complete.
+      # In that case, you can just call the _later method and ignore the future that it returns
+      Person.class_eval do
+        def can?(command, target)
+          true
+        end
+      end
+      Folder.class_eval do
+        def status
+          # normally this would not be thread-safe but we are doing
+          # all the initialisation in the main-thread so we're OK for this test
+          @status ||= Concurrent::MVar.new
+        end
+
+        command :wait_then_do_something do |user|
+          # Wait till the test gives us the go-ahead to get started
+          status.take
+          # Do some work here
+          sleep 0.1
+          # And return a result
+          :update_completed
+        end
+      end
+
+      expect(folder.actions).to be_empty
+      # Calling _later will return a Concurrent::Rails::Future
+      # that we can interrogate later on to find out when the task has completed
+      future = folder.wait_then_do_something_later(person)
+      expect(future.state).to eq :pending
+      # Check that an action has been recorded for this command
+      action = folder.actions.find_by(command: "folder_wait_then_do_something")
+      expect(action).to_not be_nil
+      expect(action).to be_in_progress
+      # And now we can tell the command to do some work
+      folder.status.put :start_working
+      # We use the future#value to wait until the command has completed
+      expect(future.value).to eq :update_completed
+      # and check that the action has been updated correctly
+      action.reload
+      expect(action).to be_completed
+      expect(action.result).to eq "update_completed"
+    end
   end
 end

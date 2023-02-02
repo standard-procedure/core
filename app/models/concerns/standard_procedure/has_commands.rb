@@ -7,7 +7,7 @@ module StandardProcedure
         is_linked_to :actions, class_name: "StandardProcedure::Action", intermediary_class_name: "StandardProcedure::ActionLink"
 
         def command(name, &implementation)
-          self.send :"define_#{command_type_for(name)}_command", name, &implementation
+          implementation.nil? ? self.send(:"define_#{command_type_for(name)}_command", name, &implementation) : define_standard_command(name, &implementation)
         end
 
         def define_standard_command(name, &implementation)

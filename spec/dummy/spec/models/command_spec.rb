@@ -158,6 +158,25 @@ RSpec.describe StandardProcedure::HasCommands do
     expect(document.name).to eq "testfile.txt"
   end
 
+  it "allows you to override the predefined command for adding an association" do
+    Folder.class_eval do
+      command :add_document do |user, **params|
+        documents.create! name: "override"
+      end
+    end
+    Person.class_eval do
+      def can?(command, target)
+        true
+      end
+    end
+
+    expect(folder).to respond_to :add_document
+
+    document = folder.add_document person, name: "override"
+    expect(document).to_not be_nil
+    expect(document.name).to eq "override"
+  end
+
   it "does not build predefined `add` commands if there is no association with that name" do
     Folder.class_eval do
       command(:add_greeting) { |user| "Hello" }
@@ -196,6 +215,23 @@ RSpec.describe StandardProcedure::HasCommands do
     expect(folder.available_commands).to include(:delete_child)
     folder.delete_child person, child: sub_folder
     expect(Folder.find_by id: sub_folder.id).to be_nil
+    action = person.actions.find_by command: "folder_delete_child"
+    expect(action).to_not be_nil
+    expect(folder.actions).to include(action)
+  end
+
+  it "allows you to override the predefined command for deleting an association" do
+    Folder.class_eval do
+      command(:delete_child) { |user, **params| "do nothing" }
+    end
+    Person.class_eval do
+      def can?(command, target)
+        true
+      end
+    end
+    expect(folder.available_commands).to include(:delete_child)
+    folder.delete_child person, child: sub_folder
+    expect(Folder.find_by id: sub_folder.id).to_not be_nil
     action = person.actions.find_by command: "folder_delete_child"
     expect(action).to_not be_nil
     expect(folder.actions).to include(action)

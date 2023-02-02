@@ -85,7 +85,7 @@ module StandardProcedure
         end
 
         define_method :link_to do |item|
-          return if item.blank? || linked_to?(item)
+          return if item.blank? || item.destroyed? || linked_to?(item)
           self.send(has_many_association_name).build(source => item).tap do |link|
             link.save! unless self.new_record?
           end

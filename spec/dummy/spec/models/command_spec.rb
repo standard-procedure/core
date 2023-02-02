@@ -4,6 +4,7 @@ RSpec.describe StandardProcedure::HasCommands do
   let(:person) { Person.create name: "Trevor Testington" }
   let(:second_person) { Person.create name: "Stacey Soup-Spoon" }
   let(:folder) { Folder.create name: "My Documents" }
+  let(:sub_folder) { Folder.create parent: folder, name: "More Documents" }
   let(:other_folder) { Folder.create name: "Other Documents" }
   let(:document_1) { Document.create folder: folder, name: "Document 1" }
   let(:document_2) { Document.create folder: folder, name: "Document 2" }
@@ -139,5 +140,30 @@ RSpec.describe StandardProcedure::HasCommands do
     end
     result = folder.add_greeting person
     expect(result).to eq "Hello"
+  end
+
+  it "adds a predefined amend command automatically" do
+    Folder.class_eval do
+      authorise(:amend) { |user| true }
+    end
+    expect(folder.available_commands).to include(:amend)
+    expect(folder.methods).to include(:authorise_amend?)
+    folder.amend person, name: "Another name"
+    expect(folder.name).to eq "Another name"
+    action = folder.actions.find_by command: "folder_amend"
+    expect(action).to_not be_nil
+  end
+
+  it "defines a predefined command for deleting an association" do
+    Folder.class_eval do
+      command :delete_child
+      authorise(:delete_child) { |user| true }
+    end
+    expect(folder.available_commands).to include(:delete_child)
+    folder.delete_child person, child: sub_folder
+    expect(Folder.find_by id: sub_folder.id).to be_nil
+    action = person.actions.find_by command: "folder_delete_child"
+    expect(action).to_not be_nil
+    expect(folder.actions).to include(action)
   end
 end

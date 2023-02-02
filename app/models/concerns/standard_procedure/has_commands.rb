@@ -7,7 +7,9 @@ module StandardProcedure
         is_linked_to :actions, class_name: "StandardProcedure::Action", intermediary_class_name: "StandardProcedure::ActionLink"
 
         def command(name, &implementation)
-          is_add_command?(name) ? define_add_command(name) : define_standard_command(name, &implementation)
+          return define_add_command(name) if is_add_command?(name)
+          return define_delete_command(name) if is_delete_command?(name)
+          define_standard_command(name, &implementation)
         end
 
         def authorise(command, &permission_check)
@@ -27,14 +29,23 @@ module StandardProcedure
         end
 
         def define_add_command(name)
-          association = association_from name
+          association = association_from name, "add_"
           define_standard_command name.to_sym do |user, **params|
             send(association).create! params
           end
         end
 
+        def define_delete_command(name)
+          association = association_from name, "delete_"
+          model_param = association_from name, "delete_", singular: true
+          define_standard_command name.to_sym do |user, **params|
+            params[model_param]&.destroy
+          end
+        end
+
         define_method :authorised_to? do |command, user|
-          self.send :"authorise_#{command}?", user
+          authorisation = :"authorise_#{command}?"
+          self.respond_to?(authorisation) && self.send(authorisation, user)
         end
 
         define_method :authorise! do |command, user|
@@ -54,11 +65,24 @@ module StandardProcedure
         end
 
         def is_add_command?(name)
-          name.to_s.starts_with?("add_") && reflect_on_association(association_from(name)).present?
+          is_association_command?(name, "add_")
         end
 
-        def association_from(name)
-          name.to_s.sub("add_", "").pluralize.to_sym
+        def is_delete_command?(name)
+          is_association_command?(name, "delete_")
+        end
+
+        def is_association_command?(name, prefix)
+          name.to_s.starts_with?(prefix) && reflect_on_association(association_from(name, prefix)).present?
+        end
+
+        def association_from(name, prefix, singular: false)
+          name = name.to_s.sub(prefix, "")
+          singular ? name.to_sym : name.pluralize.to_sym
+        end
+
+        command :amend do |user, **params|
+          update! params
         end
       end
 

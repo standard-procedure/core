@@ -89,7 +89,7 @@ module StandardProcedure
     def unwrap_hash_field(hash)
       hash.transform_values do |value|
         # is this a global ID?
-        (value.respond_to?(:starts_with?) && value.starts_with?("gid:")) ? GlobalID::Locator.locate(value) : value
+        (value.respond_to?(:starts_with?) && value.starts_with?("gid:")) ? GlobalID::Locator.locate(value) : value rescue nil
       end
     end
 

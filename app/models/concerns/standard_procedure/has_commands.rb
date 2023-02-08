@@ -3,16 +3,18 @@ module StandardProcedure
     extend ActiveSupport::Concern
 
     class_methods do
-      def logs_actions
+      def defines_commands
         is_linked_to :actions, class_name: "StandardProcedure::Action", intermediary_class_name: "StandardProcedure::ActionLink"
 
-        def command(name, &implementation)
-          implementation.nil? ? self.send(:"define_#{command_type_for(name)}_command", name, &implementation) : define_standard_command(name, &implementation)
+        def command(*names, &implementation)
+          Array.wrap(names).each do |name|
+            implementation.nil? ? self.send(:"define_#{command_type_for(name)}_command", name, &implementation) : define_standard_command(name, &implementation)
+          end
         end
 
         def define_standard_command(name, &implementation)
           command = name.to_sym
-          available_commands << command
+          available_commands << command unless available_commands.include? command
           instance_eval do
             define_method command do |user, **params|
               authorise! command, user

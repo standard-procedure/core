@@ -196,7 +196,7 @@ RSpec.describe StandardProcedure::HasCommands do
         true
       end
     end
-    expect(category.available_commands).to include(:amend)
+    expect(Category.available_commands).to include(:amend)
     category.amend person, name: "Another name"
     expect(category.name).to eq "Another name"
     action = category.actions.find_by command: "category_amend"
@@ -235,6 +235,14 @@ RSpec.describe StandardProcedure::HasCommands do
     action = person.actions.find_by command: "category_delete_child"
     expect(action).to_not be_nil
     expect(category.actions).to include(action)
+  end
+
+  it "allows you to define multiple predefined commands in one statement" do
+    Category.class_eval do
+      command :add_child, :delete_child
+    end
+    expect(category.available_commands).to include(:add_child)
+    expect(category.available_commands).to include(:delete_child)
   end
 
   it "performs a command later" do

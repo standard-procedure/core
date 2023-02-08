@@ -1,14 +1,4 @@
-class ApplicationRecord < ActiveRecord::Base
+class ApplicationRecord < StandardProcedure::ApplicationRecord
   primary_abstract_class
-  include StandardProcedure::HasName
-  include StandardProcedure::HasDescription
-  include StandardProcedure::HasLogo
-  include StandardProcedure::HasReference
-  include StandardProcedure::HasFields
-  include StandardProcedure::HasLinkedItems
-  include StandardProcedure::HasAncestors
-  include StandardProcedure::HasCommands
-  include StandardProcedure::HasFieldDefinitions
-  include StandardProcedure::HasFieldValues
-  is_linked_to :actions, class_name: "StandardProcedure::Action"
+  defines_commands
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_01_29_215032) do
+ActiveRecord::Schema[7.0].define(version: 2023_02_08_170956) do
   create_table "documents", force: :cascade do |t|
     t.integer "folder_id"
     t.string "name"
@@ -58,6 +58,23 @@ ActiveRecord::Schema[7.0].define(version: 2023_01_29_215032) do
     t.index ["context_id"], name: "index_standard_procedure_actions_on_context_id"
     t.index ["target_type", "target_id"], name: "index_standard_procedure_actions_on_target"
     t.index ["user_type", "user_id"], name: "index_standard_procedure_actions_on_user"
+  end
+
+  create_table "standard_procedure_field_definitions", force: :cascade do |t|
+    t.string "definable_type"
+    t.integer "definable_id"
+    t.integer "position", default: 1, null: false
+    t.string "type", limit: 128, null: false
+    t.text "default_value"
+    t.text "calculated_value"
+    t.text "options"
+    t.text "field_data", limit: 16777216
+    t.boolean "mandatory", default: false, null: false
+    t.integer "visible_to", default: 0, null: false
+    t.integer "editable_by", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["definable_type", "definable_id"], name: "index_standard_procedure_field_definitions_on_definable"
   end
 
   add_foreign_key "standard_procedure_action_links", "standard_procedure_actions", column: "action_id"

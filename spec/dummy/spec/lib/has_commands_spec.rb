@@ -191,6 +191,9 @@ RSpec.describe StandardProcedure::HasCommands do
   end
 
   it "adds a predefined amend command automatically" do
+    Category.class_eval do
+      defines_commands
+    end
     Person.class_eval do
       def can?(command, target)
         true
@@ -205,44 +208,44 @@ RSpec.describe StandardProcedure::HasCommands do
 
   it "defines a predefined command for deleting an association" do
     Category.class_eval do
-      command :delete_child
+      command :remove_child
     end
     Person.class_eval do
       def can?(command, target)
         true
       end
     end
-    expect(category.available_commands).to include(:delete_child)
-    category.delete_child person, child: sub_category
+    expect(category.available_commands).to include(:remove_child)
+    category.remove_child person, child: sub_category
     expect(Category.find_by id: sub_category.id).to be_nil
-    action = person.actions.find_by command: "category_delete_child"
+    action = person.actions.find_by command: "category_remove_child"
     expect(action).to_not be_nil
     expect(category.actions).to include(action)
   end
 
   it "allows you to override the predefined command for deleting an association" do
     Category.class_eval do
-      command(:delete_child) { |user, **params| "do nothing" }
+      command(:remove_child) { |user, **params| "do nothing" }
     end
     Person.class_eval do
       def can?(command, target)
         true
       end
     end
-    expect(category.available_commands).to include(:delete_child)
-    category.delete_child person, child: sub_category
+    expect(category.available_commands).to include(:remove_child)
+    category.remove_child person, child: sub_category
     expect(Category.find_by id: sub_category.id).to_not be_nil
-    action = person.actions.find_by command: "category_delete_child"
+    action = person.actions.find_by command: "category_remove_child"
     expect(action).to_not be_nil
     expect(category.actions).to include(action)
   end
 
   it "allows you to define multiple predefined commands in one statement" do
     Category.class_eval do
-      command :add_child, :delete_child
+      command :add_child, :remove_child
     end
     expect(category.available_commands).to include(:add_child)
-    expect(category.available_commands).to include(:delete_child)
+    expect(category.available_commands).to include(:remove_child)
   end
 
   it "performs a command later" do

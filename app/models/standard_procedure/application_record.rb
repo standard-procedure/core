@@ -1,3 +1,5 @@
+require "acts_as_list"
+
 module StandardProcedure
   class ApplicationRecord < ActiveRecord::Base
     self.abstract_class = true
@@ -11,5 +13,7 @@ module StandardProcedure
     include StandardProcedure::HasCommands
     include StandardProcedure::HasFieldDefinitions
     include StandardProcedure::HasFieldValues
+
+    defines_commands
   end
 end

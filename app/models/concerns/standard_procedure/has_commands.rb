@@ -39,8 +39,8 @@ module StandardProcedure
           end
         end
 
-        def define_delete_command(name, &implementation)
-          model_param = association_from name, "delete_", singular: true
+        def define_remove_command(name, &implementation)
+          model_param = association_from name, "remove_", singular: true
           define_standard_command name.to_sym do |user, **params|
             params[model_param]&.destroy
           end
@@ -68,7 +68,7 @@ module StandardProcedure
 
         def command_type_for(name)
           return :add if is_association_command?(name, "add_")
-          return :delete if is_association_command?(name, "delete_")
+          return :remove if is_association_command?(name, "remove_")
           return :standard
         end
 

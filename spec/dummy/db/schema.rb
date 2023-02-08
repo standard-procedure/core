@@ -10,25 +10,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_02_08_170956) do
-  create_table "documents", force: :cascade do |t|
-    t.integer "folder_id"
-    t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["folder_id"], name: "index_documents_on_folder_id"
-  end
-
-  create_table "folders", force: :cascade do |t|
+ActiveRecord::Schema[7.0].define(version: 2023_02_08_175215) do
+  create_table "categories", force: :cascade do |t|
     t.integer "parent_id"
     t.string "name"
+    t.string "plural"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["parent_id"], name: "index_folders_on_parent_id"
+    t.index ["parent_id"], name: "index_categories_on_parent_id"
   end
 
   create_table "people", force: :cascade do |t|
     t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "standard_procedure_accounts", force: :cascade do |t|
+    t.string "reference", default: "", null: false
+    t.string "name", default: "", null: false
+    t.string "type", default: "", null: false
+    t.text "field_data", limit: 16777216
+    t.text "configuration", limit: 16777216
+    t.date "active_from", null: false
+    t.date "active_until", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -60,6 +65,20 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_08_170956) do
     t.index ["user_type", "user_id"], name: "index_standard_procedure_actions_on_user"
   end
 
+  create_table "standard_procedure_contacts", force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "account_id"
+    t.integer "group_id"
+    t.string "reference", default: "", null: false
+    t.string "type", default: "", null: false
+    t.text "field_data", limit: 16777216
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_standard_procedure_contacts_on_account_id"
+    t.index ["group_id"], name: "index_standard_procedure_contacts_on_group_id"
+    t.index ["user_id"], name: "index_standard_procedure_contacts_on_user_id"
+  end
+
   create_table "standard_procedure_field_definitions", force: :cascade do |t|
     t.string "definable_type"
     t.integer "definable_id"
@@ -77,5 +96,136 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_08_170956) do
     t.index ["definable_type", "definable_id"], name: "index_standard_procedure_field_definitions_on_definable"
   end
 
+  create_table "standard_procedure_folder_items", force: :cascade do |t|
+    t.integer "folder_id"
+    t.string "contents_type"
+    t.integer "contents_id"
+    t.string "reference", default: "", null: false
+    t.string "name", default: "", null: false
+    t.string "type", default: "", null: false
+    t.text "field_data", limit: 16777216
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["contents_type", "contents_id"], name: "index_standard_procedure_folder_items_on_contents"
+    t.index ["folder_id"], name: "index_standard_procedure_folder_items_on_folder_id"
+  end
+
+  create_table "standard_procedure_folders", force: :cascade do |t|
+    t.integer "account_id"
+    t.integer "parent_id"
+    t.string "reference", default: "", null: false
+    t.string "name", default: "", null: false
+    t.string "type", default: "", null: false
+    t.text "field_data", limit: 16777216
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_standard_procedure_folders_on_account_id"
+    t.index ["parent_id"], name: "index_standard_procedure_folders_on_parent_id"
+  end
+
+  create_table "standard_procedure_groups", force: :cascade do |t|
+    t.integer "account_id"
+    t.string "reference", default: "", null: false
+    t.string "name", default: "", null: false
+    t.string "plural", default: "", null: false
+    t.string "type", default: "", null: false
+    t.text "field_data", limit: 16777216
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_standard_procedure_groups_on_account_id"
+  end
+
+  create_table "standard_procedure_managers", id: false, force: :cascade do |t|
+    t.integer "account_id"
+    t.integer "user_id"
+    t.index ["account_id"], name: "index_standard_procedure_managers_on_account_id"
+    t.index ["user_id"], name: "index_standard_procedure_managers_on_user_id"
+  end
+
+  create_table "standard_procedure_permissions", force: :cascade do |t|
+    t.string "type", default: "", null: false
+    t.integer "group_id"
+    t.string "restrictre_type"
+    t.integer "restrictre_id"
+    t.text "field_data", limit: 16777216
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["group_id"], name: "index_standard_procedure_permissions_on_group_id"
+    t.index ["restrictre_type", "restrictre_id"], name: "index_standard_procedure_permissions_on_restrictre"
+  end
+
+  create_table "standard_procedure_related_items", id: false, force: :cascade do |t|
+    t.integer "workflow_item_id"
+    t.integer "folder_item_id"
+    t.index ["folder_item_id"], name: "index_standard_procedure_related_items_on_folder_item_id"
+    t.index ["workflow_item_id"], name: "index_standard_procedure_related_items_on_workflow_item_id"
+  end
+
+  create_table "standard_procedure_users", force: :cascade do |t|
+    t.string "reference", default: "", null: false
+    t.string "name", default: "", null: false
+    t.string "type", default: "", null: false
+    t.text "field_data", limit: 16777216
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "standard_procedure_workflow_items", force: :cascade do |t|
+    t.integer "status_id"
+    t.string "reference", default: "", null: false
+    t.string "name", default: "", null: false
+    t.string "type", default: "", null: false
+    t.text "field_data", limit: 16777216
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["status_id"], name: "index_standard_procedure_workflow_items_on_status_id"
+  end
+
+  create_table "standard_procedure_workflow_statuses", force: :cascade do |t|
+    t.integer "workflow_id"
+    t.string "reference", default: "", null: false
+    t.string "name", default: "", null: false
+    t.string "type", default: "", null: false
+    t.text "field_data", limit: 16777216
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["workflow_id"], name: "index_standard_procedure_workflow_statuses_on_workflow_id"
+  end
+
+  create_table "standard_procedure_workflows", force: :cascade do |t|
+    t.integer "account_id"
+    t.string "reference", default: "", null: false
+    t.string "name", default: "", null: false
+    t.string "type", default: "", null: false
+    t.text "field_data", limit: 16777216
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_standard_procedure_workflows_on_account_id"
+  end
+
+  create_table "things", force: :cascade do |t|
+    t.integer "category_id"
+    t.string "name"
+    t.text "field_data"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_things_on_category_id"
+  end
+
   add_foreign_key "standard_procedure_action_links", "standard_procedure_actions", column: "action_id"
+  add_foreign_key "standard_procedure_contacts", "standard_procedure_accounts", column: "account_id"
+  add_foreign_key "standard_procedure_contacts", "standard_procedure_groups", column: "group_id"
+  add_foreign_key "standard_procedure_contacts", "standard_procedure_users", column: "user_id"
+  add_foreign_key "standard_procedure_folder_items", "standard_procedure_folders", column: "folder_id"
+  add_foreign_key "standard_procedure_folders", "standard_procedure_accounts", column: "account_id"
+  add_foreign_key "standard_procedure_folders", "standard_procedure_folders", column: "parent_id"
+  add_foreign_key "standard_procedure_groups", "standard_procedure_accounts", column: "account_id"
+  add_foreign_key "standard_procedure_managers", "standard_procedure_accounts", column: "account_id"
+  add_foreign_key "standard_procedure_managers", "standard_procedure_users", column: "user_id"
+  add_foreign_key "standard_procedure_permissions", "standard_procedure_groups", column: "group_id"
+  add_foreign_key "standard_procedure_related_items", "standard_procedure_folder_items", column: "folder_item_id"
+  add_foreign_key "standard_procedure_related_items", "standard_procedure_workflow_items", column: "workflow_item_id"
+  add_foreign_key "standard_procedure_workflow_items", "standard_procedure_workflow_statuses", column: "status_id"
+  add_foreign_key "standard_procedure_workflow_statuses", "standard_procedure_workflows", column: "workflow_id"
+  add_foreign_key "standard_procedure_workflows", "standard_procedure_accounts", column: "account_id"
 end

@@ -25,7 +25,7 @@ module StandardProcedure
               ConcurrentRails::Promises.future do
                 user.acts_on self, action: action, command: command, **params
               end
-            end if StandardProcedure.config.async
+            end
             define_method :"#{command}_implementation", &implementation
           end
         end

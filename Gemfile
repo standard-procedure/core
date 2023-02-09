@@ -1,11 +1,12 @@
 source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-# Specify your gem's dependencies in standard_procedure.gemspec.
 gemspec
 
 gem "sqlite3"
 gem "rspec-rails"
+gem "cucumber-rails", require: false
+gem "database_cleaner"
 gem "sprockets-rails"
 gem "concurrent_rails"
 

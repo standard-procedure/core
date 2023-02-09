@@ -26,4 +26,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "rails", ">=  6.1"
   spec.add_dependency "acts_as_list", ">= 1.0"
+  spec.add_dependency "rujitsu"
 end

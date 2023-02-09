@@ -4,6 +4,7 @@ PATH
     standard_procedure (0.1.0)
       acts_as_list (>= 1.0)
       rails (>= 6.1)
+      rujitsu
 
 GEM
   remote: https://rubygems.org/
@@ -217,6 +218,7 @@ GEM
       rspec-mocks (~> 3.11)
       rspec-support (~> 3.11)
     rspec-support (3.12.0)
+    rujitsu (0.5.0)
     sprockets (4.2.0)
       concurrent-ruby (~> 1.0)
       rack (>= 2.2.4, < 4)

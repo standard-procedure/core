@@ -1,0 +1,294 @@
+card_types:
+  - reference: standard_order
+    name: Standard order
+    permissions:
+      - group: employees
+        access: all
+    field_definitions:
+      - reference: order_number
+        name: Order No.
+        type: Text
+        mandatory: true
+        visible_to: all
+        editable_by: all
+      - reference: product
+        name: Product
+        type: Options
+        options:
+          - Birth certificate
+          - Death certificate
+          - Marriage certificate
+          - Divorce certificate
+        mandatory: true
+        visible_to: all
+        editable_by: all
+      - reference: first_name
+        name: First name
+        type: Text
+        mandatory: true
+        visible_to: all
+        editable_by: all
+      - reference: last_name
+        name: Last name
+        type: Text
+        mandatory: true
+        visible_to: all
+        editable_by: all
+      - reference: address
+        name: Address
+        type: Address
+        mandatory: true
+        visible_to: all
+        editable_by: manager
+      - reference: postcode
+        name: Post code
+        type: Postcode
+        mandatory: true
+        visible_to: all
+        editable_by: all
+slot_definitions:
+form_templates:
+groups:
+  - reference: managers
+    name: Manager
+  - reference: employees
+    name: Employee
+    member_folder_permissions:
+      - group: suppliers
+        access:
+          - read: own
+          - amend: own
+  - reference: customers
+    name: Customer
+    group_folder_permissions:
+      - group: employees
+        access:
+          - read: all
+    member_folder_permissions:
+      - group: employees
+        access:
+          - read: all
+          - add:
+              - sub_folder
+              - item
+          - amend: all
+          - remove: all
+      - group: suppliers
+        access:
+          - read: own
+          - amend: own
+  - reference: suppliers
+    name: supplier
+    group_folder_permissions:
+      - group: employees
+        access:
+          - read: all
+    member_folder_permissions:
+      - group: employees
+        access:
+          - read: all
+          - add:
+              - sub_folder
+              - item
+          - amend: all
+          - remove: all
+      - group: suppliers
+        access:
+          - read: own
+          - amend: own
+    field_definitions:
+      - reference: address
+        name: Address
+        type: Address
+        mandatory: true
+        visible_to: all
+        editable_by: manager
+      - reference: postcode
+        name: Post code
+        type: Postcode
+        mandatory: true
+        visible_to: all
+        editable_by: manager
+workflows:
+  - reference: order_processing
+    name: Order processing
+    type: Board
+    card_types:
+      - standard_order
+      - priority_order
+    permissions:
+      - group: employees
+        access:
+          - read: all
+          - add:
+              - standard_order
+              - priority_order
+          - amend: all
+      - group: customers
+        access:
+          - read: own
+    statuses:
+      - reference: incoming_order
+        name: Incoming
+        type: List
+        card_types:
+          standard_order:
+            - assign_to: nichola@example.com
+            - deadline:
+                - hours: 24
+                - recipient: anna@example.com
+                - type: StandardProcedure::Deadline::SendNotification
+          priority_order:
+            - assign_to: anna@example.com
+            - deadline:
+                - hours: 8
+                - recipient: anna@example.com
+                - type: StandardProcedure::Deadline::SendNotification
+        actions:
+          - name: Reassign
+            type: StandardProcedure::WorkflowItem::Reassignment
+            permissions:
+              - employees
+          - reference: place_order_with_gro
+            name: Place order with GRO
+            permissions:
+              - employees
+            field_definitions:
+              - reference: office
+                name: GRO
+                type: Reference
+                options: suppliers
+                mandatory: true
+              - reference: gro_reference
+                name: GRO Reference
+                type: Text
+                mandatory: true
+              - reference: gro_notes
+                name: Notes
+                type: RichText
+            outcomes:
+              - StandardProcedure::WorkflowItem::ChangeStatus
+              - status: order_placed
+          - name: Send message
+            type: StandardProcedure::WorkflowItem::Message
+            permissions:
+              - employees
+              - owner
+          - name: Place on hold
+            type: StandardProcedure::WorkflowItem::Postponement
+            permissions:
+              - employees
+          - name: Cancel
+            type: StandardProcedure::WorkflowItem::Cancellation
+            permissions:
+              - employees
+              - owner
+      - reference: order_placed
+        name: Order placed
+        type: List
+        card_types:
+          standard_order:
+            - deadline:
+                - hours: 120
+                - recipient: nichola@example.com
+                - type: StandardProcedure::Deadline::SendNotification
+          priority_order:
+            - assign_to: anna@example.com
+            - deadline:
+                - hours: 48
+                - recipient: anna@example.com
+                - type: StandardProcedure::Deadline::SendNotification
+        actions:
+          - name: Reassign
+            type: StandardProcedure::WorkflowItem::Reassignment
+            permissions:
+              - employees
+          - reference: order_received_from_gro
+            name: Order received from GRO
+            permissions:
+              - employees
+            outcomes:
+              - type: StandardProcedure::WorkflowItem::ChangeStatus
+                status: requires_dispatch
+          - name: Send message
+            type: StandardProcedure::WorkflowItem::Message
+            permissions:
+              - employees
+              - owner
+          - name: Place on hold
+            type: StandardProcedure::WorkflowItem::Postponement
+            permissions:
+              - employees
+          - name: Cancel
+            type: StandardProcedure::WorkflowItem::Cancellation
+            permissions:
+              - employees
+              - owner
+      - reference: requires_dispatch
+        name: Requires Dispatch
+        type: List
+        card_types:
+          standard_order:
+            - deadline:
+                - hours: 24
+                - recipient: nichola@example.com
+                - type: StandardProcedure::Deadline::SendNotification
+          priority_order:
+            - assign_to: anna@example.com
+            - deadline:
+                - hours: 8
+                - recipient: anna@example.com
+                - type: StandardProcedure::Deadline::SendNotification
+        actions:
+          - name: Reassign
+            type: StandardProcedure::WorkflowItem::Reassignment
+            permissions:
+              - employees
+          - reference: mark_as_dispatched
+            name: Dispatch
+            field_definitions:
+              - reference: dispatch_notes
+                name: Notes
+                type: RichText
+            permissions:
+              - employees
+            outcomes:
+              - StandardProcedure::WorkflowItem::ChangeStatus
+              - status: dispatched
+          - name: Send message
+            type: StandardProcedure::WorkflowItem::Message
+            permissions:
+              - employees
+              - owner
+          - name: Place on hold
+            type: StandardProcedure::WorkflowItem::Postponement
+            permissions:
+              - employees
+          - name: Cancel
+            type: StandardProcedure::WorkflowItem::Cancellation
+            permissions:
+              - employees
+      - reference: dispatchewd
+        name: Out for delivery
+        type: List
+        card_types:
+          standard_order:
+            - deadline:
+                - hours: 120
+                - type: StandardProcedure::Deadline::CompleteItem
+          priority_order:
+            - assign_to: anna@example.com
+            - deadline:
+                - hours: 48
+                - recipient: anna@example.com
+                - type: StandardProcedure::Deadline::SendNotification
+        actions:
+          - name: Complete
+            type: StandardProcedure::WorkflowItem::Complete
+            permissions:
+              - employees
+          - name: Send message
+            type: StandardProcedure::WorkflowItem::Message
+            permissions:
+              - employees
+              - owner

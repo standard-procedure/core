@@ -16,18 +16,20 @@ module StandardProcedure
           command = name.to_sym
           available_commands << command unless available_commands.include? command
           instance_eval do
+            # Define the command wrapper (that checks authorisation and logs the outcome)
             define_method command do |user, **params|
               authorise! command, user
               action = user.build_action_for self, command: command, **params
               user.acts_on self, action: action, command: command, **params
             end
+            # Define the asynchronous version if config.async is set
             define_method :"#{command}_later" do |user, **params|
               authorise! command, user
               action = user.build_action_for self, command: command, **params
               ConcurrentRails::Promises.future do
                 user.acts_on self, action: action, command: command, **params
               end
-            end
+            end if StandardProcedure.config.async
             define_method :"#{command}_implementation", &implementation
           end
         end
@@ -98,11 +100,12 @@ module StandardProcedure
         end
 
         define_method :build_action_for do |target, command: nil, **params|
-          action = performed_actions.create! target: target, context: current_context, command: "#{target.model_name.singular}_#{command}", status: "in_progress", params: params
+          action = performed_actions.create! target: target, context: current_context, command: "#{target.model_name.singular}_#{command}", status: "ready", params: params
         end
 
         define_method :acts_on do |target, action: nil, command: nil, **params, &implementation|
           raise ArgumentError "action not supplied" if action.blank?
+          action.update status: "in_progress"
           call_stack << action
           begin
             user = self

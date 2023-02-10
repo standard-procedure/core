@@ -1,7 +1,7 @@
-require 'rails_helper'
+require "rails_helper"
 
 module StandardProcedure
   RSpec.describe User, type: :model do
-    pending "add some examples to (or delete) #{__FILE__}"
+    it "updates all contacts with its name"
   end
 end

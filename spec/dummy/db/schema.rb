@@ -67,14 +67,13 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_08_175215) do
 
   create_table "standard_procedure_contacts", force: :cascade do |t|
     t.integer "user_id"
-    t.integer "account_id"
     t.integer "group_id"
+    t.boolean "account_owner", default: false, null: false
     t.string "reference", default: "", null: false
     t.string "type", default: "", null: false
     t.text "field_data", limit: 16777216
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["account_id"], name: "index_standard_procedure_contacts_on_account_id"
     t.index ["group_id"], name: "index_standard_procedure_contacts_on_group_id"
     t.index ["user_id"], name: "index_standard_procedure_contacts_on_user_id"
   end
@@ -82,6 +81,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_08_175215) do
   create_table "standard_procedure_field_definitions", force: :cascade do |t|
     t.string "definable_type"
     t.integer "definable_id"
+    t.string "reference", default: "", null: false
+    t.string "name", default: "", null: false
     t.integer "position", default: 1, null: false
     t.string "type", limit: 128, null: false
     t.text "default_value"
@@ -113,6 +114,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_08_175215) do
   create_table "standard_procedure_folders", force: :cascade do |t|
     t.integer "account_id"
     t.integer "parent_id"
+    t.integer "group_id"
+    t.integer "contact_id"
     t.string "reference", default: "", null: false
     t.string "name", default: "", null: false
     t.string "type", default: "", null: false
@@ -120,6 +123,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_08_175215) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["account_id"], name: "index_standard_procedure_folders_on_account_id"
+    t.index ["contact_id"], name: "index_standard_procedure_folders_on_contact_id"
+    t.index ["group_id"], name: "index_standard_procedure_folders_on_group_id"
     t.index ["parent_id"], name: "index_standard_procedure_folders_on_parent_id"
   end
 
@@ -137,21 +142,22 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_08_175215) do
 
   create_table "standard_procedure_managers", id: false, force: :cascade do |t|
     t.integer "account_id"
-    t.integer "user_id"
+    t.integer "manager_id"
     t.index ["account_id"], name: "index_standard_procedure_managers_on_account_id"
-    t.index ["user_id"], name: "index_standard_procedure_managers_on_user_id"
+    t.index ["manager_id"], name: "index_standard_procedure_managers_on_manager_id"
   end
 
   create_table "standard_procedure_permissions", force: :cascade do |t|
     t.string "type", default: "", null: false
-    t.integer "group_id"
-    t.string "restrictre_type"
-    t.integer "restrictre_id"
+    t.string "owner_type"
+    t.integer "owner_id"
+    t.string "restricted_type"
+    t.integer "restricted_id"
     t.text "field_data", limit: 16777216
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["group_id"], name: "index_standard_procedure_permissions_on_group_id"
-    t.index ["restrictre_type", "restrictre_id"], name: "index_standard_procedure_permissions_on_restrictre"
+    t.index ["owner_type", "owner_id"], name: "index_standard_procedure_permissions_on_owner"
+    t.index ["restricted_type", "restricted_id"], name: "index_standard_procedure_permissions_on_restricted"
   end
 
   create_table "standard_procedure_related_items", id: false, force: :cascade do |t|
@@ -213,16 +219,16 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_08_175215) do
   end
 
   add_foreign_key "standard_procedure_action_links", "standard_procedure_actions", column: "action_id"
-  add_foreign_key "standard_procedure_contacts", "standard_procedure_accounts", column: "account_id"
   add_foreign_key "standard_procedure_contacts", "standard_procedure_groups", column: "group_id"
   add_foreign_key "standard_procedure_contacts", "standard_procedure_users", column: "user_id"
   add_foreign_key "standard_procedure_folder_items", "standard_procedure_folders", column: "folder_id"
   add_foreign_key "standard_procedure_folders", "standard_procedure_accounts", column: "account_id"
+  add_foreign_key "standard_procedure_folders", "standard_procedure_contacts", column: "contact_id"
   add_foreign_key "standard_procedure_folders", "standard_procedure_folders", column: "parent_id"
+  add_foreign_key "standard_procedure_folders", "standard_procedure_groups", column: "group_id"
   add_foreign_key "standard_procedure_groups", "standard_procedure_accounts", column: "account_id"
   add_foreign_key "standard_procedure_managers", "standard_procedure_accounts", column: "account_id"
-  add_foreign_key "standard_procedure_managers", "standard_procedure_users", column: "user_id"
-  add_foreign_key "standard_procedure_permissions", "standard_procedure_groups", column: "group_id"
+  add_foreign_key "standard_procedure_managers", "standard_procedure_contacts", column: "manager_id"
   add_foreign_key "standard_procedure_related_items", "standard_procedure_folder_items", column: "folder_item_id"
   add_foreign_key "standard_procedure_related_items", "standard_procedure_workflow_items", column: "workflow_item_id"
   add_foreign_key "standard_procedure_workflow_items", "standard_procedure_workflow_statuses", column: "status_id"

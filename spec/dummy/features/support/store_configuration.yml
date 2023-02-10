@@ -49,8 +49,8 @@ card_types:
 slot_definitions:
 form_templates:
 groups:
-  - reference: managers
-    name: Manager
+  - reference: api_users
+    name: API
   - reference: employees
     name: Employee
     member_folder_permissions:
@@ -58,6 +58,13 @@ groups:
         access:
           - read: own
           - amend: own
+    field_definitions:
+      - reference: ni_number
+        name: National Insurance No
+        type: text
+        mandatory: true
+        visible_to: owner
+        editable_by: owner
   - reference: customers
     name: Customer
     group_folder_permissions:
@@ -77,6 +84,19 @@ groups:
         access:
           - read: own
           - amend: own
+    field_definitions:
+      - reference: address
+        name: Address
+        type: Address
+        mandatory: true
+        visible_to: all
+        editable_by: manager
+      - reference: postcode
+        name: Post code
+        type: Postcode
+        mandatory: true
+        visible_to: all
+        editable_by: manager
   - reference: suppliers
     name: supplier
     group_folder_permissions:
@@ -113,6 +133,7 @@ workflows:
   - reference: order_processing
     name: Order processing
     type: Board
+    initial_status: incoming_order
     card_types:
       - standard_order
       - priority_order

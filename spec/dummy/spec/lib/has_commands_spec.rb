@@ -24,9 +24,14 @@ RSpec.describe StandardProcedure::HasCommands do
       command(:first_command) { |user| puts "first" }
       command(:second_command) { |user| puts "second" }
     end
-    User.class_eval do
-      def can?(command, target)
-        (command == :second_command) && (name == "Stacey Soup-Spoon")
+    user.singleton_class.class_eval do
+      def can?(perform_command, on_target)
+        false
+      end
+    end
+    second_user.singleton_class.class_eval do
+      def can?(perform_command, on_target)
+        (perform_command == :second_command) && (name == "Stacey Soup-Spoon")
       end
     end
     expect(category.available_commands_for(user)).to be_empty
@@ -39,12 +44,7 @@ RSpec.describe StandardProcedure::HasCommands do
         things.create! params
       end
     end
-    User.class_eval do
-      def can?(command, target)
-        true
-      end
-    end
-    thing = category.build_thing user, name: "testfile.txt"
+    thing = category.build_thing User.root, name: "testfile.txt"
 
     expect(thing).to_not be_nil
     expect(thing.name).to eq "testfile.txt"
@@ -54,11 +54,11 @@ RSpec.describe StandardProcedure::HasCommands do
     expect(action.command).to eq "category_build_thing"
     expect(action.params["name"]).to eq "testfile.txt"
     expect(action.status).to eq "completed"
-    expect(action.user).to eq user
+    expect(action.user).to eq User.root
     expect(action.result).to eq thing
     expect(action.context).to be_nil
     expect(category.actions).to include(action)
-    expect(user.actions).to include(action)
+    expect(User.root.actions).to include(action)
     expect(thing.actions).to include(action)
   end
 
@@ -66,13 +66,8 @@ RSpec.describe StandardProcedure::HasCommands do
     Category.class_eval do
       command(:move_thing) { |user, params| params[:thing].update category: params[:destination] }
     end
-    User.class_eval do
-      def can?(command, target)
-        true
-      end
-    end
 
-    category.move_thing user, thing: thing_1, destination: other_category
+    category.move_thing User.root, thing: thing_1, destination: other_category
 
     action = category.actions.first
     expect(action).to_not be_nil
@@ -93,13 +88,8 @@ RSpec.describe StandardProcedure::HasCommands do
         params[:thing].update category: params[:destination]
       end
     end
-    User.class_eval do
-      def can?(command, target)
-        true
-      end
-    end
 
-    category.move_things user, things: [thing_1, thing_2], destination: other_category
+    category.move_things User.root, things: [thing_1, thing_2], destination: other_category
 
     action = category.actions.find_by command: "category_move_things"
     expect(action).to_not be_nil
@@ -116,13 +106,8 @@ RSpec.describe StandardProcedure::HasCommands do
     Category.class_eval do
       command(:gone_wrong) { |user| raise GoneWrong }
     end
-    User.class_eval do
-      def can?(command, target)
-        true
-      end
-    end
 
-    expect { category.gone_wrong(user) }.to raise_exception(GoneWrong)
+    expect { category.gone_wrong(User.root) }.to raise_exception(GoneWrong)
     action = category.actions.first
     expect(action).to be_failed
     expect(action.params["error"]).to_not be_blank
@@ -132,11 +117,6 @@ RSpec.describe StandardProcedure::HasCommands do
     Category.class_eval do
       command(:build_thing) { |user, **params| "should never be called" }
     end
-    User.class_eval do
-      def can?(command, target)
-        false
-      end
-    end
 
     expect { category.build_thing user, name: "testfile.txt" }.to raise_exception(StandardProcedure::Action::Unauthorised)
   end
@@ -145,15 +125,10 @@ RSpec.describe StandardProcedure::HasCommands do
     Category.class_eval do
       command :add_thing
     end
-    User.class_eval do
-      def can?(command, target)
-        true
-      end
-    end
 
     expect(category).to respond_to :add_thing
 
-    thing = category.add_thing user, name: "testfile.txt"
+    thing = category.add_thing User.root, name: "testfile.txt"
     expect(thing).to_not be_nil
     expect(thing.name).to eq "testfile.txt"
   end
@@ -164,15 +139,10 @@ RSpec.describe StandardProcedure::HasCommands do
         things.create! name: "override"
       end
     end
-    User.class_eval do
-      def can?(command, target)
-        true
-      end
-    end
 
     expect(category).to respond_to :add_thing
 
-    thing = category.add_thing user, name: "override"
+    thing = category.add_thing User.root, name: "override"
     expect(thing).to_not be_nil
     expect(thing.name).to eq "override"
   end
@@ -181,12 +151,7 @@ RSpec.describe StandardProcedure::HasCommands do
     Category.class_eval do
       command(:add_greeting) { |user| "Hello" }
     end
-    User.class_eval do
-      def can?(command, target)
-        true
-      end
-    end
-    result = category.add_greeting user
+    result = category.add_greeting User.root
     expect(result).to eq "Hello"
   end
 
@@ -194,13 +159,8 @@ RSpec.describe StandardProcedure::HasCommands do
     Category.class_eval do
       defines_commands
     end
-    User.class_eval do
-      def can?(command, target)
-        true
-      end
-    end
     expect(Category.available_commands).to include(:amend)
-    category.amend user, name: "Another name"
+    category.amend User.root, name: "Another name"
     expect(category.name).to eq "Another name"
     action = category.actions.find_by command: "category_amend"
     expect(action).to_not be_nil
@@ -210,13 +170,8 @@ RSpec.describe StandardProcedure::HasCommands do
     Category.class_eval do
       command :remove_child
     end
-    User.class_eval do
-      def can?(command, target)
-        true
-      end
-    end
     expect(category.available_commands).to include(:remove_child)
-    category.remove_child user, child: sub_category
+    category.remove_child User.root, child: sub_category
     expect(Category.find_by id: sub_category.id).to be_nil
     action = user.actions.find_by command: "category_remove_child"
     expect(action).to_not be_nil
@@ -227,13 +182,8 @@ RSpec.describe StandardProcedure::HasCommands do
     Category.class_eval do
       command(:remove_child) { |user, **params| "do nothing" }
     end
-    User.class_eval do
-      def can?(command, target)
-        true
-      end
-    end
     expect(category.available_commands).to include(:remove_child)
-    category.remove_child user, child: sub_category
+    category.remove_child User.root, child: sub_category
     expect(Category.find_by id: sub_category.id).to_not be_nil
     action = user.actions.find_by command: "category_remove_child"
     expect(action).to_not be_nil
@@ -276,11 +226,6 @@ RSpec.describe StandardProcedure::HasCommands do
       # In a real app, you probably just want to "fire and forget" a load of method calls
       # so your method doesn't have to hang around waiting for lots of other work to complete.
       # In that case, you can just call the _later method and ignore the future that it returns
-      User.class_eval do
-        def can?(command, target)
-          true
-        end
-      end
       Category.class_eval do
         def status
           # normally this would not be thread-safe but we are doing
@@ -303,7 +248,7 @@ RSpec.describe StandardProcedure::HasCommands do
       expect(category.actions).to be_empty
       # Calling _later will return a Concurrent::Rails::Future
       # which we can interrogate later on to find out when the task has completed
-      future = category.wait_then_do_something_later(user)
+      future = category.wait_then_do_something_later(User.root)
       expect(future.state).to eq :pending
       # Check that an action has been recorded for this command
       action = category.actions.find_by(command: "category_wait_then_do_something")

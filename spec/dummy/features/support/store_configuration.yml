@@ -1,9 +1,6 @@
 card_types:
   - reference: standard_order
     name: Standard order
-    permissions:
-      - group: employees
-        access: all
     field_definitions:
       - reference: order_number
         name: Order No.
@@ -34,58 +31,25 @@ card_types:
         mandatory: true
         visible_to: all
         editable_by: all
-      - reference: address
-        name: Address
-        type: Address
-        mandatory: true
-        visible_to: all
-        editable_by: manager
-      - reference: postcode
-        name: Post code
-        type: Postcode
-        mandatory: true
-        visible_to: all
-        editable_by: all
 slot_definitions:
 form_templates:
 roles:
   - staff
+  - api
 groups:
   - reference: api_users
     name: API
   - reference: employees
     name: Employee
-    member_folder_permissions:
-      - group: suppliers
-        access:
-          - read: own
-          - amend: own
     field_definitions:
       - reference: ni_number
         name: National Insurance No
-        type: text
+        type: Text
         mandatory: true
         visible_to: owner
         editable_by: owner
   - reference: customers
     name: Customer
-    group_folder_permissions:
-      - group: employees
-        access:
-          - read: all
-    member_folder_permissions:
-      - group: employees
-        access:
-          - read: all
-          - add:
-              - sub_folder
-              - item
-          - amend: all
-          - remove: all
-      - group: suppliers
-        access:
-          - read: own
-          - amend: own
     field_definitions:
       - reference: address
         name: Address
@@ -101,23 +65,6 @@ groups:
         editable_by: manager
   - reference: suppliers
     name: supplier
-    group_folder_permissions:
-      - group: employees
-        access:
-          - read: all
-    member_folder_permissions:
-      - group: employees
-        access:
-          - read: all
-          - add:
-              - sub_folder
-              - item
-          - amend: all
-          - remove: all
-      - group: suppliers
-        access:
-          - read: own
-          - amend: own
     field_definitions:
       - reference: address
         name: Address
@@ -170,12 +117,8 @@ workflows:
         actions:
           - name: Reassign
             type: StandardProcedure::WorkflowItem::Reassignment
-            permissions:
-              - employees
           - reference: place_order_with_gro
             name: Place order with GRO
-            permissions:
-              - employees
             field_definitions:
               - reference: office
                 name: GRO
@@ -194,18 +137,10 @@ workflows:
               - status: order_placed
           - name: Send message
             type: StandardProcedure::WorkflowItem::Message
-            permissions:
-              - employees
-              - owner
           - name: Place on hold
             type: StandardProcedure::WorkflowItem::Postponement
-            permissions:
-              - employees
           - name: Cancel
             type: StandardProcedure::WorkflowItem::Cancellation
-            permissions:
-              - employees
-              - owner
       - reference: order_placed
         name: Order placed
         type: List

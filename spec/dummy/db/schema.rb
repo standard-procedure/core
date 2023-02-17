@@ -68,13 +68,15 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_08_175215) do
   create_table "standard_procedure_contacts", force: :cascade do |t|
     t.integer "user_id"
     t.integer "group_id"
-    t.boolean "account_owner", default: false, null: false
+    t.integer "role_id"
     t.string "reference", default: "", null: false
+    t.string "name", default: "", null: false
     t.string "type", default: "", null: false
     t.text "field_data", limit: 16777216
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["group_id"], name: "index_standard_procedure_contacts_on_group_id"
+    t.index ["role_id"], name: "index_standard_procedure_contacts_on_role_id"
     t.index ["user_id"], name: "index_standard_procedure_contacts_on_user_id"
   end
 
@@ -140,13 +142,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_08_175215) do
     t.index ["account_id"], name: "index_standard_procedure_groups_on_account_id"
   end
 
-  create_table "standard_procedure_managers", id: false, force: :cascade do |t|
-    t.integer "account_id"
-    t.integer "manager_id"
-    t.index ["account_id"], name: "index_standard_procedure_managers_on_account_id"
-    t.index ["manager_id"], name: "index_standard_procedure_managers_on_manager_id"
-  end
-
   create_table "standard_procedure_permissions", force: :cascade do |t|
     t.string "type", default: "", null: false
     t.string "owner_type"
@@ -165,6 +160,18 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_08_175215) do
     t.integer "folder_item_id"
     t.index ["folder_item_id"], name: "index_standard_procedure_related_items_on_folder_item_id"
     t.index ["workflow_item_id"], name: "index_standard_procedure_related_items_on_workflow_item_id"
+  end
+
+  create_table "standard_procedure_roles", force: :cascade do |t|
+    t.integer "account_id"
+    t.string "reference", default: "", null: false
+    t.string "name", default: "", null: false
+    t.string "plural", default: "", null: false
+    t.integer "access_level", default: 0, null: false
+    t.text "field_data", limit: 16777216
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_standard_procedure_roles_on_account_id"
   end
 
   create_table "standard_procedure_users", force: :cascade do |t|
@@ -220,6 +227,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_08_175215) do
 
   add_foreign_key "standard_procedure_action_links", "standard_procedure_actions", column: "action_id"
   add_foreign_key "standard_procedure_contacts", "standard_procedure_groups", column: "group_id"
+  add_foreign_key "standard_procedure_contacts", "standard_procedure_roles", column: "role_id"
   add_foreign_key "standard_procedure_contacts", "standard_procedure_users", column: "user_id"
   add_foreign_key "standard_procedure_folder_items", "standard_procedure_folders", column: "folder_id"
   add_foreign_key "standard_procedure_folders", "standard_procedure_accounts", column: "account_id"
@@ -227,10 +235,9 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_08_175215) do
   add_foreign_key "standard_procedure_folders", "standard_procedure_folders", column: "parent_id"
   add_foreign_key "standard_procedure_folders", "standard_procedure_groups", column: "group_id"
   add_foreign_key "standard_procedure_groups", "standard_procedure_accounts", column: "account_id"
-  add_foreign_key "standard_procedure_managers", "standard_procedure_accounts", column: "account_id"
-  add_foreign_key "standard_procedure_managers", "standard_procedure_contacts", column: "manager_id"
   add_foreign_key "standard_procedure_related_items", "standard_procedure_folder_items", column: "folder_item_id"
   add_foreign_key "standard_procedure_related_items", "standard_procedure_workflow_items", column: "workflow_item_id"
+  add_foreign_key "standard_procedure_roles", "standard_procedure_accounts", column: "account_id"
   add_foreign_key "standard_procedure_workflow_items", "standard_procedure_workflow_statuses", column: "status_id"
   add_foreign_key "standard_procedure_workflow_statuses", "standard_procedure_workflows", column: "workflow_id"
   add_foreign_key "standard_procedure_workflows", "standard_procedure_accounts", column: "account_id"

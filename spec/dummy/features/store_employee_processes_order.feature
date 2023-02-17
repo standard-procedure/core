@@ -4,22 +4,22 @@ Feature: Store employee processes order
     Given an online store is configured
     When the website receives a new standard order to be processed
     Then the order should have a 24 hour deadline set against it
-    And Nichola should be notified
+    And the order should have a status of "incoming_order"
+    And Nichola should be notified about the order 
     When Nichola logs in 
     Then she should see the newly received order
     When she places the order with the supplier
-    And records the supplier information, marking the order as requiring "delivery to us"
-    Then the order should marked as "awaiting delivery to us"
+    Then the order should have a status of "order_placed"
     And the previous deadline should be cancelled
-    And a new deadline of 5 days set against the order 
+    And the order should have a 120 hour deadline set against it
     When the order arrives at the office 
+    Then the order should have a status of "requires_dispatch"
     Then Nichola prepares the order for delivery and posts it
-    And she records the delivery details, marking the order as "dispatched"
+    Then the order should have a status of "dispatched"
     And the previous deadline should be cancelled
-    And a new deadline of 2 days set against the order 
-    And the order should be marked as "being delivered"
-    When the 2 day delivery deadline has passed
-    Then the order should be marked as "completed"
+    And the order should have a 48 hour deadline set against it
+    When the 48 hour delivery deadline has passed
+    Then the order should have a status of "completed"
 
   Scenario: Order is not processed in time
     Given an online store is configured

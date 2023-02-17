@@ -3,18 +3,20 @@ module StandardProcedure
     module Roles
       extend ActiveSupport::Concern
 
-      def roles
-        @roles ||= system_roles + configured_roles
+      included do
+        has_many :roles, class_name: "StandardProcedure::Role", dependent: :destroy
       end
 
       protected
 
-      def system_roles
-        @system_roles ||= ["admin", "restricted"].freeze
-      end
-
-      def configured_roles
-        @configured_roles ||= config_for(:roles)
+      def build_roles_from_configuration
+        config_for(:roles).each do |role_data|
+          next if roles.find_by(reference: role_data[:reference]).present?
+          role = roles.create role_data.slice(:reference, :name, :plural, :access_level)
+          Array.wrap(role_data[:fields]).each do |field_data|
+            role.fields.where(reference: field_data[:reference]).first_or_create!(field_data)
+          end
+        end
       end
     end
   end

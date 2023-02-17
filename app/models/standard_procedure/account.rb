@@ -4,7 +4,6 @@ module StandardProcedure
     has_logo
     has_many :contacts, -> { order :name }, through: :groups
     has_many :groups, class_name: "StandardProcedure::Group", dependent: :destroy
-    has_and_belongs_to_many :managers, class_name: "StandardProcedure::Contact", join_table: "standard_procedure_managers", foreign_key: "account_id", association_foreign_key: "manager_id"
     has_many :folders, class_name: "StandardProcedure::Folder", dependent: :destroy
     has_many :workflows, class_name: "StandardProcedure::Workflow", dependent: :destroy
     include StandardProcedure::Account::Configuration

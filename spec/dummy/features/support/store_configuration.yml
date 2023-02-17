@@ -48,6 +48,8 @@ card_types:
         editable_by: all
 slot_definitions:
 form_templates:
+roles:
+  - staff
 groups:
   - reference: api_users
     name: API

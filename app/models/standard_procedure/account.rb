@@ -8,6 +8,7 @@ module StandardProcedure
     has_many :folders, class_name: "StandardProcedure::Folder", dependent: :destroy
     has_many :workflows, class_name: "StandardProcedure::Workflow", dependent: :destroy
     include StandardProcedure::Account::Configuration
+    include StandardProcedure::Account::Roles
 
     validate :configuration_is_valid_yaml
 

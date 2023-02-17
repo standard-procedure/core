@@ -20,6 +20,27 @@ module StandardProcedure
         expect(account).to_not be_valid
       end
 
+      describe "roles" do
+        let :standard_configuration do
+          <<-YAML
+            roles:
+              - staff 
+              - customers
+          YAML
+        end
+        it "knows which additional roles are defined" do
+          account = a_saved Account
+          account.configure_from standard_configuration
+          expect(account.roles).to include "staff"
+          expect(account.roles).to include "customers"
+        end
+        it "has predefined admin and restricted roles" do
+          account = a_saved Account
+          expect(account.roles).to include "admin"
+          expect(account.roles).to include "restricted"
+        end
+      end
+
       describe "groups" do
         class ::Organisation < StandardProcedure::Group
         end

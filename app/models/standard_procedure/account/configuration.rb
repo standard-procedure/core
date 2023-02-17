@@ -3,8 +3,8 @@ module StandardProcedure
     module Configuration
       extend ActiveSupport::Concern
 
-      def config
-        @config ||= YAML.load(configuration).deep_symbolize_keys
+      def config_for(section)
+        Array.wrap(config[section.to_sym])
       end
 
       def configure_from(config_file)
@@ -14,8 +14,12 @@ module StandardProcedure
 
       protected
 
+      def config
+        @config ||= configuration.blank? ? {} : YAML.load(configuration).deep_symbolize_keys
+      end
+
       def build_groups_from_configuration
-        config[:groups].each do |group_data|
+        config_for(:groups).each do |group_data|
           next if groups.find_by(reference: group_data[:reference]).present?
           groups.create group_data
         end

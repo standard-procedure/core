@@ -21,7 +21,6 @@ module StandardProcedure
       def build_groups_from_configuration
         config_for(:groups).each do |group_data|
           next if groups.find_by(reference: group_data[:reference]).present?
-          puts group_data
           groups.create group_data
         end
       end

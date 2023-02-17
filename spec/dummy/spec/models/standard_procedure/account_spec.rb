@@ -75,7 +75,13 @@ module StandardProcedure
           expect(suppliers).to eq group
           expect(suppliers.name).to eq "Supplier"
         end
-        it "creates groups based on the type provided"
+        it "creates groups based on the type provided" do
+          account = a_saved Account
+          account.configure_from custom_configuration
+          group = account.groups.find_by reference: "organisations"
+          expect(group).to_not be_nil
+          expect(group.model_name.to_s).to eq "Organisation"
+        end
       end
     end
   end

@@ -3,6 +3,7 @@ PATH
   specs:
     standard_procedure (0.1.0)
       acts_as_list (>= 1.0)
+      cancancan
       rails (>= 6.1)
       rujitsu
 
@@ -79,6 +80,7 @@ GEM
     addressable (2.8.1)
       public_suffix (>= 2.0.2, < 6.0)
     builder (3.2.4)
+    cancancan (3.4.0)
     capybara (3.38.0)
       addressable
       matrix

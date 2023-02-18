@@ -12,10 +12,7 @@ module StandardProcedure
       protected
 
       def build_workflows_from_configuration
-        config_for(:workflows).each do |workflow_data|
-          next if workflows.find_by(reference: workflow_data[:reference]).present?
-          workflows.create workflow_data.slice(:reference, :name, :type)
-        end
+        build_configuration_for :workflows, params: [:reference, :name, :type]
       end
     end
   end

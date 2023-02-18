@@ -1,4 +1,4 @@
-card_types:
+templates:
   - reference: standard_order
     name: Standard order
     field_definitions:

@@ -10,13 +10,7 @@ module StandardProcedure
       protected
 
       def build_roles_from_configuration
-        config_for(:roles).each do |role_data|
-          next if roles.find_by(reference: role_data[:reference]).present?
-          role = roles.create role_data.slice(:reference, :name, :plural, :access_level)
-          Array.wrap(role_data[:fields]).each do |field_data|
-            role.fields.where(reference: field_data[:reference]).first_or_create!(field_data)
-          end
-        end
+        build_configuration_for :roles, include_fields: true, params: [:reference, :name, :plural, :access_level]
       end
     end
   end

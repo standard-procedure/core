@@ -183,8 +183,23 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_08_175215) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "standard_procedure_workflow_item_templates", force: :cascade do |t|
+    t.integer "account_id"
+    t.string "reference", default: "", null: false
+    t.string "name", default: "", null: false
+    t.string "plural", default: "", null: false
+    t.string "type", default: "", null: false
+    t.text "field_data", limit: 16777216
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_standard_procedure_workflow_item_templates_on_account_id"
+  end
+
   create_table "standard_procedure_workflow_items", force: :cascade do |t|
+    t.integer "template_id"
     t.integer "status_id"
+    t.integer "group_id"
+    t.integer "contact_id"
     t.string "reference", default: "", null: false
     t.string "name", default: "", null: false
     t.string "type", default: "", null: false
@@ -192,7 +207,10 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_08_175215) do
     t.text "field_data", limit: 16777216
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["contact_id"], name: "index_standard_procedure_workflow_items_on_contact_id"
+    t.index ["group_id"], name: "index_standard_procedure_workflow_items_on_group_id"
     t.index ["status_id"], name: "index_standard_procedure_workflow_items_on_status_id"
+    t.index ["template_id"], name: "index_standard_procedure_workflow_items_on_template_id"
   end
 
   create_table "standard_procedure_workflow_statuses", force: :cascade do |t|
@@ -240,6 +258,10 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_08_175215) do
   add_foreign_key "standard_procedure_related_items", "standard_procedure_folder_items", column: "folder_item_id"
   add_foreign_key "standard_procedure_related_items", "standard_procedure_workflow_items", column: "workflow_item_id"
   add_foreign_key "standard_procedure_roles", "standard_procedure_accounts", column: "account_id"
+  add_foreign_key "standard_procedure_workflow_item_templates", "standard_procedure_accounts", column: "account_id"
+  add_foreign_key "standard_procedure_workflow_items", "standard_procedure_contacts", column: "contact_id"
+  add_foreign_key "standard_procedure_workflow_items", "standard_procedure_groups", column: "group_id"
+  add_foreign_key "standard_procedure_workflow_items", "standard_procedure_workflow_item_templates", column: "template_id"
   add_foreign_key "standard_procedure_workflow_items", "standard_procedure_workflow_statuses", column: "status_id"
   add_foreign_key "standard_procedure_workflow_statuses", "standard_procedure_workflows", column: "workflow_id"
   add_foreign_key "standard_procedure_workflows", "standard_procedure_accounts", column: "account_id"

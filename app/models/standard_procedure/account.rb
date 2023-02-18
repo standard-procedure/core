@@ -8,8 +8,9 @@ module StandardProcedure
     include StandardProcedure::Account::Roles
     include StandardProcedure::Account::Groups
     include StandardProcedure::Account::Workflows
+    include StandardProcedure::Account::Templates
 
-    command :add_group, :add_folder, :add_workflow, :remove_group, :remove_folder, :remove_workflow
+    command :add_group, :add_folder, :add_workflow, :add_template, :remove_group, :remove_folder, :remove_workflow, :remove_template
 
     command :add_contact do |user, **params|
       group = params.delete(:group)

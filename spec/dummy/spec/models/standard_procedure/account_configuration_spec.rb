@@ -161,6 +161,60 @@ module StandardProcedure
           expect(workflow.model_name.to_s).to eq "Board"
         end
       end
+      describe "templates" do
+        class ::CardType < StandardProcedure::WorkflowItemTemplate
+        end
+
+        let :standard_configuration do
+          <<-YAML
+            templates:
+              - reference: orders
+                name: Order
+                fields: 
+                  - reference: address
+                    name: Address 
+                    type: StandardProcedure::FieldDefinition::Address
+          YAML
+        end
+        let :custom_configuration do
+          <<-YAML
+            templates:
+              - reference: orders
+                name: Order
+                type: CardType
+          YAML
+        end
+
+        it "adds templates to the account" do
+          account = a_saved Account
+          account.configure_from standard_configuration
+          template = account.templates.find_by reference: "orders"
+          expect(template).to_not be_nil
+        end
+        it "does not replace existing groups" do
+          account = a_saved Account
+          sales = account.templates.create reference: "orders", name: "Sales"
+          account.configure_from standard_configuration
+          template = account.templates.find_by reference: "orders"
+          expect(sales).to eq template
+          expect(template.name).to eq "Sales"
+        end
+        it "creates templates based on the type provided" do
+          account = a_saved Account
+          account.configure_from custom_configuration
+          template = account.templates.find_by reference: "orders"
+          expect(template).to_not be_nil
+          expect(template.model_name.to_s).to eq "CardType"
+        end
+        it "adds fields to the template" do
+          account = a_saved Account
+          account.configure_from standard_configuration
+          template = account.templates.find_by reference: "orders"
+          address_field = template.fields.find_by reference: "address"
+          expect(address_field).to_not be_nil
+          expect(address_field.model_name.to_s).to eq "StandardProcedure::FieldDefinition::Address"
+        end
+      end
     end
   end
 end

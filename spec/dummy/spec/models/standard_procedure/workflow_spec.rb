@@ -1,7 +1,7 @@
-require 'rails_helper'
+require "rails_helper"
 
 module StandardProcedure
   RSpec.describe Workflow, type: :model do
-    pending "add some examples to (or delete) #{__FILE__}"
+    describe "adding items"
   end
 end

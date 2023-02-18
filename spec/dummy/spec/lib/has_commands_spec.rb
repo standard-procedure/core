@@ -1,7 +1,7 @@
 require_relative "../rails_helper"
 
 RSpec.describe StandardProcedure::HasCommands do
-  let(:user) { User.create name: "Trevor Testington" }
+  let(:user) { StandardProcedure::User.create name: "Trevor Testington" }
   let(:second_user) { User.create name: "Stacey Soup-Spoon" }
   let(:category) { Category.create name: "Some things" }
   let(:sub_category) { Category.create parent: category, name: "More things" }

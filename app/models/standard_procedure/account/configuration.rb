@@ -14,6 +14,7 @@ module StandardProcedure
         update! configuration: config_file
         build_roles_from_configuration
         build_groups_from_configuration
+        build_workflows_from_configuration
       end
 
       protected

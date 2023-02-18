@@ -1,5 +1,6 @@
 When("the website receives a new standard order to be processed") do
   @customer = @account.add_contact @user, role: "customer", group: "customers", name: "George Testington" #, address: "123 Fake Street", postcode: "SP1 1SP"
+  @order_processing = @account.workflows.find_by reference: "order_processing"
   @card = @order_processing.add_card @user, customer: @customer, card_type: "standard_order" #, order_number: "123", first_name: "George", last_name: "Testington", product: "Birth Certificate"
 end
 

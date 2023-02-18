@@ -119,6 +119,48 @@ module StandardProcedure
           expect(ni_field.model_name.to_s).to eq "StandardProcedure::FieldDefinition::Text"
         end
       end
+      describe "workflows" do
+        class ::Board < StandardProcedure::Workflow
+        end
+
+        let :standard_configuration do
+          <<-YAML
+            workflows:
+              - reference: disciplinaries
+                name: Disciplinaries
+          YAML
+        end
+        let :custom_configuration do
+          <<-YAML
+            workflows:
+              - reference: disciplinaries
+                name: Disciplinaries
+                type: Board
+          YAML
+        end
+
+        it "adds workflows to the account" do
+          account = a_saved Account
+          account.configure_from standard_configuration
+          workflow = account.workflows.find_by reference: "disciplinaries"
+          expect(workflow).to_not be_nil
+        end
+        it "does not replace existing groups" do
+          account = a_saved Account
+          procedures = account.workflows.create reference: "disciplinaries", name: "HR Procedures"
+          account.configure_from standard_configuration
+          workflow = account.workflows.find_by reference: "disciplinaries"
+          expect(procedures).to eq workflow
+          expect(workflow.name).to eq "HR Procedures"
+        end
+        it "creates workflows based on the type provided" do
+          account = a_saved Account
+          account.configure_from custom_configuration
+          workflow = account.workflows.find_by reference: "disciplinaries"
+          expect(workflow).to_not be_nil
+          expect(workflow.model_name.to_s).to eq "Board"
+        end
+      end
     end
   end
 end

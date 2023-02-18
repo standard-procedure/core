@@ -7,6 +7,7 @@ module StandardProcedure
     include StandardProcedure::Account::Configuration
     include StandardProcedure::Account::Roles
     include StandardProcedure::Account::Groups
+    include StandardProcedure::Account::Workflows
 
     command :add_group, :add_folder, :add_workflow, :remove_group, :remove_folder, :remove_workflow
 

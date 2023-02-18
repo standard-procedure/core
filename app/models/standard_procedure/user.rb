@@ -10,10 +10,6 @@ module StandardProcedure
       contacts.each { |c| c.amend user, name: self.name }
     end
 
-    def can?(perform_action, target)
-      true
-    end
-
     # A specialist User that has permission to do everything.
     # WARNING: Use sparingly as this user bypasses all the normal checks in the system.
     # Use StandardProcedure::User.root to set up your accounts before you've added any administrators

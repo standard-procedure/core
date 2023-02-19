@@ -123,11 +123,17 @@ module StandardProcedure
         class ::Board < StandardProcedure::Workflow
         end
 
+        class ::DisciplinaryStatus < StandardProcedure::WorkflowStatus
+        end
+
         let :standard_configuration do
           <<-YAML
             workflows:
               - reference: disciplinaries
                 name: Disciplinaries
+                statuses:
+                  - reference: draft
+                    name: Draft
           YAML
         end
         let :custom_configuration do
@@ -136,6 +142,10 @@ module StandardProcedure
               - reference: disciplinaries
                 name: Disciplinaries
                 type: Board
+                statuses:
+                  - reference: draft
+                    name: Draft
+                    type: DisciplinaryStatus
           YAML
         end
 
@@ -144,14 +154,20 @@ module StandardProcedure
           account.configure_from standard_configuration
           workflow = account.workflows.find_by reference: "disciplinaries"
           expect(workflow).to_not be_nil
+          status = workflow.statuses.find_by reference: "draft"
+          expect(status).to_not be_nil
         end
         it "does not replace existing groups" do
           account = a_saved Account
           procedures = account.workflows.create reference: "disciplinaries", name: "HR Procedures"
+          invited = procedures.statuses.create reference: "draft", name: "Invited to hearing"
           account.configure_from standard_configuration
           workflow = account.workflows.find_by reference: "disciplinaries"
           expect(procedures).to eq workflow
           expect(workflow.name).to eq "HR Procedures"
+          status = workflow.statuses.find_by reference: "draft"
+          expect(status).to eq invited
+          expect(status.name).to eq "Invited to hearing"
         end
         it "creates workflows based on the type provided" do
           account = a_saved Account
@@ -159,6 +175,9 @@ module StandardProcedure
           workflow = account.workflows.find_by reference: "disciplinaries"
           expect(workflow).to_not be_nil
           expect(workflow.model_name.to_s).to eq "Board"
+          status = workflow.statuses.find_by reference: "draft"
+          expect(status).to_not be_nil
+          expect(status.model_name.to_s).to eq "DisciplinaryStatus"
         end
       end
       describe "templates" do

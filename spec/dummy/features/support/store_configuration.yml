@@ -73,21 +73,6 @@ workflows:
   - reference: order_processing
     name: Order processing
     type: Board
-    initial_status: incoming_order
-    card_types:
-      - standard_order
-      - priority_order
-    permissions:
-      - group: employees
-        access:
-          - read: all
-          - add:
-              - standard_order
-              - priority_order
-          - amend: all
-      - group: customers
-        access:
-          - read: own
     statuses:
       - reference: incoming_order
         name: Incoming

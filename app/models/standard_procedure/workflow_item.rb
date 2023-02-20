@@ -11,5 +11,7 @@ module StandardProcedure
     delegate :account, to: :status
     has_and_belongs_to_many :folder_items, class_name: "StandardProcedure::FolderItem", join_table: "standard_procedure_related_items", foreign_key: "workflow_item_id", association_foreign_key: "folder_item_id"
     acts_as_list scope: :status
+
+    command :add_alert
   end
 end

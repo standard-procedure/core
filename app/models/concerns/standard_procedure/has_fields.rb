@@ -55,8 +55,8 @@ module StandardProcedure
         define_method :"#{name}=" do |array|
           self.send :"#{name}_array=", wrap_array_field(array)
         end
-        define_method :"add_to_#{name}" do |item|
-          self.send :"#{name}=", (self.send(name.to_sym) << item)
+        define_method :"add_to_#{name}" do |items|
+          self.send :"#{name}=", (self.send(name.to_sym) + Array.wrap(item))
         end
       end
 
@@ -81,6 +81,7 @@ module StandardProcedure
     end
 
     def wrap_array_field(array)
+      return [] if array.blank?
       array.map do |value|
         value.respond_to?(:to_global_id) ? value.to_global_id : value
       end

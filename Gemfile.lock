@@ -234,6 +234,7 @@ GEM
     sys-uname (1.2.2)
       ffi (~> 1.1)
     thor (1.2.1)
+    timecop (0.9.6)
     timeout (0.3.1)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
@@ -257,6 +258,7 @@ DEPENDENCIES
   sprockets-rails
   sqlite3
   standard_procedure!
+  timecop
 
 BUNDLED WITH
    2.3.25

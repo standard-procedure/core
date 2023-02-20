@@ -16,6 +16,7 @@ module StandardProcedure
       group = params.delete(:group)
       group = groups.find_by!(reference: group) if group.is_a? String
       params[:role] = roles.find_by!(reference: params[:role]) if params[:role].is_a? String
+      params[:reference] ||= params[:name]
       group.contacts.create! params
     end
 

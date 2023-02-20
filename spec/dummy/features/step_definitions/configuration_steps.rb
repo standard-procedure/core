@@ -4,5 +4,6 @@ Given "an account called {string} loaded from {string}" do |name, config_file|
 end
 
 Given "{string} has a/an {string} account in the {string} group" do |name, role, group|
-  @account.add_contact StandardProcedure::User.root, role: role, group: group, name: name, user: a_saved(User, name: name)
+  email = "#{name.parameterize}@example.com"
+  @account.add_contact StandardProcedure::User.root, role: role, group: group, name: name, reference: email, user: a_saved(User, name: name, reference: email)
 end

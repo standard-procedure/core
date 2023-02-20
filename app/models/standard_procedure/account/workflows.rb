@@ -13,7 +13,9 @@ module StandardProcedure
 
       def build_workflows_from_configuration
         build_configuration_for :workflows, params: [:reference, :name, :type] do |workflow, configuration|
-          build_configuration_for :statuses, params: [:reference, :name, :type, :position], target: workflow, configuration: configuration[:statuses]
+          build_configuration_for :statuses, params: [:reference, :name, :type, :position], target: workflow, configuration: configuration[:statuses] do |status, configuration|
+            status.update alerts: configuration[:alerts]
+          end
         end
       end
     end

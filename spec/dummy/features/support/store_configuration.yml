@@ -75,10 +75,11 @@ workflows:
       - reference: incoming_order
         name: Incoming
         type: List
-        deadlines:
+        alerts:
           - hours: 24
-            recipient: nichola@example.com
-            type: StandardProcedure::Deadline::SendNotification
+            type: StandardProcedure::Alert::SendNotification
+            contacts:
+              - nichola@example.com
         actions:
           - name: Reassign
             type: StandardProcedure::WorkflowItem::Reassignment

@@ -1,36 +1,34 @@
 templates:
-  - reference: standard_order
-    name: Standard order
-    field_definitions:
+  - reference: order
+    name: Order
+    fields:
       - reference: order_number
         name: Order No.
-        type: Text
-        mandatory: true
-        visible_to: all
-        editable_by: all
+        type: StandardProcedure::FieldDefinition::Text
       - reference: product
         name: Product
-        type: Options
+        type: StandardProcedure::FieldDefinition::Dropdown
         options:
-          - Birth certificate
-          - Death certificate
-          - Marriage certificate
-          - Divorce certificate
-        mandatory: true
-        visible_to: all
-        editable_by: all
+          - Birth Certificate
+          - Death Certificate
+          - Marriage Certificate
+          - Divorce Certificate
       - reference: first_name
         name: First name
-        type: Text
-        mandatory: true
-        visible_to: all
-        editable_by: all
+        type: StandardProcedure::FieldDefinition::Text
       - reference: last_name
         name: Last name
-        type: Text
-        mandatory: true
-        visible_to: all
-        editable_by: all
+        type: StandardProcedure::FieldDefinition::Text
+      - reference: gro
+        name: GRO
+        type: StandardProcedure::FieldDefinition::Reference
+        options: suppliers
+      - reference: gro_reference
+        name: GRO Reference
+        type: StandardProcedure::FieldDefinition::Text
+      - reference: gro_notes
+        name: Notes
+        type: StandardProcedure::FieldDefinition::RichText
 slot_definitions:
 form_templates:
 roles:
@@ -77,37 +75,15 @@ workflows:
       - reference: incoming_order
         name: Incoming
         type: List
-        card_types:
-          standard_order:
-            - assign_to: nichola@example.com
-            - deadline:
-                - hours: 24
-                - recipient: anna@example.com
-                - type: StandardProcedure::Deadline::SendNotification
-          priority_order:
-            - assign_to: anna@example.com
-            - deadline:
-                - hours: 8
-                - recipient: anna@example.com
-                - type: StandardProcedure::Deadline::SendNotification
+        deadlines:
+          - hours: 24
+            recipient: nichola@example.com
+            type: StandardProcedure::Deadline::SendNotification
         actions:
           - name: Reassign
             type: StandardProcedure::WorkflowItem::Reassignment
           - reference: place_order_with_gro
             name: Place order with GRO
-            field_definitions:
-              - reference: office
-                name: GRO
-                type: Reference
-                options: suppliers
-                mandatory: true
-              - reference: gro_reference
-                name: GRO Reference
-                type: Text
-                mandatory: true
-              - reference: gro_notes
-                name: Notes
-                type: RichText
             outcomes:
               - StandardProcedure::WorkflowItem::ChangeStatus
               - status: order_placed

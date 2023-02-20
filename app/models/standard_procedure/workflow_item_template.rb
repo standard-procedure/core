@@ -11,7 +11,9 @@ module StandardProcedure
     command :add_item do |user, **params|
       params[:status] ||= params.delete(:workflow).statuses.first
       params[:group] ||= params[:contact].group
-      items.create! params
+      items.create!(params).tap do |item|
+        item.status.item_added(user, item: item)
+      end
     end
     command :remove_item
   end

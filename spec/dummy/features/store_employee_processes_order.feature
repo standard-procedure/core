@@ -1,6 +1,7 @@
-@online_store @wip
+@online_store
 Feature: Store employee processes order
 
+  @wip
   Scenario: Recieving a standard order
     Given an account called "Online Store" loaded from "store_configuration.yml"
     And "Anna" has a "manager" account in the "employees" group
@@ -9,23 +10,23 @@ Feature: Store employee processes order
     And "Registry Office 1" has a "registry_office" account in the "suppliers" group
     When "API" logs in 
     And the website receives a new standard order to be processed
-    Then the order should have a 24 hour deadline set against it
-    And the order should have a status of "incoming_order"
-    And "Nichola" should be notified about the order 
+    Then the "order" should have a 24 hour deadline set against it
+    And the "order" should have a status of "incoming_order"
+    And "Nichola" should be notified
     When "Nichola" logs in 
     Then she should see the newly received order
     When she places the order with the supplier
-    Then the order should have a status of order_placed
+    Then the "order" should have a status of "order_placed"
     And the previous deadline should be cancelled
-    And the order should have a 120 hour deadline set against it
+    And the "order" should have a 120 hour deadline set against it
     When the order arrives at the office 
-    Then the order should have a status of requires_dispatch
+    Then the "order" should have a status of "requires_dispatch"
     Then "Nichola" prepares the order for delivery and posts it
-    Then the order should have a status of dispatched
+    Then the "order" should have a status of "dispatched"
     And the previous deadline should be cancelled
-    And the order should have a 48 hour deadline set against it
+    And the "order" should have a 48 hour deadline set against it
     When the 48 hour delivery deadline has passed
-    Then the order should have a status of completed
+    Then the "order" should have a status of "completed"
 
   Scenario: Order is not processed in time
     Given an online store is configured

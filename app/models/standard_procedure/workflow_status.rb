@@ -8,6 +8,7 @@ module StandardProcedure
     acts_as_list scope: :workflow
     delegate :account, to: :workflow
 
-    command :add_item, :remove_item
+    command :item_added do |user, **params|
+    end
   end
 end

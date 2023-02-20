@@ -1,7 +1,7 @@
 When("the website receives a new standard order to be processed") do
   @customer = @account.add_contact @user, role: "customer", group: "customers", name: "George Testington" #, address: "123 Fake Street", postcode: "SP1 1SP"
   @order_processing = @account.workflows.find_by reference: "order_processing"
-  @card = @order_processing.add_item @user, contact: @customer, template: "standard_order", name: "ORDER101", workflow: @order_processing #, order_number: "123", first_name: "George", last_name: "Testington", product: "Birth Certificate"
+  @item = @order_processing.add_item @user, contact: @customer, template: "standard_order", name: "ORDER101", workflow: @order_processing #, order_number: "123", first_name: "George", last_name: "Testington", product: "Birth Certificate"
 end
 
 Then("Nichola should be notified about the order") do
@@ -17,15 +17,15 @@ Then("she should see the newly received order") do
 end
 
 When("she places the order with the supplier") do
-  @card.perform_action @nichola, action: "place_order_with_gro", office: @registry_office_1, gro_reference: "ABC123"
+  @item.perform_action @nichola, action: "place_order_with_gro", office: @registry_office_1, gro_reference: "ABC123"
 end
 
 When("the order arrives at the office") do
-  @card.perform_action @nichola, action: "order_received_from_gro"
+  @item.perform_action @nichola, action: "order_received_from_gro"
 end
 
 Then("{string} prepares the order for delivery and posts it") do |name|
-  @card.perform_action @nichola, action: "mark_as_dispatched", dispatch_notes: "Sent via Royal Mail"
+  @item.perform_action @nichola, action: "mark_as_dispatched", dispatch_notes: "Sent via Royal Mail"
 end
 
 Then("{string} should be notified") do |name|

@@ -16,6 +16,7 @@ module StandardProcedure
         build_groups_from_configuration
         build_workflows_from_configuration
         build_templates_from_configuration
+        return self
       end
 
       protected

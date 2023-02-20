@@ -134,7 +134,11 @@ module StandardProcedure
                 statuses:
                   - reference: draft
                     name: Draft
-          YAML
+                    position: 1 
+                  - reference: hearing_completed
+                    name: Hearing Complete
+                    position: 2
+            YAML
         end
         let :custom_configuration do
           <<-YAML
@@ -156,6 +160,7 @@ module StandardProcedure
           expect(workflow).to_not be_nil
           status = workflow.statuses.find_by reference: "draft"
           expect(status).to_not be_nil
+          expect(status.position).to eq 1
         end
         it "does not replace existing groups" do
           account = a_saved Account

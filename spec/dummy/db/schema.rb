@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_02_08_175215) do
+ActiveRecord::Schema[7.0].define(version: 2023_02_19_183643) do
   create_table "categories", force: :cascade do |t|
     t.integer "parent_id"
     t.string "name"
@@ -63,6 +63,24 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_08_175215) do
     t.index ["context_id"], name: "index_standard_procedure_actions_on_context_id"
     t.index ["target_type", "target_id"], name: "index_standard_procedure_actions_on_target"
     t.index ["user_type", "user_id"], name: "index_standard_procedure_actions_on_user"
+  end
+
+  create_table "standard_procedure_alerts", force: :cascade do |t|
+    t.string "item_type"
+    t.integer "item_id"
+    t.string "type", default: "", null: false
+    t.datetime "due_at", null: false
+    t.datetime "triggered_at"
+    t.integer "status", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["due_at"], name: "index_standard_procedure_alerts_on_due_at"
+    t.index ["item_type", "item_id"], name: "index_standard_procedure_alerts_on_item"
+  end
+
+  create_table "standard_procedure_alerts_contacts", id: false, force: :cascade do |t|
+    t.integer "standard_procedure_alert_id", null: false
+    t.integer "standard_procedure_contact_id", null: false
   end
 
   create_table "standard_procedure_contacts", force: :cascade do |t|

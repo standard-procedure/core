@@ -12,7 +12,7 @@ Then("the {string} should have a status of {string}") do |item_type, status|
   expect(@item.status.reference).to eq status
 end
 
-Then("the previous deadline should be inactive") do
+Then("the previous alert should be inactive") do
   @alert.reload
   expect(@alert).to be_inactive
 end

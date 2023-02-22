@@ -13,12 +13,12 @@ module StandardProcedure
       let :configuration do
         <<-YAML
           templates:
-            - reference: order 
+            - reference: order
               name: Order
           roles:
-            - reference: customer 
+            - reference: customer
               name: Customer
-          groups: 
+          groups:
             - reference: customers
               name: Customer
           workflows:

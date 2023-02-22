@@ -75,6 +75,7 @@ workflows:
       - reference: incoming_order
         name: Incoming
         type: List
+        assign_to: nichola@example.com
         alerts:
           - hours: 24
             type: StandardProcedure::Alert::SendNotification

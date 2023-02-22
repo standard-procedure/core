@@ -5,6 +5,9 @@ module StandardProcedure
 
       included do
         has_many :roles, class_name: "StandardProcedure::Role", dependent: :destroy
+        has_many :contacts, through: :roles
+
+        command :add_role, :remove_role
       end
 
       protected

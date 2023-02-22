@@ -5,7 +5,8 @@ module StandardProcedure
 
       included do
         has_many :groups, class_name: "StandardProcedure::Group", dependent: :destroy
-        has_many :contacts, -> { order :name }, through: :groups
+
+        command :add_group, :remove_group
       end
 
       protected

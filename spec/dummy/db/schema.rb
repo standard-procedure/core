@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_02_19_183643) do
+ActiveRecord::Schema[7.0].define(version: 2023_02_21_223417) do
   create_table "categories", force: :cascade do |t|
     t.integer "parent_id"
     t.string "name"
@@ -160,6 +160,26 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_19_183643) do
     t.index ["account_id"], name: "index_standard_procedure_groups_on_account_id"
   end
 
+  create_table "standard_procedure_notification_links", force: :cascade do |t|
+    t.integer "notification_id"
+    t.string "item_type"
+    t.integer "item_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["item_type", "item_id"], name: "index_standard_procedure_notification_links_on_item"
+    t.index ["notification_id"], name: "index_standard_procedure_notification_links_on_notification_id"
+  end
+
+  create_table "standard_procedure_notifications", force: :cascade do |t|
+    t.integer "contact_id"
+    t.datetime "sent_at"
+    t.datetime "acknowledged_at"
+    t.integer "notification_type", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["contact_id"], name: "index_standard_procedure_notifications_on_contact_id"
+  end
+
   create_table "standard_procedure_permissions", force: :cascade do |t|
     t.string "type", default: "", null: false
     t.string "owner_type"
@@ -218,6 +238,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_19_183643) do
     t.integer "status_id"
     t.integer "group_id"
     t.integer "contact_id"
+    t.integer "assigned_to_id"
     t.string "reference", default: "", null: false
     t.string "name", default: "", null: false
     t.string "type", default: "", null: false
@@ -225,6 +246,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_19_183643) do
     t.text "field_data", limit: 16777216
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["assigned_to_id"], name: "index_standard_procedure_workflow_items_on_assigned_to_id"
     t.index ["contact_id"], name: "index_standard_procedure_workflow_items_on_contact_id"
     t.index ["group_id"], name: "index_standard_procedure_workflow_items_on_group_id"
     t.index ["status_id"], name: "index_standard_procedure_workflow_items_on_status_id"
@@ -273,10 +295,13 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_19_183643) do
   add_foreign_key "standard_procedure_folders", "standard_procedure_folders", column: "parent_id"
   add_foreign_key "standard_procedure_folders", "standard_procedure_groups", column: "group_id"
   add_foreign_key "standard_procedure_groups", "standard_procedure_accounts", column: "account_id"
+  add_foreign_key "standard_procedure_notification_links", "standard_procedure_notifications", column: "notification_id"
+  add_foreign_key "standard_procedure_notifications", "standard_procedure_contacts", column: "contact_id"
   add_foreign_key "standard_procedure_related_items", "standard_procedure_folder_items", column: "folder_item_id"
   add_foreign_key "standard_procedure_related_items", "standard_procedure_workflow_items", column: "workflow_item_id"
   add_foreign_key "standard_procedure_roles", "standard_procedure_accounts", column: "account_id"
   add_foreign_key "standard_procedure_workflow_item_templates", "standard_procedure_accounts", column: "account_id"
+  add_foreign_key "standard_procedure_workflow_items", "standard_procedure_contacts", column: "assigned_to_id"
   add_foreign_key "standard_procedure_workflow_items", "standard_procedure_contacts", column: "contact_id"
   add_foreign_key "standard_procedure_workflow_items", "standard_procedure_groups", column: "group_id"
   add_foreign_key "standard_procedure_workflow_items", "standard_procedure_workflow_item_templates", column: "template_id"

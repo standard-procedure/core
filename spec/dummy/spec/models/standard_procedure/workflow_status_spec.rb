@@ -21,7 +21,7 @@ module StandardProcedure
           - reference: employees
             name: Employees
         templates:
-          - reference: order 
+          - reference: order
             name: Order
         workflows:
           - reference: order_processing
@@ -30,6 +30,7 @@ module StandardProcedure
               - reference: incoming
                 name: Incoming
                 position: 1
+                assign_to: nichola@example.com
                 alerts:
                   - hours: 48
                     type: StandardProcedure::Alert::SendNotification
@@ -39,6 +40,13 @@ module StandardProcedure
                 name: In Progress
                 position: 2
       YAML
+    end
+    it "sets the default assignment on the item when it is added" do
+      anna.touch
+      nichola.touch
+
+      subject.item_added user, item: item
+      expect(item.assigned_to).to eq nichola
     end
     it "adds alerts to an item when it is added" do
       Timecop.freeze(Time.now) do

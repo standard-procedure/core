@@ -23,9 +23,9 @@ module StandardProcedure
             groups:
               - reference: organisations
                 name: Organisation
-                fields: 
+                fields:
                   - reference: address
-                    name: Address 
+                    name: Address
                     type: StandardProcedure::FieldDefinition::Address
           YAML
         end
@@ -74,15 +74,15 @@ module StandardProcedure
             roles:
               - reference: managers
                 name: Manager
-                access_level: administrator 
-              - reference: staff 
+                access_level: administrator
+              - reference: staff
                 name: Staff member
                 fields:
                   - reference: ni_number
                     name: NI Number
                     type: StandardProcedure::FieldDefinition::Text
               - reference: customers
-                name: Customer 
+                name: Customer
                 access_level: restricted
           YAML
         end
@@ -134,7 +134,8 @@ module StandardProcedure
                 statuses:
                   - reference: draft
                     name: Draft
-                    position: 1 
+                    position: 1
+                    assign_to: someone@example.com
                   - reference: hearing_completed
                     name: Hearing Complete
                     position: 2
@@ -161,8 +162,9 @@ module StandardProcedure
           status = workflow.statuses.find_by reference: "draft"
           expect(status).to_not be_nil
           expect(status.position).to eq 1
+          expect(status.assign_to).to eq "someone@example.com"
         end
-        it "does not replace existing groups" do
+        it "does not replace existing workflows" do
           account = a_saved Account
           procedures = account.workflows.create reference: "disciplinaries", name: "HR Procedures"
           invited = procedures.statuses.create reference: "draft", name: "Invited to hearing"
@@ -194,9 +196,9 @@ module StandardProcedure
             templates:
               - reference: orders
                 name: Order
-                fields: 
+                fields:
                   - reference: address
-                    name: Address 
+                    name: Address
                     type: StandardProcedure::FieldDefinition::Address
           YAML
         end

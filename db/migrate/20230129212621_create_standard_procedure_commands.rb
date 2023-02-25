@@ -1,6 +1,6 @@
-class CreateStandardProcedureActions < ActiveRecord::Migration[7.0]
+class CreateStandardProcedureCommands < ActiveRecord::Migration[7.0]
   def change
-    create_table :standard_procedure_actions do |t|
+    create_table :standard_procedure_commands do |t|
       t.belongs_to :context, index: true
       t.belongs_to :user, polymorphic: true, index: true
       t.belongs_to :target, polymorphic: true, index: true

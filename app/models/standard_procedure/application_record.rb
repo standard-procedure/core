@@ -15,7 +15,7 @@ module StandardProcedure
     include StandardProcedure::HasFieldValues
 
     defines_commands
-    is_linked_to :actions
+    is_linked_to :commands
     is_linked_to :notifications
   end
 end

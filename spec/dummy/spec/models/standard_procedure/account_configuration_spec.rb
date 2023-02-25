@@ -136,7 +136,14 @@ module StandardProcedure
                     name: Draft
                     position: 1
                     assign_to: someone@example.com
-                  - reference: hearing_completed
+                    actions:
+                      - reference: postpone
+                        name: Postpone
+                        type: StandardProcedure::WorkflowItem::Postpone
+                      - reference: record_minutes
+                        name: Record Minutes
+                        type: Disciplinary::RecordMinutes                          
+                  - reference: hearing_complete
                     name: Hearing Complete
                     position: 2
             YAML
@@ -157,12 +164,25 @@ module StandardProcedure
         it "adds workflows to the account" do
           account = a_saved Account
           account.configure_from standard_configuration
+          # Check the workflow was imported
           workflow = account.workflows.find_by reference: "disciplinaries"
           expect(workflow).to_not be_nil
+          # Check its statuses were imported
           status = workflow.statuses.find_by reference: "draft"
           expect(status).to_not be_nil
           expect(status.position).to eq 1
           expect(status.assign_to).to eq "someone@example.com"
+          # Check the actions were imported
+          postpone = status.actions.first
+          expect(postpone).to_not be_nil
+          expect(postpone["reference"]).to eq "postpone"
+          expect(postpone["name"]).to eq "Postpone"
+          expect(postpone["type"]).to eq "StandardProcedure::WorkflowItem::Postpone"
+          record_minutes = status.actions.last
+          expect(record_minutes).to_not be_nil
+          expect(record_minutes["reference"]).to eq "record_minutes"
+          expect(record_minutes["name"]).to eq "Record Minutes"
+          expect(record_minutes["type"]).to eq "Disciplinary::RecordMinutes"
         end
         it "does not replace existing workflows" do
           account = a_saved Account

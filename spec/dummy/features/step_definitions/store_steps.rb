@@ -9,15 +9,15 @@ Then("she/he should see the newly received order") do
 end
 
 When("she/he places the order with the supplier") do
-  @item.perform_action @contact, action: "place_order_with_gro", office: @registry_office_1, gro_reference: "ABC123"
+  @item.perform_action @user, action_reference: "place_order_with_gro", office: @registry_office_1, gro_reference: "ABC123"
 end
 
 When("the order arrives at the office") do
-  @item.perform_action @contact, action: "order_received_from_gro"
+  @item.perform_action @user, action_reference: "order_received_from_gro"
 end
 
 Then("{string} prepares the order for delivery and posts it") do |name|
-  @item.perform_action @contact, action: "mark_as_dispatched", dispatch_notes: "Sent via Royal Mail"
+  @item.perform_action @user, action_reference: "mark_as_dispatched", dispatch_notes: "Sent via Royal Mail"
 end
 
 When("the website receives a new priority order to be processed") do

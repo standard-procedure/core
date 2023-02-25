@@ -38,33 +38,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_21_223417) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "standard_procedure_action_links", force: :cascade do |t|
-    t.integer "action_id"
-    t.string "item_type"
-    t.integer "item_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["action_id"], name: "index_standard_procedure_action_links_on_action_id"
-    t.index ["item_type", "item_id"], name: "index_standard_procedure_action_links_on_item"
-  end
-
-  create_table "standard_procedure_actions", force: :cascade do |t|
-    t.integer "context_id"
-    t.string "user_type"
-    t.integer "user_id"
-    t.string "target_type"
-    t.integer "target_id"
-    t.string "command", limit: 128, null: false
-    t.integer "status", default: 0, null: false
-    t.text "field_data", limit: 16777216
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["command"], name: "index_standard_procedure_actions_on_command"
-    t.index ["context_id"], name: "index_standard_procedure_actions_on_context_id"
-    t.index ["target_type", "target_id"], name: "index_standard_procedure_actions_on_target"
-    t.index ["user_type", "user_id"], name: "index_standard_procedure_actions_on_user"
-  end
-
   create_table "standard_procedure_alerts", force: :cascade do |t|
     t.string "item_type"
     t.integer "item_id"
@@ -81,6 +54,33 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_21_223417) do
   create_table "standard_procedure_alerts_contacts", id: false, force: :cascade do |t|
     t.integer "standard_procedure_alert_id", null: false
     t.integer "standard_procedure_contact_id", null: false
+  end
+
+  create_table "standard_procedure_command_links", force: :cascade do |t|
+    t.integer "command_id"
+    t.string "item_type"
+    t.integer "item_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["command_id"], name: "index_standard_procedure_command_links_on_command_id"
+    t.index ["item_type", "item_id"], name: "index_standard_procedure_command_links_on_item"
+  end
+
+  create_table "standard_procedure_commands", force: :cascade do |t|
+    t.integer "context_id"
+    t.string "user_type"
+    t.integer "user_id"
+    t.string "target_type"
+    t.integer "target_id"
+    t.string "command", limit: 128, null: false
+    t.integer "status", default: 0, null: false
+    t.text "field_data", limit: 16777216
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["command"], name: "index_standard_procedure_commands_on_command"
+    t.index ["context_id"], name: "index_standard_procedure_commands_on_context_id"
+    t.index ["target_type", "target_id"], name: "index_standard_procedure_commands_on_target"
+    t.index ["user_type", "user_id"], name: "index_standard_procedure_commands_on_user"
   end
 
   create_table "standard_procedure_contacts", force: :cascade do |t|
@@ -285,7 +285,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_21_223417) do
     t.index ["category_id"], name: "index_things_on_category_id"
   end
 
-  add_foreign_key "standard_procedure_action_links", "standard_procedure_actions", column: "action_id"
+  add_foreign_key "standard_procedure_command_links", "standard_procedure_commands", column: "command_id"
   add_foreign_key "standard_procedure_contacts", "standard_procedure_groups", column: "group_id"
   add_foreign_key "standard_procedure_contacts", "standard_procedure_roles", column: "role_id"
   add_foreign_key "standard_procedure_contacts", "standard_procedure_users", column: "user_id"

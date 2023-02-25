@@ -82,18 +82,23 @@ workflows:
             contacts:
               - nichola@example.com
         actions:
-          - name: Reassign
+          - reference: reassign
+            name: Reassign
             type: StandardProcedure::WorkflowItem::Reassignment
           - reference: place_order_with_gro
             name: Place order with GRO
-            outcomes:
-              - StandardProcedure::WorkflowItem::ChangeStatus
-              - status: order_placed
-          - name: Send message
+            required_fields:
+              - gro
+              - gro_reference
+              - gro_notes
+          - reference: send_message
+            name: Send message
             type: StandardProcedure::WorkflowItem::Message
-          - name: Place on hold
+          - reference: postpone
+            name: Postpone
             type: StandardProcedure::WorkflowItem::Postponement
-          - name: Cancel
+          - reference: cancel
+            name: Cancel
             type: StandardProcedure::WorkflowItem::Cancellation
       - reference: order_placed
         name: Order placed

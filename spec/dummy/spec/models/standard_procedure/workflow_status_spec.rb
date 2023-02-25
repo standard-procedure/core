@@ -110,5 +110,16 @@ module StandardProcedure
         expect(alert.contacts).to include anna
       end
     end
+
+    it "deactivates any existing alerts when it is added" do 
+      anna.touch
+      nichola.touch
+      existing_alert = item.alerts.create! due_at: 2.days.from_now, status: "waiting", contacts: [anna, nichola]
+
+      subject.item_added user, item: item 
+
+      existing_alert.reload 
+      expect(existing_alert).to be_inactive
+    end
   end
 end

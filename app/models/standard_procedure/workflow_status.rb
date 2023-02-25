@@ -11,14 +11,16 @@ module StandardProcedure
     has_field :assign_to
     has_array :actions
 
-    command :item_added do |user, **params|
-      item = params[:item]
+    command :item_added do |user, item: nil|
+      item.alerts.each do |existing_alert|
+        existing_alert.amend user, status: "inactive"
+      end
+
       item.assign_to user, contact: default_contact unless default_contact.blank?
+
       alerts.each do |alert_data|
         alert_data.symbolize_keys!
-        contacts = alert_data[:contacts].collect do |reference|
-          account.contacts.find_by(reference: reference)
-        end
+        contacts = alert_data[:contacts].collect { |reference| account.contacts.find_by(reference: reference) } 
         hours = alert_data[:hours].hours
         item.add_alert user, type: alert_data[:type], due_at: hours.from_now, contacts: contacts
       end
@@ -41,6 +43,12 @@ module StandardProcedure
       end
     end
 
+    command :add_alerts do |user, item: nil|
+      alerts.each do |alert|
+        item.add_alert user, due_at: 
+      end
+    end
+
     def available_actions
       actions.map { |a| a["reference"] }
     end
@@ -53,7 +61,7 @@ module StandardProcedure
       action_handler_for(action_reference).required_fields
     end
 
-    #protected
+    protected
 
     def default_contact
       return nil if assign_to.blank?

@@ -43,6 +43,7 @@ module StandardProcedure
     command :set_status do |user, status: nil, reference: nil|
       status ||= workflow.status(reference)
       update! status: status
+      status.item_added user, item: self 
     end
   end
 end

@@ -9,7 +9,8 @@ Then("she/he should see the newly received order") do
 end
 
 When("she/he places the order with the supplier") do
-  @item.perform_action @user, action_reference: "place_order_with_gro", office: @registry_office_1, gro_reference: "ABC123"
+  @registry_office = @account.contacts.find_by name: "Registry Office 1"
+  @item.perform_action @user, action_reference: "place_order_with_gro", office: @registry_office, gro_reference: "ABC123"
 end
 
 When("the order arrives at the office") do

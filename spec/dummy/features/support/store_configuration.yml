@@ -84,128 +84,73 @@ workflows:
         actions:
           - reference: reassign
             name: Reassign
-            type: StandardProcedure::WorkflowItem::Reassignment
+            type: StandardProcedure::WorkflowAction::Reassignment
           - reference: place_order_with_gro
             name: Place order with GRO
-            required_fields:
-              - gro
-              - gro_reference
-              - gro_notes
+            type: Store::PlaceOrderWithGro
           - reference: send_message
             name: Send message
-            type: StandardProcedure::WorkflowItem::Message
+            type: StandardProcedure::WorkflowAction::Message
           - reference: postpone
             name: Postpone
-            type: StandardProcedure::WorkflowItem::Postponement
+            type: StandardProcedure::WorkflowAction::Postponement
           - reference: cancel
             name: Cancel
-            type: StandardProcedure::WorkflowItem::Cancellation
+            type: StandardProcedure::WorkflowAction::Cancellation
       - reference: order_placed
         name: Order placed
         type: List
-        card_types:
-          standard_order:
-            - deadline:
-                - hours: 120
-                - recipient: nichola@example.com
-                - type: StandardProcedure::Deadline::SendNotification
-          priority_order:
-            - assign_to: anna@example.com
-            - deadline:
-                - hours: 48
-                - recipient: anna@example.com
-                - type: StandardProcedure::Deadline::SendNotification
+        alerts:
+          - hours: 120
+            type: StandardProcedure::Alert::SendNotification
+            contacts:
+              - nichola@example.com
         actions:
           - name: Reassign
-            type: StandardProcedure::WorkflowItem::Reassignment
-            permissions:
-              - employees
+            type: StandardProcedure::WorkflowAction::Reassignment
           - reference: order_received_from_gro
             name: Order received from GRO
-            permissions:
-              - employees
             outcomes:
-              - type: StandardProcedure::WorkflowItem::ChangeStatus
+              - type: StandardProcedure::WorkflowAction::ChangeStatus
                 status: requires_dispatch
           - name: Send message
-            type: StandardProcedure::WorkflowItem::Message
-            permissions:
-              - employees
-              - owner
+            type: StandardProcedure::WorkflowAction::Message
           - name: Place on hold
-            type: StandardProcedure::WorkflowItem::Postponement
-            permissions:
-              - employees
+            type: StandardProcedure::WorkflowAction::Postponement
           - name: Cancel
-            type: StandardProcedure::WorkflowItem::Cancellation
-            permissions:
-              - employees
-              - owner
+            type: StandardProcedure::WorkflowAction::Cancellation
       - reference: requires_dispatch
         name: Requires Dispatch
         type: List
-        card_types:
-          standard_order:
-            - deadline:
-                - hours: 24
-                - recipient: nichola@example.com
-                - type: StandardProcedure::Deadline::SendNotification
-          priority_order:
-            - assign_to: anna@example.com
-            - deadline:
-                - hours: 8
-                - recipient: anna@example.com
-                - type: StandardProcedure::Deadline::SendNotification
+        alerts:
+          - hours: 24
+            type: StandardProcedure::Action::SendNotification
+            contacts: 
+              - nichola@example.com
         actions:
           - name: Reassign
-            type: StandardProcedure::WorkflowItem::Reassignment
-            permissions:
-              - employees
+            type: StandardProcedure::WorkflowAction::Reassignment
           - reference: mark_as_dispatched
             name: Dispatch
-            field_definitions:
-              - reference: dispatch_notes
-                name: Notes
-                type: RichText
-            permissions:
-              - employees
             outcomes:
-              - StandardProcedure::WorkflowItem::ChangeStatus
+              - StandardProcedure::WorkflowAction::ChangeStatus
               - status: dispatched
           - name: Send message
-            type: StandardProcedure::WorkflowItem::Message
-            permissions:
-              - employees
-              - owner
+            type: StandardProcedure::WorkflowAction::Message
           - name: Place on hold
-            type: StandardProcedure::WorkflowItem::Postponement
-            permissions:
-              - employees
+            type: StandardProcedure::WorkflowAction::Postponement
           - name: Cancel
-            type: StandardProcedure::WorkflowItem::Cancellation
-            permissions:
-              - employees
-      - reference: dispatchewd
+            type: StandardProcedure::WorkflowAction::Cancellation
+      - reference: dispatched
         name: Out for delivery
         type: List
-        card_types:
-          standard_order:
-            - deadline:
-                - hours: 120
-                - type: StandardProcedure::Deadline::CompleteItem
-          priority_order:
-            - assign_to: anna@example.com
-            - deadline:
-                - hours: 48
-                - recipient: anna@example.com
-                - type: StandardProcedure::Deadline::SendNotification
+        alerts:
+          - hours: 120 
+            type: StandardProcedure::Action::SendNotification
+            contacts: 
+              - nichola@example.com
         actions:
           - name: Complete
-            type: StandardProcedure::WorkflowItem::Complete
-            permissions:
-              - employees
+            type: StandardProcedure::WorkflowAction::Completion
           - name: Send message
-            type: StandardProcedure::WorkflowItem::Message
-            permissions:
-              - employees
-              - owner
+            type: StandardProcedure::WorkflowAction::Message

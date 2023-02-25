@@ -1,25 +1,19 @@
 module StandardProcedure
-  class WorkflowAction
-    def initialize(configuration)
-      super()
-      @configuration = configuration
+  class WorkflowAction < ApplicationRecord
+    has_fields 
+    belongs_to :user, class_name: "StandardProcedure::User"
+    belongs_to :item, class_name: "StandardProcedure::WorkflowItem"
+    has_hash :configuration 
+    after_create :perform 
+
+    def perform 
+      raise "Not yet implemented"
     end
 
-    def required_fields
-      @configuration["required_fields"] || self.class.required_fields
+    # Do any initialisation
+    # Used by StandardProcedure::WorkflowAction::UserDefined to load up user-defined fields
+    def prepare 
+      self
     end
-
-    def act_on(item, user: nil, **params)
-    end
-
-    class << self
-      def required_fields
-        @required_fields ||= []
-      end
-    end
-
-    protected
-
-    attr_reader :configuration
   end
 end

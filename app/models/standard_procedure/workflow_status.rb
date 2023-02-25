@@ -24,15 +24,21 @@ module StandardProcedure
       end
     end
 
+    def build_action action_reference, **params 
+      action_handler_for action_reference, params 
+    end
+
     # `perform_action user, action_reference: @action_reference, item: @workflow_item, **params`
     # - user: the user who is performing the action
     # - action_reference: the reference of the action to perform
     # - item: the workflow-item that will be acted on
     # - **params: any other parameters needed by the action
     command :perform_action do |user, **params|
-      item = params.delete(:item)
       action_reference = params.delete(:action_reference)
-      action_handler_for(action_reference).act_on item, user: user, **params
+      params[:user] = user 
+      build_action(action_reference, **params).tap do |action|
+        action.save!
+      end
     end
 
     def available_actions
@@ -59,10 +65,10 @@ module StandardProcedure
       actions.find { |a| a["reference"] == action_reference } || raise(InvalidActionReference.new("#{action_reference} not found"))
     end
 
-    def action_handler_for(action_reference)
+    def action_handler_for(action_reference, params = {})
       data = action_data_for(action_reference)
       action_handler_class = data["type"].blank? ? StandardProcedure::WorkflowAction::UserDefined : data["type"].constantize
-      action_handler_class.new(data)
+      action_handler_class.new(params.merge(configuration: data)).prepare
     end
   end
 end

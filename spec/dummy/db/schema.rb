@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_02_21_223417) do
+ActiveRecord::Schema[7.0].define(version: 2023_02_25_162300) do
   create_table "categories", force: :cascade do |t|
     t.integer "parent_id"
     t.string "name"
@@ -172,6 +172,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_21_223417) do
 
   create_table "standard_procedure_notifications", force: :cascade do |t|
     t.integer "contact_id"
+    t.string "type", default: "", null: false
     t.datetime "sent_at"
     t.datetime "acknowledged_at"
     t.integer "notification_type", default: 0, null: false
@@ -219,6 +220,17 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_21_223417) do
     t.text "field_data", limit: 16777216
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "standard_procedure_workflow_actions", force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "item_id"
+    t.string "type", default: "", null: false
+    t.text "field_data", limit: 16777216
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["item_id"], name: "index_standard_procedure_workflow_actions_on_item_id"
+    t.index ["user_id"], name: "index_standard_procedure_workflow_actions_on_user_id"
   end
 
   create_table "standard_procedure_workflow_item_templates", force: :cascade do |t|
@@ -300,6 +312,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_21_223417) do
   add_foreign_key "standard_procedure_related_items", "standard_procedure_folder_items", column: "folder_item_id"
   add_foreign_key "standard_procedure_related_items", "standard_procedure_workflow_items", column: "workflow_item_id"
   add_foreign_key "standard_procedure_roles", "standard_procedure_accounts", column: "account_id"
+  add_foreign_key "standard_procedure_workflow_actions", "standard_procedure_users", column: "user_id"
+  add_foreign_key "standard_procedure_workflow_actions", "standard_procedure_workflow_items", column: "item_id"
   add_foreign_key "standard_procedure_workflow_item_templates", "standard_procedure_accounts", column: "account_id"
   add_foreign_key "standard_procedure_workflow_items", "standard_procedure_contacts", column: "assigned_to_id"
   add_foreign_key "standard_procedure_workflow_items", "standard_procedure_contacts", column: "contact_id"

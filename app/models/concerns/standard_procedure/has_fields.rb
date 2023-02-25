@@ -21,13 +21,13 @@ module StandardProcedure
         end
       end
 
-      def has_field(name)
+      def has_field(name, default: nil)
         name = name.to_sym
         define_method name.to_sym do
-          get_field name
+          self.get_field(name) || default 
         end
         define_method :"#{name}=" do |value|
-          set_field name, value
+          self.set_field name, value
         end
       end
 

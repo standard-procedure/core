@@ -8,8 +8,10 @@ module StandardProcedure
     belongs_to :group, class_name: "StandardProcedure::Group"
     belongs_to :contact, class_name: "StandardProcedure::Contact", optional: true
     belongs_to :assigned_to, class_name: "StandardProcedure::Contact", optional: true
+    has_many :actions, class_name: "StandardProcedure::WorkflowAction", dependent: :destroy 
     has_many :alerts, -> { order :due_at }, class_name: "StandardProcedure::Alert", as: :item, dependent: :destroy
-    delegate :account, to: :status
+    delegate :workflow, to: :status
+    delegate :account, to: :workflow
     delegate :available_actions, to: :status
     delegate :name_for, to: :status
     delegate :required_fields_for, to: :status
@@ -33,6 +35,14 @@ module StandardProcedure
     # - **params: any other parameters needed by the action
     command :perform_action do |user, **params|
       status.perform_action user, **params.merge(item: self)
+    end
+
+    # `set_status user, reference: "a_status_reference"`
+    # or
+    # `set_status user, status: @status`
+    command :set_status do |user, status: nil, reference: nil|
+      status ||= workflow.status(reference)
+      update! status: status
     end
   end
 end

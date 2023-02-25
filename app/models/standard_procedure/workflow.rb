@@ -13,5 +13,9 @@ module StandardProcedure
       template = account.templates.find_by(reference: template) if template.is_a? String
       template.add_item user, **params
     end
+
+    def status reference
+      statuses.find_by reference: reference
+    end
   end
 end

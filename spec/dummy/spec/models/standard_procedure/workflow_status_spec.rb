@@ -3,7 +3,7 @@ require "rails_helper"
 module StandardProcedure
   RSpec.describe WorkflowStatus, type: :model do
     subject { workflow.statuses.find_by reference: "incoming" }
-    let(:item) { a_saved StandardProcedure::WorkflowItem, group: employees, status: subject, template: template, name: "Something" }
+    let(:item) { a_saved StandardProcedure::WorkflowItem, type: "Order", group: employees, status: subject, template: template, name: "Something" }
     let(:user) { a_saved ::User }
     let(:account) { a_saved(Account).configure_from(configuration) }
     let(:template) { account.templates.find_by reference: "order" }
@@ -40,9 +40,6 @@ module StandardProcedure
                 actions:
                   - reference: place_order_with_supplier
                     name: Place order with Supplier
-                    required_fields: 
-                    - supplier
-                    - supplier_order_number
                   - reference: make_priority
                     name: Make this a priority order
                     type: MakePriorityOrder
@@ -65,13 +62,18 @@ module StandardProcedure
       expect(item.assigned_to).to eq nichola
     end
 
+    class ::Order < StandardProcedure::WorkflowItem 
+      has_field :priority, default: "low"
+    end
+
     class ::MakePriorityOrder < StandardProcedure::WorkflowAction
-      required_fields << :escalation_reason
+      has_field :escalation_reason
+      validates :escalation_reason, presence: true 
     
-      def act_on(item, user: nil, escalation_reason: "")
+      def perform 
+        item.update! priority: "high"
       end
     end
-    
 
     it "knows which actions are available" do
       expect(subject.available_actions).to eq ["place_order_with_supplier", "make_priority"]
@@ -81,20 +83,19 @@ module StandardProcedure
       expect(subject.name_for(:make_priority)).to eq "Make this a priority order"
       expect { subject.name_for(:something_else) }.to raise_exception(StandardProcedure::WorkflowStatus::InvalidActionReference)
     end
-    it "knows which fields are required for an action" do
-      expect(subject.required_fields_for(:place_order_with_supplier)).to eq ["supplier", "supplier_order_number"]
-      expect(subject.required_fields_for(:make_priority)).to eq [:escalation_reason]
-      expect { subject.required_fields_for(:something_else) }.to raise_exception(StandardProcedure::WorkflowStatus::InvalidActionReference)
-    end
-    it "knows which class will perform the action" do
+    it "builds an action" do 
+      expect(subject.build_action(:place_order_with_supplier).class.name).to eq "StandardProcedure::WorkflowAction::UserDefined"
+      expect(subject.build_action(:make_priority).class.name).to eq "MakePriorityOrder"
+      expect { subject.build_action(:something_else) }.to raise_exception(StandardProcedure::WorkflowStatus::InvalidActionReference)
     end
     it "performs an action via a ruby class" do
-      expect_any_instance_of(::MakePriorityOrder).to receive(:act_on).with(item, user: user, escalation_reason: "It's urgent")
-      subject.perform_action user, item: item, action_reference: "make_priority", escalation_reason: "It's urgent"
+      action = subject.perform_action(user, action_reference: "make_priority", item: item, escalation_reason: "It's urgent")
+      expect(action.escalation_reason).to eq "It's urgent"
+      expect(action.item.priority).to eq "high"
     end
     it "performs a user-defined action" do
-      expect_any_instance_of(StandardProcedure::WorkflowAction::UserDefined).to receive(:act_on).with(item, user: user, supplier: "Some Company", supplier_reference: "Order 9999")
-      subject.perform_action user, item: item, action_reference: "place_order_with_supplier", supplier: "Some Company", supplier_reference: "Order 9999"
+      expect_any_instance_of(StandardProcedure::WorkflowAction::UserDefined).to receive(:perform)
+      subject.perform_action user, action_reference: "place_order_with_supplier", item: item
     end
 
     it "adds alerts to an item when it is added" do

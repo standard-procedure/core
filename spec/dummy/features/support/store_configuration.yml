@@ -21,8 +21,9 @@ templates:
         type: StandardProcedure::FieldDefinition::Text
       - reference: gro
         name: GRO
-        type: StandardProcedure::FieldDefinition::Reference
-        options: suppliers
+        type: StandardProcedure::FieldDefinition::Model
+        model_class: StandardProcedure::Contact
+        options: "joins(:groups).where(groups: { reference: suppliers })"
       - reference: gro_reference
         name: GRO Reference
         type: StandardProcedure::FieldDefinition::Text

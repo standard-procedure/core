@@ -9,7 +9,7 @@ module StandardProcedure
     has_many :items, -> { order :position }, class_name: "StandardProcedure::WorkflowItem", foreign_key: "template_id", dependent: :destroy
 
     def build_item
-      items.build.with_fields_from(self.fields)
+      items.build.with_fields_from(field_definitions)
     end
 
     command :add_item do |user, workflow: nil, status: nil, group: nil, contact: nil, **params|

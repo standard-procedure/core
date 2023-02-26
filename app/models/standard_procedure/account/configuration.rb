@@ -39,7 +39,7 @@ module StandardProcedure
           next if collection.find_by(reference: data[:reference]).present?
           thing = collection.create! data.slice(*params)
           Array.wrap(data[:fields]).each do |field_data|
-            thing.fields.where(reference: field_data[:reference]).first_or_create!(field_data)
+            thing.field_definitions.where(reference: field_data[:reference]).first_or_create!(field_data)
           end if include_fields
           yield thing, data if block_given?
         end

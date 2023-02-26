@@ -24,7 +24,7 @@ module StandardProcedure
       def has_field(name, default: nil)
         name = name.to_sym
         define_method name.to_sym do
-          self.get_field(name) || default 
+          self.get_field(name) || default
         end
         define_method :"#{name}=" do |value|
           self.set_field name, value
@@ -40,7 +40,7 @@ module StandardProcedure
           model_id.blank? ? nil : class_name.constantize.find_by(id: model_id)
         end
         define_method :"#{name}=" do |model|
-          self.add_to_models model
+          self._add_to_models model
           set_field "#{name}_id", model&.id
         end
       end
@@ -50,10 +50,10 @@ module StandardProcedure
 
         define_method name.to_sym do
           array = self.send :"#{name}_array"
-          array.blank? ? [] : unwrap_array_field(array)
+          array.blank? ? [] : _unwrap_array_field(array)
         end
         define_method :"#{name}=" do |array|
-          self.send :"#{name}_array=", wrap_array_field(array)
+          self.send :"#{name}_array=", _wrap_array_field(array)
         end
         define_method :"add_to_#{name}" do |items|
           self.send :"#{name}=", (self.send(name.to_sym) + Array.wrap(item))
@@ -65,39 +65,61 @@ module StandardProcedure
 
         define_method name.to_sym do
           hash = self.send :"#{name}_hash"
-          hash.blank? ? {} : unwrap_hash_field(hash)
+          hash.blank? ? {} : _unwrap_hash_field(hash)
         end
         define_method :"#{name}=" do |hash|
-          self.send :"#{name}_hash=", wrap_hash_field(hash)
+          self.send :"#{name}_hash=", _wrap_hash_field(hash)
         end
       end
     end
 
-    def unwrap_array_field(array)
+    def has_field(name, default: nil)
+      singleton_class.has_field name, default: default
+    end
+
+    def has_model(name, class_name)
+      singleton_class.has_model name, class_name
+    end
+
+    def has_array(name)
+      singleton_class.has_array name
+    end
+
+    def has_hash(name)
+      singleton_class.has_hash name
+    end
+
+    protected
+
+    def _unwrap_array_field(array)
       array.map do |value|
         # is this a global ID (which is stored as { "uri" => "some_id"})?
         (value.respond_to?(:has_key?) && value.has_key?("uri")) ? GlobalID::Locator.locate(value["uri"]) : value
       end
     end
 
-    def wrap_array_field(array)
+    def _wrap_array_field(array)
       return [] if array.blank?
       array.map do |value|
         value.respond_to?(:to_global_id) ? value.to_global_id : value
       end
     end
 
-    def unwrap_hash_field(hash)
+    def _unwrap_hash_field(hash)
       hash.transform_values do |value|
         # is this a global ID?
         (value.respond_to?(:starts_with?) && value.starts_with?("gid:")) ? GlobalID::Locator.locate(value) : value rescue nil
-      end
+      end.deep_symbolize_keys
     end
 
-    def wrap_hash_field(hash)
+    def _wrap_hash_field(hash)
       hash.transform_values do |value|
         value.respond_to?(:to_global_id) ? value.to_global_id.to_s : value
       end
+    end
+
+    def _add_to_models(model)
+      self.models << model
     end
   end
 end

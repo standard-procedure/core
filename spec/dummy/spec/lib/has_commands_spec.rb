@@ -52,7 +52,7 @@ RSpec.describe StandardProcedure::HasCommands do
     command = category.commands.first
     expect(command).to_not be_nil
     expect(command.command).to eq "category_build_thing"
-    expect(command.params["name"]).to eq "testfile.txt"
+    expect(command.params[:name]).to eq "testfile.txt"
     expect(command.status).to eq "completed"
     expect(command.user).to eq User.root
     expect(command.result).to eq thing
@@ -110,7 +110,7 @@ RSpec.describe StandardProcedure::HasCommands do
     expect { category.gone_wrong(User.root) }.to raise_exception(GoneWrong)
     command = category.commands.first
     expect(command).to be_failed
-    expect(command.params["error"]).to_not be_blank
+    expect(command.error).to_not be_blank
   end
 
   it "does not perform a command if not authorised" do

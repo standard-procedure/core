@@ -17,7 +17,11 @@ module StandardProcedure
     end
 
     def result
-      params["result"]
+      params[:result]
+    end
+
+    def error
+      params[:error]
     end
 
     protected

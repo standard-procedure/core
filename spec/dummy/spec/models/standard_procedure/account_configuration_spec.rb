@@ -63,7 +63,7 @@ module StandardProcedure
           account = a_saved Account
           account.configure_from standard_configuration
           group = account.groups.find_by reference: "organisations"
-          address_field = group.fields.find_by reference: "address"
+          address_field = group.field_definitions.find_by reference: "address"
           expect(address_field).to_not be_nil
           expect(address_field.model_name.to_s).to eq "StandardProcedure::FieldDefinition::Address"
         end
@@ -114,7 +114,7 @@ module StandardProcedure
           account = a_saved Account
           account.configure_from standard_configuration
           staff = account.roles.find_by reference: "staff"
-          ni_field = staff.fields.find_by reference: "ni_number"
+          ni_field = staff.field_definitions.find_by reference: "ni_number"
           expect(ni_field).to_not be_nil
           expect(ni_field.model_name.to_s).to eq "StandardProcedure::FieldDefinition::Text"
         end
@@ -256,7 +256,7 @@ module StandardProcedure
           account = a_saved Account
           account.configure_from standard_configuration
           template = account.templates.find_by reference: "orders"
-          address_field = template.fields.find_by reference: "address"
+          address_field = template.field_definitions.find_by reference: "address"
           expect(address_field).to_not be_nil
           expect(address_field.model_name.to_s).to eq "StandardProcedure::FieldDefinition::Address"
         end

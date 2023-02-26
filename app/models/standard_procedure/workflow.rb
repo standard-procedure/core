@@ -8,13 +8,12 @@ module StandardProcedure
 
     command :add_status, :remove_status
 
-    command :add_item do |user, **params|
-      template = params.delete(:template)
+    command :add_item do |user, template: nil, **params|
       template = account.templates.find_by(reference: template) if template.is_a? String
       template.add_item user, **params
     end
 
-    def status reference
+    def status(reference)
       statuses.find_by reference: reference
     end
   end

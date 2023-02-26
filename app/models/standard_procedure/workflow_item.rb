@@ -9,7 +9,7 @@ module StandardProcedure
     belongs_to :group, class_name: "StandardProcedure::Group"
     belongs_to :contact, class_name: "StandardProcedure::Contact", optional: true
     belongs_to :assigned_to, class_name: "StandardProcedure::Contact", optional: true
-    has_many :actions, class_name: "StandardProcedure::WorkflowAction", dependent: :destroy 
+    has_many :actions, class_name: "StandardProcedure::WorkflowAction", dependent: :destroy
     has_many :alerts, -> { order :due_at }, class_name: "StandardProcedure::Alert", as: :item, dependent: :destroy
     delegate :workflow, to: :status
     delegate :account, to: :workflow
@@ -23,8 +23,7 @@ module StandardProcedure
     # `assign_to @user, contact: @contact`
     # - user: the user who is performing the action
     # - contact: the contact to whom the item will be assigned
-    command :assign_to do |user, **params|
-      contact = params[:contact]
+    command :assign_to do |user, contact: nil|
       update! assigned_to: contact
       contact.notifications.create!.tap do |notification|
         notification.link_to self
@@ -44,7 +43,7 @@ module StandardProcedure
     command :set_status do |user, status: nil, reference: nil|
       status ||= workflow.status(reference)
       update! status: status
-      status.item_added user, item: self 
+      status.item_added user, item: self
     end
   end
 end

@@ -12,11 +12,11 @@ module StandardProcedure
       items.build.with_fields_from(self.fields)
     end
 
-    command :add_item do |user, **params|
-      params[:status] ||= params.delete(:workflow).statuses.first
-      params[:group] ||= params[:contact].group
+    command :add_item do |user, workflow: nil, status: nil, group: nil, contact: nil, **params|
+      status ||= workflow.statuses.first
+      group ||= contact.group
       build_item.tap do |item|
-        item.update! params
+        item.update! params.merge(status: status, group: group, contact: contact)
         item.status.item_added(user, item: item)
       end
     end

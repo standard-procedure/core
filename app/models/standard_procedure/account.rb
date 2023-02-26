@@ -9,15 +9,14 @@ module StandardProcedure
     include StandardProcedure::Account::Workflows
     include StandardProcedure::Account::Templates
 
-    command :add_contact do |user, **params|
-      group = params.delete(:group)
+    command :add_contact do |user, group: nil, role: nil, reference: nil, name: nil, **params|
       group = groups.find_by!(reference: group) if group.is_a? String
-      params[:role] = roles.find_by!(reference: params[:role]) if params[:role].is_a? String
-      params[:reference] ||= params[:name]
-      group.contacts.create! params
+      role = roles.find_by!(reference: role) if role.is_a? String
+      reference ||= name
+      group.contacts.create! params.merge(group: group, role: role, reference: reference, name: name)
     end
 
-    command :remove_contact do |user, **params|
+    command :remove_contact do |user, contact: nil|
       params[:contact].destroy
     end
   end

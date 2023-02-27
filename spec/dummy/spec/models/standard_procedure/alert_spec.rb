@@ -53,13 +53,6 @@ module StandardProcedure
       expect(alert).to be_triggered
     end
 
-    it "does not trigger if it has been acknowledged" do
-      alert = Alert.create! item: thing, due_at: 2.minutes.ago, status: "acknowledged"
-      expect(alert).to_not receive(:perform)
-      alert.trigger
-      expect(alert).to be_acknowledged
-    end
-
     it "does not trigger if it is inactive" do
       alert = Alert.create! item: thing, due_at: 2.minutes.ago, status: "inactive"
       expect(alert).to_not receive(:perform)

@@ -16,6 +16,7 @@ module StandardProcedure
     delegate :name_for, to: :status
     delegate :required_fields_for, to: :status
     has_and_belongs_to_many :folder_items, class_name: "StandardProcedure::FolderItem", join_table: "standard_procedure_related_items", foreign_key: "workflow_item_id", association_foreign_key: "folder_item_id"
+    enum item_status: { active: 0, completed: 100, cancelled: -1 }
     acts_as_list scope: :status
 
     command :add_alert

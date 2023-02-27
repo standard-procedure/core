@@ -10,6 +10,7 @@ class CreateStandardProcedureWorkflowItems < ActiveRecord::Migration[7.0]
       t.string :name, null: false, default: ""
       t.string :type, null: false, default: ""
       t.integer :position, default: 1, null: false
+      t.integer :item_status, default: 0, null: false
       t.text :field_data, limit: 16.megabytes
       t.timestamps
     end

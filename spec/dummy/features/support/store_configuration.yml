@@ -157,7 +157,9 @@ workflows:
             contacts: 
               - nichola@example.com
         actions:
-          - name: Complete
-            type: StandardProcedure::WorkflowAction::Completion
-          - name: Send message
+          - reference: complete
+            name: Complete
+            type: StandardProcedure::WorkflowAction::Complete
+          - reference: send_message
+            name: Send message
             type: StandardProcedure::WorkflowAction::Message

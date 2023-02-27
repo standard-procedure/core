@@ -21,6 +21,10 @@ Then("{string} prepares the order for delivery and posts it") do |name|
   @item.perform_action @user, action_reference: "mark_as_dispatched", dispatch_notes: "Sent via Royal Mail"
 end
 
+When("he/she completes the order") do
+  @item.perform_action @user, action_reference: "complete"
+end
+
 When("the website receives a new priority order to be processed") do
   # do nothing
 end

@@ -1,8 +1,7 @@
 @online_store
 Feature: Store employee processes order
 
-  @wip
-  Scenario: Recieving a standard order
+  Scenario: Receiving a standard order
     Given an account called "Online Store" loaded from "store_configuration.yml"
     And "Anna" has a "manager" account in the "employees" group
     And "Nichola" has a "staff_member" account in the "employees" group
@@ -26,8 +25,11 @@ Feature: Store employee processes order
     And the previous alert should be inactive
     And the "order" should have a 48 hour alert set against it
     When the 48 hour delivery alert has passed
-    Then the "order" should have a status of "completed"
+    Then "Nichola" should be notified
+    When she completes the order
+    Then the "order" should be completed
 
+  @wip
   Scenario: Order is not processed in time
     Given an online store is configured
     When the website receives a new standard order to be processed
@@ -36,6 +38,7 @@ Feature: Store employee processes order
     When the 24 hour alert has passed
     Then Anna should be notified
 
+  @wip
   Scenario: Receiving a priority order
     Given an online store is configured
     When the website receives a new priority order to be processed

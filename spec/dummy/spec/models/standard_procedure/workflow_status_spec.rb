@@ -55,10 +55,15 @@ module StandardProcedure
                     name: Make this a priority order
                     type: MakePriorityOrder
                 alerts:
-                  - hours: 48
+                  - if: name == "For Anna"
+                    hours: 24
                     type: StandardProcedure::Alert::SendNotification
                     contacts:
                       - anna@example.com
+                  - hours: 48
+                    type: StandardProcedure::Alert::SendNotification
+                    contacts:
+                      - nichola@example.com
               - reference: in_progress
                 name: In Progress
                 position: 2
@@ -69,7 +74,6 @@ module StandardProcedure
       anna.touch
       nichola.touch
 
-      puts subject.assign_to
       subject.item_added user, item: item
       expect(item.assigned_to).to eq nichola
     end
@@ -128,7 +132,23 @@ module StandardProcedure
         expect(item.alerts).to_not be_empty
         alert = item.alerts.first
         expect(alert.due_at.to_date).to eq (Date.today + 2)
+        expect(alert.contacts).to include nichola
+      end
+    end
+    it "adds conditional alerts to an item when it is added" do
+      item.update name: "For Anna"
+      Timecop.freeze(Time.now) do
+        anna.touch
+        nichola.touch
+
+        subject.item_added user, item: item
+        expect(item.alerts).to_not be_empty
+        alert = item.alerts.first
+        expect(alert.due_at.to_date).to eq (Date.today + 1)
         expect(alert.contacts).to include anna
+        alert = item.alerts.last
+        expect(alert.due_at.to_date).to eq (Date.today + 2)
+        expect(alert.contacts).to include nichola
       end
     end
 

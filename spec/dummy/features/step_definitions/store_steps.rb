@@ -23,8 +23,8 @@ When("the order arrives at the office") do
   @item.perform_action @user, action_reference: "order_received_from_gro"
 end
 
-Then("{string} prepares the order for delivery and posts it") do |name|
-  @item.perform_action @user, action_reference: "mark_as_dispatched", dispatch_notes: "Sent via Royal Mail"
+When("{string} prepares the order and posts it as {string} delivery") do |name, delivery_type|
+  @item.perform_action @user, action_reference: "mark_as_dispatched", dispatch_notes: "Sent via Royal Mail", delivery_type: delivery_type
 end
 
 When("he/she completes the order") do

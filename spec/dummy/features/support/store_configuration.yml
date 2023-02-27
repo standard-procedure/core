@@ -76,10 +76,15 @@ workflows:
             contact: anna@example.com
           - contact: nichola@example.com
         alerts:
-          - hours: 24
+          - if: priority == "Priority"
+            hours: 8
             type: StandardProcedure::Alert::SendNotification
             contacts:
               - anna@example.com
+          - hours: 24
+            type: StandardProcedure::Alert::SendNotification
+            contacts:
+              - nichola@example.com
         actions:
           - reference: reassign
             name: Reassign
@@ -100,6 +105,11 @@ workflows:
         name: Order placed
         type: List
         alerts:
+          - if: priority == "Priority"
+            hours: 24 
+            type: StandardProcedure::Alert::SendNotification
+            contacts: 
+              - anna@example.com
           - hours: 120
             type: StandardProcedure::Alert::SendNotification
             contacts:
@@ -134,6 +144,12 @@ workflows:
             name: Dispatch
             configuration:
               fields:
+                - reference: delivery_type 
+                  name: Delivery
+                  type: StandardProcedure::FieldDefinition::Dropdown
+                  options:
+                    - Standard
+                    - Priority
                 - reference: dispatch_notes
                   name: Notes
                   type: StandardProcedure::FieldDefinition::RichText
@@ -150,6 +166,11 @@ workflows:
         name: Out for delivery
         type: List
         alerts:
+          - if: priority == "Priority"
+            hours: 24 
+            type: StandardProcedure::Alert::SendNotification
+            contacts: 
+              - anna@example.com
           - hours: 48 
             type: StandardProcedure::Alert::SendNotification
             contacts: 

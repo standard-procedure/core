@@ -92,6 +92,7 @@ module StandardProcedure
     protected
 
     def _unwrap_array_field(array)
+      return [] if array.blank?
       array.map do |value|
         # is this a global ID (which is stored as { "uri" => "some_id"})?
         (value.respond_to?(:has_key?) && value.has_key?("uri")) ? GlobalID::Locator.locate(value["uri"]) : value
@@ -106,6 +107,7 @@ module StandardProcedure
     end
 
     def _unwrap_hash_field(hash)
+      return {} if hash.blank?
       hash.transform_values do |value|
         # is this a global ID?
         (value.respond_to?(:starts_with?) && value.starts_with?("gid:")) ? GlobalID::Locator.locate(value) : value rescue nil
@@ -113,6 +115,7 @@ module StandardProcedure
     end
 
     def _wrap_hash_field(hash)
+      return {} if hash.blank?
       hash.transform_values do |value|
         value.respond_to?(:to_global_id) ? value.to_global_id.to_s : value
       end

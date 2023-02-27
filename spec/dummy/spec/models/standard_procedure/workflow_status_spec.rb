@@ -31,7 +31,7 @@ module StandardProcedure
             name: Order
         workflows:
           - reference: order_processing
-            name: Order Processeing
+            name: Order Processing
             statuses:
               - reference: incoming
                 name: Incoming
@@ -40,6 +40,14 @@ module StandardProcedure
                 actions:
                   - reference: place_order_with_supplier
                     name: Place order with Supplier
+                    configuration:
+                      fields: 
+                        - reference: supplier 
+                          name: Supplier 
+                          type: StandardProcedure::FieldDefinition::Text 
+                      outcomes:
+                        - type: StandardProcedure::WorkflowAction::ChangeStatus
+                          status: dispatched
                   - reference: make_priority
                     name: Make this a priority order
                     type: MakePriorityOrder
@@ -62,15 +70,15 @@ module StandardProcedure
       expect(item.assigned_to).to eq nichola
     end
 
-    class ::Order < StandardProcedure::WorkflowItem 
+    class ::Order < StandardProcedure::WorkflowItem
       has_field :priority, default: "low"
     end
 
     class ::MakePriorityOrder < StandardProcedure::WorkflowAction
       has_field :escalation_reason
-      validates :escalation_reason, presence: true 
-    
-      def perform 
+      validates :escalation_reason, presence: true
+
+      def perform
         item.update! priority: "high"
       end
     end
@@ -83,7 +91,7 @@ module StandardProcedure
       expect(subject.name_for(:make_priority)).to eq "Make this a priority order"
       expect { subject.name_for(:something_else) }.to raise_exception(StandardProcedure::WorkflowStatus::InvalidActionReference)
     end
-    it "builds an action" do 
+    it "builds an action" do
       expect(subject.build_action(:place_order_with_supplier).class.name).to eq "StandardProcedure::WorkflowAction::UserDefined"
       expect(subject.build_action(:make_priority).class.name).to eq "MakePriorityOrder"
       expect { subject.build_action(:something_else) }.to raise_exception(StandardProcedure::WorkflowStatus::InvalidActionReference)
@@ -111,14 +119,14 @@ module StandardProcedure
       end
     end
 
-    it "deactivates any existing alerts when it is added" do 
+    it "deactivates any existing alerts when it is added" do
       anna.touch
       nichola.touch
       existing_alert = item.alerts.create! due_at: 2.days.from_now, status: "waiting", contacts: [anna, nichola]
 
-      subject.item_added user, item: item 
+      subject.item_added user, item: item
 
-      existing_alert.reload 
+      existing_alert.reload
       expect(existing_alert).to be_inactive
     end
   end

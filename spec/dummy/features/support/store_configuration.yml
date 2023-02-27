@@ -111,9 +111,10 @@ workflows:
             type: StandardProcedure::WorkflowAction::Reassignment
           - reference: order_received_from_gro
             name: Order received from GRO
-            outcomes:
-              - type: StandardProcedure::WorkflowAction::ChangeStatus
-                status: requires_dispatch
+            configuration:
+              outcomes:
+                - type: StandardProcedure::WorkflowAction::ChangeStatus
+                  status: requires_dispatch
           - name: Send message
             type: StandardProcedure::WorkflowAction::Message
           - name: Place on hold
@@ -125,7 +126,7 @@ workflows:
         type: List
         alerts:
           - hours: 24
-            type: StandardProcedure::WorkflowAction::SendNotification
+            type: StandardProcedure::Alert::SendNotification
             contacts: 
               - nichola@example.com
         actions:
@@ -133,9 +134,14 @@ workflows:
             type: StandardProcedure::WorkflowAction::Reassignment
           - reference: mark_as_dispatched
             name: Dispatch
-            outcomes:
-              - StandardProcedure::WorkflowAction::ChangeStatus
-              - status: dispatched
+            configuration:
+              fields:
+                - reference: dispatch_notes
+                  name: Notes
+                  type: StandardProcedure::FieldDefinition::RichText
+              outcomes:
+                - type: StandardProcedure::WorkflowAction::ChangeStatus
+                  status: dispatched
           - name: Send message
             type: StandardProcedure::WorkflowAction::Message
           - name: Place on hold
@@ -147,7 +153,7 @@ workflows:
         type: List
         alerts:
           - hours: 120 
-            type: StandardProcedure::Action::SendNotification
+            type: StandardProcedure::Alert::SendNotification
             contacts: 
               - nichola@example.com
         actions:

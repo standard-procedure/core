@@ -25,10 +25,6 @@ When("the website receives a new priority order to be processed") do
   # do nothing
 end
 
-Then("{string} prepares the order for delivery and posts it") do |name|
-  # do nothing
-end
-
 Then("a new deadline of {int} day should be set against the order") do |int|
   # do nothing
 end

@@ -26,18 +26,14 @@ module StandardProcedure
       end
     end
 
-    def build_action(action_reference, **params) action_handler_for action_reference, params end
-
     # `perform_action user, action_reference: @action_reference, item: @workflow_item, **params`
     # - user: the user who is performing the action
     # - action_reference: the reference of the action to perform
     # - item: the workflow-item that will be acted on
     # - **params: any other parameters needed by the action
-    command :perform_action do |user, action_reference: nil, **params|
-      params[:user] = user
-      build_action(action_reference, **params).tap do |action|
-        action.update! params
-      end
+    command :perform_action do |user, action_reference: nil, item: nil, **params|
+      params = params.merge(configuration_for(action_reference).excluding(:name, :reference))
+      action_handler_for(action_reference).perform(params.merge(user: user, item: item))
     end
 
     command :add_alerts do |user, item: nil|
@@ -51,11 +47,15 @@ module StandardProcedure
     end
 
     def name_for(action_reference)
-      action_data_for(action_reference)["name"]
+      configuration_for(action_reference)[:name]
     end
 
     def required_fields_for(action_reference)
-      action_handler_for(action_reference).required_fields
+      build_action_for(action_reference).required_fields
+    end
+
+    def build_action(action_reference)
+      action_handler_for(action_reference).prepare_from(configuration_for(action_reference))
     end
 
     protected
@@ -65,15 +65,15 @@ module StandardProcedure
       @default_contact ||= account.contacts.find_by reference: assign_to
     end
 
-    def action_data_for(action_reference)
+    def configuration_for(action_reference)
       action_reference = action_reference.to_s
-      actions.find { |a| a["reference"] == action_reference } || raise(InvalidActionReference.new("#{action_reference} not found"))
+      configuration = actions.find { |a| a["reference"] == action_reference } || raise(InvalidActionReference.new("#{action_reference} not found"))
+      configuration.symbolize_keys
     end
 
-    def action_handler_for(action_reference, params = {})
-      data = action_data_for(action_reference)
-      action_handler_class = data["type"].blank? ? StandardProcedure::WorkflowAction::UserDefined : data["type"].constantize
-      action_handler_class.new(configuration: data).prepare
+    def action_handler_for(action_reference)
+      configuration = configuration_for(action_reference)
+      configuration[:type].blank? ? StandardProcedure::WorkflowAction::UserDefined : configuration[:type].constantize
     end
   end
 end

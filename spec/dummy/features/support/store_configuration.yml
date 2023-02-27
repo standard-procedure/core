@@ -22,7 +22,7 @@ templates:
       - reference: gro
         name: GRO
         type: StandardProcedure::FieldDefinition::Model
-        model_class: StandardProcedure::Contact
+        model_type: StandardProcedure::Contact
         options: "joins(:groups).where(groups: { reference: suppliers })"
       - reference: gro_reference
         name: GRO Reference

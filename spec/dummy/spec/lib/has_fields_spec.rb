@@ -95,7 +95,7 @@ RSpec.describe StandardProcedure::HasFields do
     it "adds accessors for each defined field" do
       category.field_definitions.create reference: "address", name: "Address", type: "StandardProcedure::FieldDefinition::Address"
       category.field_definitions.create reference: "number", name: "Number", type: "StandardProcedure::FieldDefinition::Number"
-      category.field_definitions.create reference: "another_category", name: "Another Category", type: "StandardProcedure::FieldDefinition::Model", model_class: "Category"
+      category.field_definitions.create reference: "another_category", name: "Another Category", type: "StandardProcedure::FieldDefinition::Model", model_type: "Category"
 
       thing.with_fields_from(category.field_definitions) do |t|
         expect(t).to respond_to(:address)

@@ -125,7 +125,7 @@ workflows:
         type: List
         alerts:
           - hours: 24
-            type: StandardProcedure::Action::SendNotification
+            type: StandardProcedure::WorkflowAction::SendNotification
             contacts: 
               - nichola@example.com
         actions:

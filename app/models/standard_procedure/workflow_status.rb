@@ -36,7 +36,7 @@ module StandardProcedure
     command :perform_action do |user, action_reference: nil, **params|
       params[:user] = user
       build_action(action_reference, **params).tap do |action|
-        action.save!
+        action.update! params
       end
     end
 
@@ -73,7 +73,7 @@ module StandardProcedure
     def action_handler_for(action_reference, params = {})
       data = action_data_for(action_reference)
       action_handler_class = data["type"].blank? ? StandardProcedure::WorkflowAction::UserDefined : data["type"].constantize
-      action_handler_class.new(params.merge(configuration: data)).prepare
+      action_handler_class.new(configuration: data).prepare
     end
   end
 end

@@ -1,14 +1,17 @@
 @online_store
 Feature: Store employee processes order
 
-  Scenario: Receiving a standard order
+  Background:
     Given an account called "Online Store" loaded from "store_configuration.yml"
     And "Anna" has a "manager" account in the "employees" group
     And "Nichola" has a "staff_member" account in the "employees" group
     And "API" has an "api_user" account in the "api_users" group
     And "Registry Office 1" has a "registry_office" account in the "suppliers" group
+
+
+  Scenario: Receiving a standard order
     When "API" logs in
-    And the website receives a new standard order to be processed
+    And posts a new standard order to be processed
     Then the "order" should have a 24 hour alert set against it
     And the "order" should have a status of "incoming_order"
     And "Nichola" should be notified
@@ -24,24 +27,22 @@ Feature: Store employee processes order
     Then the "order" should have a status of "dispatched"
     And the previous alert should be inactive
     And the "order" should have a 48 hour alert set against it
-    When the 48 hour delivery alert has passed
+    When the 48 hour alert has passed
     Then "Nichola" should be notified
     When she completes the order
     Then the "order" should be completed
 
-  @wip
   Scenario: Order is not processed in time
-    Given an online store is configured
-    When the website receives a new standard order to be processed
-    Then the order should have a 24 hour alert set against it
-    And "Nichola" should be notified
+    When "API" logs in
+    And posts a new standard order to be processed
+    Then the "order" should have a 24 hour alert set against it
     When the 24 hour alert has passed
-    Then Anna should be notified
+    Then "Anna" should be notified
 
   @wip
   Scenario: Receiving a priority order
-    Given an online store is configured
-    When the website receives a new priority order to be processed
+    When "API" logs in
+    And posts a new priority order to be processed
     Then the order should have a 8 hour alert set against it
     And "Anna" should be notified
     When "Anna" logs in

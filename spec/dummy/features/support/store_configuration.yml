@@ -81,7 +81,7 @@ workflows:
           - hours: 24
             type: StandardProcedure::Alert::SendNotification
             contacts:
-              - nichola@example.com
+              - anna@example.com
         actions:
           - reference: reassign
             name: Reassign

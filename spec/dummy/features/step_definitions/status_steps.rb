@@ -4,7 +4,7 @@ Then("the {string} should have a {int} hour alert set against it") do |item_type
   expect(@alert).to_not be_nil
 end
 
-When("the {int} hour delivery alert has passed") do |int|
+When("the {int} hour alert has passed") do |int|
   Timecop.travel @alert.due_at do
     @alert.trigger
   end

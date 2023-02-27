@@ -1,4 +1,4 @@
-When("the website receives a new standard order to be processed") do
+When("posts a new standard order to be processed") do
   @customer = @account.add_contact @user, role: "customer", group: "customers", name: "George Testington" #, address: "123 Fake Street", postcode: "SP1 1SP"
   @order_processing = @account.workflows.find_by reference: "order_processing"
   @item = @order_processing.add_item @user, contact: @customer, template: "order", name: "ORDER101", workflow: @order_processing #, order_number: "123", first_name: "George", last_name: "Testington", product: "Birth Certificate"

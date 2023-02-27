@@ -1,7 +1,6 @@
 module StandardProcedure
   class WorkflowAction < ApplicationRecord
-    has_field_definitions
-    has_field_values
+    has_fields
     belongs_to :user, class_name: "StandardProcedure::User"
     belongs_to :item, class_name: "StandardProcedure::WorkflowItem"
     has_hash :configuration
@@ -13,8 +12,7 @@ module StandardProcedure
 
     # Do any initialisation before the action is performed and return self
     def prepare
-      load_field_definitions
-      with_fields_from field_definitions
+      self
     end
 
     class << self

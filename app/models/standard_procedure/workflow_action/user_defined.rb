@@ -1,5 +1,7 @@
 module StandardProcedure
   class WorkflowAction::UserDefined < WorkflowAction
+    has_field_definitions
+
     def perform
       perform_outcomes
     end
@@ -14,6 +16,11 @@ module StandardProcedure
       class_name = configuration.delete(:type)
       configuration[:status] = workflow.statuses.find_by(reference: configuration[:status]) if configuration[:status].is_a? String
       class_name.constantize.perform configuration.merge(user: user, item: item, configuration: configuration)
+    end
+
+    def prepare
+      load_field_definitions
+      with_fields_from field_definitions
     end
   end
 end

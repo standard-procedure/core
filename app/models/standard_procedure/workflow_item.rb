@@ -3,7 +3,6 @@ module StandardProcedure
     has_name
     has_reference
     has_fields
-    has_field_values
     belongs_to :template, class_name: "StandardProcedure::WorkflowItemTemplate"
     belongs_to :status, class_name: "StandardProcedure::WorkflowStatus"
     belongs_to :group, class_name: "StandardProcedure::Group"

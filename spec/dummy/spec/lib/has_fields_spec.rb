@@ -90,4 +90,27 @@ RSpec.describe StandardProcedure::HasFields do
     thing.reload
     expect(thing.my_internal_hash).to eq({ key: "value" })
   end
+
+  describe "from field definitions" do
+    it "adds accessors for each defined field" do
+      category.field_definitions.create reference: "address", name: "Address", type: "StandardProcedure::FieldDefinition::Address"
+      category.field_definitions.create reference: "number", name: "Number", type: "StandardProcedure::FieldDefinition::Number"
+      category.field_definitions.create reference: "another_category", name: "Another Category", type: "StandardProcedure::FieldDefinition::Model", model_class: "Category"
+
+      thing.with_fields_from(category.field_definitions) do |t|
+        expect(t).to respond_to(:address)
+        expect(t).to respond_to(:"address=")
+        expect(t).to respond_to(:number)
+        expect(t).to respond_to(:"number=")
+        expect(t).to respond_to(:another_category)
+        expect(t).to respond_to(:"another_category=")
+      end
+    end
+
+    it "typecasts the field data"
+    it "validates the field data"
+    it "enforces mandatory fields"
+    it "sets a default value for fields"
+    it "generates a calculated value for fields"
+  end
 end

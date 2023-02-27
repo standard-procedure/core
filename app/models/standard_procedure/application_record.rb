@@ -7,12 +7,11 @@ module StandardProcedure
     include StandardProcedure::HasDescription
     include StandardProcedure::HasLogo
     include StandardProcedure::HasReference
+    include StandardProcedure::HasFieldDefinitions
     include StandardProcedure::HasFields
     include StandardProcedure::HasLinkedItems
     include StandardProcedure::HasAncestors
     include StandardProcedure::HasCommands
-    include StandardProcedure::HasFieldDefinitions
-    include StandardProcedure::HasFieldValues
 
     defines_commands
     is_linked_to :commands

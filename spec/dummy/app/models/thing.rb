@@ -1,5 +1,5 @@
 class Thing < ApplicationRecord
   has_name
-  has_field_values
+  has_fields
   belongs_to :category
 end

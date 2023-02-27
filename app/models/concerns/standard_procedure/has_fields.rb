@@ -19,6 +19,14 @@ module StandardProcedure
         define_method :set_field do |name, value|
           self.field_storage[name.to_s] = value
         end
+
+        define_method :with_fields_from do |field_definitions, &block|
+          field_definitions.each do |field_definition|
+            field_definition.define_on self
+          end
+          block&.call(self)
+          return self
+        end
       end
 
       def has_field(name, default: nil)

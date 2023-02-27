@@ -6,6 +6,7 @@ class CreateStandardProcedureAlerts < ActiveRecord::Migration[7.0]
       t.datetime :due_at, null: false, index: true
       t.datetime :triggered_at
       t.integer :status, default: 0, null: false
+      t.text :field_data, limit: 16.megabytes
       t.timestamps
     end
 

@@ -23,12 +23,12 @@ when_creating_a StandardProcedure::WorkflowItemTemplate, auto_generate: [:name],
 when_creating_a StandardProcedure::WorkflowStatus, auto_generate: [:name], generate: { workflow: -> { a_saved StandardProcedure::Workflow } }
 when_creating_a StandardProcedure::WorkflowItem, auto_generate: [:name], generate: { template: -> { a_saved StandardProcedure::WorkflowItemTemplate, status: -> { a_saved StandardProcedure::WorkflowStatus } } }
 
-def a_saved_item_titled(name, account: nil, status: nil, workflow: nil, template: nil, contact: nil, group: nil)
+def a_saved_item_titled(reference, account: nil, status: nil, workflow: nil, template: nil, contact: nil, group: nil)
   account ||= a_saved StandardProcedure::Account
   template ||= a_saved StandardProcedure::WorkflowItemTemplate, account: account
   group ||= a_saved StandardProcedure::Group, account: account
   contact ||= a_saved_contact_called "Someone", account: account, group: group
   workflow ||= a_saved StandardProcedure::Workflow, account: account
   status ||= workflow.statuses.first || a_saved(StandardProcedure::WorkflowStatus, workflow: workflow)
-  return a_saved StandardProcedure::WorkflowItem, template: template, status: status, group: group, contact: contact
+  return a_saved StandardProcedure::WorkflowItem, reference: reference, template: template, status: status, group: group, contact: contact
 end

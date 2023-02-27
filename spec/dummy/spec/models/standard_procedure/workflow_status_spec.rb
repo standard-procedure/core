@@ -122,7 +122,7 @@ module StandardProcedure
     it "deactivates any existing alerts when it is added" do
       anna.touch
       nichola.touch
-      existing_alert = item.alerts.create! due_at: 2.days.from_now, status: "waiting", contacts: [anna, nichola]
+      existing_alert = item.alerts.create! due_at: 2.days.from_now, status: "active", contacts: [anna, nichola]
 
       subject.item_added user, item: item
 

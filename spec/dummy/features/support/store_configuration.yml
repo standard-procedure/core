@@ -152,7 +152,7 @@ workflows:
         name: Out for delivery
         type: List
         alerts:
-          - hours: 120 
+          - hours: 48 
             type: StandardProcedure::Alert::SendNotification
             contacts: 
               - nichola@example.com

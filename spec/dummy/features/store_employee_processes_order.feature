@@ -43,7 +43,8 @@ Feature: Store employee processes order
   Scenario: Receiving a priority order
     When "API" logs in
     And posts a new priority order to be processed
-    Then the order should have a 8 hour alert set against it
+    Then the "order" should have a 8 hour alert set against it
+    And the "order" should have a status of "incoming_order"
     And "Anna" should be notified
     When "Anna" logs in
     Then she should see the newly received order

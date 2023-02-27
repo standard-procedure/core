@@ -19,17 +19,12 @@ templates:
       - reference: last_name
         name: Last name
         type: StandardProcedure::FieldDefinition::Text
-      - reference: gro
-        name: GRO
-        type: StandardProcedure::FieldDefinition::Model
-        model_type: StandardProcedure::Contact
-        options: "joins(:groups).where(groups: { reference: suppliers })"
-      - reference: gro_reference
-        name: GRO Reference
-        type: StandardProcedure::FieldDefinition::Text
-      - reference: gro_notes
-        name: Notes
-        type: StandardProcedure::FieldDefinition::RichText
+      - reference: priority
+        name: Priority 
+        type: StandardProcedure::FieldDefinition::Dropdown
+        options:
+          - Standard
+          - Priority
 slot_definitions:
 form_templates:
 roles:
@@ -76,7 +71,10 @@ workflows:
       - reference: incoming_order
         name: Incoming
         type: List
-        assign_to: nichola@example.com
+        assign_to: 
+          - if: priority == "Priority"
+            contact: anna@example.com
+          - contact: nichola@example.com
         alerts:
           - hours: 24
             type: StandardProcedure::Alert::SendNotification

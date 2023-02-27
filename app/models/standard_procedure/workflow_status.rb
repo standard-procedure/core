@@ -8,7 +8,7 @@ module StandardProcedure
     acts_as_list scope: :workflow
     delegate :account, to: :workflow
     has_array :alerts
-    has_field :assign_to
+    has_array :assign_to
     has_array :actions
 
     command :item_added do |user, item: nil|
@@ -16,7 +16,7 @@ module StandardProcedure
         existing_alert.amend user, status: "inactive"
       end
 
-      item.assign_to user, contact: default_contact unless default_contact.blank?
+      item.assign_to user, contact: default_contact_for(item) unless default_contact_for(item).blank?
 
       alerts.each do |alert_data|
         alert_data.symbolize_keys!
@@ -60,9 +60,23 @@ module StandardProcedure
 
     protected
 
-    def default_contact
+    def default_contact_for(item)
       return nil if assign_to.blank?
-      @default_contact ||= account.contacts.find_by reference: assign_to
+      return @default_contact unless @default_contact.blank?
+
+      # Go through the rules to see if any apply
+      rule = assign_to.find { |rule| evaluate(rule, item) }
+      @default_contact = rule.blank? ? nil : find_contact_from(rule)
+    end
+
+    # If no "if" clause is supplied, we assume this is the default contact rule
+    # If an "if" clause is supplied, we evaluate the "if" clause to see if it applies
+    def evaluate(rule, item)
+      rule["if"].blank? ? true : item.instance_eval(rule["if"])
+    end
+
+    def find_contact_from(rule)
+      return account.contacts.find_by reference: rule["contact"]
     end
 
     def configuration_for(action_reference)

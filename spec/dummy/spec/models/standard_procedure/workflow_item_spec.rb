@@ -31,7 +31,8 @@ module StandardProcedure
               - reference: incoming
                 name: Incoming
                 position: 1
-                assign_to: nichola@example.com
+                assign_to: 
+                  - contact: nichola@example.com
               - reference: in_progress
                 name: In Progress
                 position: 2
@@ -46,13 +47,13 @@ module StandardProcedure
       expect(notification.linked_to? subject).to eq true
     end
 
-    describe "changing status" do 
-      it "is updated" do 
+    describe "changing status" do
+      it "is updated" do
         subject.set_status user, reference: "in_progress"
         expect(subject.status).to eq in_progress_status
       end
 
-      it "notifies the status that this item has been updated" do 
+      it "notifies the status that this item has been updated" do
         expect(in_progress_status).to receive(:item_added).with(user, item: subject)
         subject.set_status user, status: in_progress_status
       end

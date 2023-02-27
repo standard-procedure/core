@@ -135,7 +135,8 @@ module StandardProcedure
                   - reference: draft
                     name: Draft
                     position: 1
-                    assign_to: someone@example.com
+                    assign_to: 
+                      - contact: someone@example.com
                     actions:
                       - reference: postpone
                         name: Postpone
@@ -171,7 +172,7 @@ module StandardProcedure
           status = workflow.statuses.find_by reference: "draft"
           expect(status).to_not be_nil
           expect(status.position).to eq 1
-          expect(status.assign_to).to eq "someone@example.com"
+          expect(status.assign_to).to eq [{ "contact" => "someone@example.com" }]
           # Check the actions were imported
           postpone = status.actions.first
           expect(postpone).to_not be_nil

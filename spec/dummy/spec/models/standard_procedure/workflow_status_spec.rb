@@ -36,7 +36,10 @@ module StandardProcedure
               - reference: incoming
                 name: Incoming
                 position: 1
-                assign_to: nichola@example.com
+                assign_to: 
+                  - if: name == "For Anna"
+                    contact: anna@example.com
+                  - contact: nichola@example.com
                 actions:
                   - reference: place_order_with_supplier
                     name: Place order with Supplier
@@ -66,8 +69,18 @@ module StandardProcedure
       anna.touch
       nichola.touch
 
+      puts subject.assign_to
       subject.item_added user, item: item
       expect(item.assigned_to).to eq nichola
+    end
+
+    it "sets the assignment based on the rules defined" do
+      item.update name: "For Anna"
+      anna.touch
+      nichola.touch
+
+      subject.item_added user, item: item
+      expect(item.assigned_to).to eq anna
     end
 
     class ::Order < StandardProcedure::WorkflowItem

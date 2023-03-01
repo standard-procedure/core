@@ -31,18 +31,11 @@ When("he/she completes the order") do
   @item.perform_action @user, action_reference: "complete"
 end
 
-When("the website receives a new priority order to be processed") do
-  # do nothing
+When("{string} messages the customer") do |name|
+  @item.perform_action @user, action_reference: "send_message", recipients: [@item.contact], subject: "About your order", contents: "I need some more information", reminder_after: 24
 end
 
-Then("a new deadline of {int} day should be set against the order") do |int|
-  # do nothing
-end
-
-Then("{string} should receive a notification") do |name|
-  # do nothing
-end
-
-Then("she records the delivery details, marking the order as {string}") do |string|
-  # do nothing
+When("the customer replies to say that the order was received") do
+  @item.perform_action @customer.user, action_re
+  pending # Write code here that turns the phrase above into concrete actions
 end

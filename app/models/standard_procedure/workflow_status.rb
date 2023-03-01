@@ -22,9 +22,9 @@ module StandardProcedure
         alert_data.symbolize_keys!
         # Only add this alert if it meets any "if" clauses in the definition
         next unless evaluate(alert_data, item)
-        contacts = alert_data[:contacts].collect { |reference| account.contacts.find_by(reference: reference) }
+        contacts = alert_data[:contacts].map { |reference| item.find_contact_from(reference) }
         hours = alert_data[:hours].hours
-        item.add_alert user, type: alert_data[:type], due_at: hours.from_now, contacts: contacts
+        item.add_alert user, type: alert_data[:type], due_at: hours.from_now, message: alert_data[:message], contacts: contacts
       end
     end
 

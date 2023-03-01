@@ -103,7 +103,7 @@ module StandardProcedure
       return [] if array.blank?
       array.map do |value|
         # is this a global ID (which is stored as { "uri" => "some_id"})?
-        (value.respond_to?(:has_key?) && value.has_key?("uri")) ? GlobalID::Locator.locate(value["uri"]) : value
+        (value.respond_to?(:starts_with?) && value.starts_with?("gid")) ? GlobalID::Locator.locate(value) : value
       end
     end
 

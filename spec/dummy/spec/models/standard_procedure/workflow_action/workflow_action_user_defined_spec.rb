@@ -21,7 +21,7 @@ module StandardProcedure
         outcomes: [
           { type: "StandardProcedure::WorkflowAction::ChangeStatus",
             status: "stage_two" },
-          { type: "StandardProcedure::WorkflowAction::SendNotification",
+          { type: "StandardProcedure::WorkflowAction::SendMessage",
             recipients: ["contact"],
             message: "Here we go" },
         ],
@@ -43,9 +43,9 @@ module StandardProcedure
       change_status = spy("StandardProcedure::WorkflowAction::ChangeStatus")
       expect(StandardProcedure::WorkflowAction::ChangeStatus).to receive(:prepare_from).and_return(change_status)
       expect(change_status).to receive(:perform)
-      send_notification = spy("StandardProcedure::WorkflowAction::SendNotification")
-      expect(StandardProcedure::WorkflowAction::SendNotification).to receive(:prepare_from).and_return(send_notification)
-      expect(send_notification).to receive(:perform)
+      send_message = spy("StandardProcedure::WorkflowAction::SendMessage")
+      expect(StandardProcedure::WorkflowAction::SendMessage).to receive(:prepare_from).and_return(send_message)
+      expect(send_message).to receive(:perform)
 
       WorkflowAction::UserDefined.perform(user: user, item: item, configuration: configuration)
     end

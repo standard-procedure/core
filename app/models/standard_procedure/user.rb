@@ -5,6 +5,11 @@ module StandardProcedure
     has_name
     has_many :contacts, class_name: "StandardProcedure::Contact", dependent: :destroy
 
+    # TODO: Replace with proper permissions
+    def can?(perform_command, target)
+      true
+    end
+
     command :amend do |user, **params|
       update! params
       contacts.each { |c| c.amend user, name: self.name }

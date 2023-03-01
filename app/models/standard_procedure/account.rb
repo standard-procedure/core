@@ -13,11 +13,15 @@ module StandardProcedure
       group = groups.find_by!(reference: group) if group.is_a? String
       role = roles.find_by!(reference: role) if role.is_a? String
       reference ||= name
-      group.contacts.create! params.merge(group: group, role: role, reference: reference, name: name)
+      group.add_contact user, **params.merge(role: role, reference: reference, name: name)
     end
 
     command :remove_contact do |user, contact: nil|
       params[:contact].destroy
+    end
+
+    def contact_for(user)
+      contacts.find_by user: user
     end
   end
 end

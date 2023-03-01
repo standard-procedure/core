@@ -6,6 +6,7 @@ module StandardProcedure
     has_hash :configuration
     delegate :status, to: :item
     delegate :workflow, to: :status
+    delegate :account, to: :workflow
 
     def perform
     end
@@ -13,6 +14,10 @@ module StandardProcedure
     # Do any initialisation before the action is performed and return self
     def prepare
       self
+    end
+
+    def contact
+      account.contact_for user
     end
 
     class << self

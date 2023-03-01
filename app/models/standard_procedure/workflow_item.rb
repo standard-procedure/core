@@ -45,5 +45,13 @@ module StandardProcedure
       update! status: status
       status.item_added user, item: self
     end
+
+    def find_contact_from(reference)
+      return reference if reference.is_a? StandardProcedure::Contact
+      return nil unless reference.is_a? String
+      return account.contacts.find_by(reference: reference) unless self.respond_to? reference.to_sym
+      possible_contact = self.send reference.to_sym
+      return possible_contact.is_a?(StandardProcedure::Contact) ? possible_contact : nil
+    end
   end
 end

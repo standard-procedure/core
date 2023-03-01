@@ -16,7 +16,7 @@ module StandardProcedure
         notification = contact.notifications.first
         expect(notification).to_not be_nil
         expect(notification.linked_to?(thing)).to eq true
-        expect(notification.message.to_s).to include("Here is your notification")
+        expect(notification.details.to_s).to include("Here is your notification")
       end
     end
   end

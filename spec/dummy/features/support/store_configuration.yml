@@ -79,10 +79,12 @@ workflows:
           - if: priority == "Priority"
             hours: 8
             type: StandardProcedure::Alert::SendNotification
+            message: Priority order has been waiting for 8 hours
             contacts:
               - anna@example.com
           - hours: 24
             type: StandardProcedure::Alert::SendNotification
+            message: Order has been waiting for 24 hours
             contacts:
               - nichola@example.com
         actions:
@@ -94,7 +96,7 @@ workflows:
             type: Store::PlaceOrderWithGro
           - reference: send_message
             name: Send message
-            type: StandardProcedure::WorkflowAction::Message
+            type: StandardProcedure::WorkflowAction::SendMessage
           - reference: postpone
             name: Postpone
             type: StandardProcedure::WorkflowAction::Postponement
@@ -108,10 +110,12 @@ workflows:
           - if: priority == "Priority"
             hours: 24 
             type: StandardProcedure::Alert::SendNotification
+            message: Priority order needs follow up
             contacts: 
               - anna@example.com
           - hours: 120
             type: StandardProcedure::Alert::SendNotification
+            message: Order needs follow up
             contacts:
               - nichola@example.com
         actions:
@@ -124,7 +128,7 @@ workflows:
                 - type: StandardProcedure::WorkflowAction::ChangeStatus
                   status: requires_dispatch
           - name: Send message
-            type: StandardProcedure::WorkflowAction::Message
+            type: StandardProcedure::WorkflowAction::SendMessage
           - name: Place on hold
             type: StandardProcedure::WorkflowAction::Postponement
           - name: Cancel
@@ -135,6 +139,7 @@ workflows:
         alerts:
           - hours: 24
             type: StandardProcedure::Alert::SendNotification
+            message: Order needs dispatching
             contacts: 
               - nichola@example.com
         actions:
@@ -157,7 +162,7 @@ workflows:
                 - type: StandardProcedure::WorkflowAction::ChangeStatus
                   status: dispatched
           - name: Send message
-            type: StandardProcedure::WorkflowAction::Message
+            type: StandardProcedure::WorkflowAction::SendMessage
           - name: Place on hold
             type: StandardProcedure::WorkflowAction::Postponement
           - name: Cancel
@@ -169,10 +174,12 @@ workflows:
           - if: priority == "Priority"
             hours: 24 
             type: StandardProcedure::Alert::SendNotification
+            message: Check if priority order has arrived
             contacts: 
               - anna@example.com
           - hours: 48 
             type: StandardProcedure::Alert::SendNotification
+            message: Check if order has arrived
             contacts: 
               - nichola@example.com
         actions:
@@ -181,4 +188,4 @@ workflows:
             type: StandardProcedure::WorkflowAction::Complete
           - reference: send_message
             name: Send message
-            type: StandardProcedure::WorkflowAction::Message
+            type: StandardProcedure::WorkflowAction::SendMessage

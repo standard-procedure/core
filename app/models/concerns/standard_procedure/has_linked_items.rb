@@ -75,6 +75,7 @@ module StandardProcedure
         has_many_association_name = through
 
         self.has_many has_many_association_name, class_name: class_name, dependent: :destroy
+        self.has_many link_name, through: source
 
         define_method :link_for do |item|
           self.send(has_many_association_name).find_by(source => item)
@@ -95,12 +96,11 @@ module StandardProcedure
           link_for(item)&.destroy
         end
 
-        define_method :linked do |klass|
-          class_name = klass.to_s
+        define_method :linked do |class_name|
           type_field = :"#{singular_link_name}_type"
           id_field = :"#{singular_link_name}_id"
           ids = self.send(has_many_association_name).where(type_field => class_name).pluck(id_field).uniq
-          klass.where(id: ids)
+          class_name.constantize.where(id: ids)
         end
 
         Array.wrap(accessing).each do |class_name|
@@ -109,7 +109,7 @@ module StandardProcedure
           plural = klass.model_name.plural.to_sym
 
           define_method plural do
-            linked(klass)
+            linked(class_name)
           end
 
           define_method :"#{plural}=" do |models|
@@ -117,7 +117,7 @@ module StandardProcedure
           end
 
           define_method singular do
-            linked(klass).first
+            linked(class_name).first
           end
 
           define_method :"#{singular}=" do |model|

@@ -32,10 +32,10 @@ When("he/she completes the order") do
 end
 
 When("{string} messages the customer") do |name|
-  @item.perform_action @user, action_reference: "send_message", recipients: [@item.contact], subject: "About your order", contents: "I need some more information", reminder_after: 24
+  @message = @item.perform_action @user, action_reference: "send_message", recipients: [@customer], subject: "About your order", contents: "I need some more information", reminder_after: 24
 end
 
 When("the customer replies to say that the order was received") do
-  @item.perform_action @customer.user, action_re
-  pending # Write code here that turns the phrase above into concrete actions
+  @contact = @user.contacts.first
+  @item.perform_action @customer.user, action_reference: "send_message", recipients: [@contact], subject: "Re: About your order", contents: "Here's the information you were after"
 end

@@ -117,7 +117,7 @@ RSpec.describe StandardProcedure::HasCommands do
     Category.class_eval do
       command(:build_thing) { |user, **params| "should never be called" }
     end
-
+    allow(user).to receive(:can?).and_return(false)
     expect { category.build_thing user, name: "testfile.txt" }.to raise_exception(StandardProcedure::Command::Unauthorised)
   end
 

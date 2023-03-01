@@ -39,7 +39,6 @@ Feature: Store employee processes order
     When the 24 hour alert has passed
     Then "Nichola" should be notified
 
-  @wip
   Scenario: Receiving a priority order
     When "API" logs in
     And posts a new priority order to be processed
@@ -58,11 +57,10 @@ Feature: Store employee processes order
     And the previous alert should be inactive
     And the "order" should have a 24 hour alert set against it
     When the 24 hour alert has passed
-    Then "Anna" should receive a notification
-    #When Anna messages the customer
-    #Then a alert of 1 day should be set against the order
-    #When the customer replies to say that the order was received
-    #Then Anna should be notified
-    #When Anna marks the order as delivered
-    #Then the order should be marked as "completed"
-
+    Then "Anna" should be notified
+    When "Anna" messages the customer
+    Then the "order" should have a 24 hour alert set against it
+    When the customer replies to say that the order was received
+    Then "Anna" should be notified
+    When she completes the order
+    Then the "order" should be completed

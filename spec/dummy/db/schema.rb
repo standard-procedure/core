@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_02_27_101212) do
+ActiveRecord::Schema[7.0].define(version: 2023_03_01_114812) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -196,6 +196,34 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_27_101212) do
     t.index ["account_id"], name: "index_standard_procedure_groups_on_account_id"
   end
 
+  create_table "standard_procedure_message_links", force: :cascade do |t|
+    t.integer "message_id"
+    t.string "item_type"
+    t.integer "item_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["item_type", "item_id"], name: "index_standard_procedure_message_links_on_item"
+    t.index ["message_id"], name: "index_standard_procedure_message_links_on_message_id"
+  end
+
+  create_table "standard_procedure_message_recipients", force: :cascade do |t|
+    t.integer "message_id"
+    t.integer "recipient_id"
+    t.datetime "read_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["message_id"], name: "index_standard_procedure_message_recipients_on_message_id"
+    t.index ["recipient_id"], name: "index_standard_procedure_message_recipients_on_recipient_id"
+  end
+
+  create_table "standard_procedure_messages", force: :cascade do |t|
+    t.integer "sender_id"
+    t.string "subject", default: "", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["sender_id"], name: "index_standard_procedure_messages_on_sender_id"
+  end
+
   create_table "standard_procedure_notification_links", force: :cascade do |t|
     t.integer "notification_id"
     t.string "item_type"
@@ -346,6 +374,10 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_27_101212) do
   add_foreign_key "standard_procedure_folders", "standard_procedure_folders", column: "parent_id"
   add_foreign_key "standard_procedure_folders", "standard_procedure_groups", column: "group_id"
   add_foreign_key "standard_procedure_groups", "standard_procedure_accounts", column: "account_id"
+  add_foreign_key "standard_procedure_message_links", "standard_procedure_messages", column: "message_id"
+  add_foreign_key "standard_procedure_message_recipients", "standard_procedure_contacts", column: "recipient_id"
+  add_foreign_key "standard_procedure_message_recipients", "standard_procedure_messages", column: "message_id"
+  add_foreign_key "standard_procedure_messages", "standard_procedure_contacts", column: "sender_id"
   add_foreign_key "standard_procedure_notification_links", "standard_procedure_notifications", column: "notification_id"
   add_foreign_key "standard_procedure_notifications", "standard_procedure_contacts", column: "contact_id"
   add_foreign_key "standard_procedure_related_items", "standard_procedure_folder_items", column: "folder_item_id"

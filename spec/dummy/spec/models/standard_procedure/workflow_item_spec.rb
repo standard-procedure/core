@@ -24,6 +24,11 @@ module StandardProcedure
         templates:
           - reference: order
             name: Order
+            fields:
+              - reference: supervisor 
+                name: Supervisor
+                type: StandardProcedure::FieldDefinition::Model
+                model_type: StandardProcedure::Contact
         workflows:
           - reference: order_processing
             name: Order Processeing
@@ -37,6 +42,11 @@ module StandardProcedure
                 name: In Progress
                 position: 2
       YAML
+    end
+
+    before do
+      anna.touch
+      nichola.touch
     end
 
     it "assigns the item to a contact and notifies them" do
@@ -56,6 +66,23 @@ module StandardProcedure
       it "notifies the status that this item has been updated" do
         expect(in_progress_status).to receive(:item_added).with(user, item: subject)
         subject.set_status user, status: in_progress_status
+      end
+    end
+
+    describe "finding contacts" do
+      it "returns the given contact" do
+        expect(subject.find_contact_from(nichola)).to eq nichola
+      end
+      it "finds contacts by reference" do
+        expect(subject.find_contact_from("nichola@example.com")).to eq nichola
+      end
+      it "finds the item's contact" do
+        subject.update contact: nichola
+        expect(subject.find_contact_from("contact")).to eq nichola
+      end
+      it "finds contacts by referencing a custom field" do
+        subject.with_fields_from(template.field_definitions).update contact: nichola, supervisor: anna
+        expect(subject.find_contact_from("supervisor")).to eq anna
       end
     end
   end

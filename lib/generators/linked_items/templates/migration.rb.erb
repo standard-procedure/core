@@ -1,0 +1,9 @@
+class Create<%= link_table_name.camelize %> < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
+  def change
+    create_table :<%= link_table_name %> do |t|
+      t.belongs_to :<%= singular_name %>, foreign_key: { to_table: :<%= table_name %> }
+      t.belongs_to :<%= source_name %>, polymorphic: true, index: true
+      t.timestamps
+    end
+  end
+end

@@ -1,0 +1,4 @@
+class <%= link_class_name %> < ApplicationRecord
+  belongs_to :<%= singular_name %>, class_name: "<%= class_name %>"
+  belongs_to :<%= source_name %>, polymorphic: true
+end

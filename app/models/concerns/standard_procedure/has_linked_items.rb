@@ -17,20 +17,20 @@ module StandardProcedure
       #
       # `has_linked :people`
       #
-      # Which, when the default parameters are worked out, is equivalent to:
-      #   `has_linked :people, class_name: "NotificationLink", through: :linked_people, source: :person
+      # Which adds a new method `people` which returns an array of all people - which in this example will be a mix
+      # of users and contacts.
       #
-      # This generates an association with the intermediatery class:
+      # It works by generating an association with an intermediary class:
       #   `has_many :linked_people, class_name: "NotificationLink", dependent: :destroy`
       #
       # And adds the following methods:
-      #   `linked_to? item`
-      #   `link_to item`
-      #   `unlink_from item`
-      #   `link_for item` - the intermediate link for the given item
-      #   `linked klass` - all linked instances of the given class
-      # This is a fully polymorphic collection - so you're not limited to just Usesrs and Contacts - you
-      # could add an Invoice or Customer or whatever if you wanted.
+      #   `linked_to? person`
+      #   `link_to person`
+      #   `unlink_from person`
+      #   `link_for person` - the intermediate link for the given item
+      #   `linked class_name` - all linked instances of the given class
+      # This is a fully polymorphic collection - so you're not limited to just Users and Contacts - you
+      # could add an Invoice or Customer or whatever if you wanted (although that wouldn't make much sense if you called it "people")
       #
       # You need to define the intermediate class, which in this example, would look like this:
       #
@@ -51,21 +51,24 @@ module StandardProcedure
       #
       # And the Contact and User classes would use `is_linked_to` to define their side of the association.
       #
-      # If you want to keep quick access to both Contacts and Users, you can specify accessors:
-      # `has_linked :people, accessing: ["Contact", "User"]`
-      # which adds:
-      # `contact, contacts, contact=, contacts=`
-      # and
-      # `user, users, user=, users=`
-      #
       # Params:
       #   link_name - the name of the collection of linked objects on the "other side" of the intermediary
-      #   class_name - the class representing the link table
-      #   source - the attribute on the intermediary class that holds the target model
-      #   through - the name of the association holding the intermediary class
-      #   accessing - an array of classes for pre-defined accessors
+      #   class_name - the name of the intermediate class
+      #   source - the attribute on the intermediate class that holds the target model
+      #   through - the name of the association that accesses the intermediate class
       #
-      def has_linked(link_name, class_name: nil, through: nil, source: nil, accessing: [])
+      # In the example above - `Notification.has_linked :people` the default values would be:
+      #   class_name: "NotificationLink"
+      #   source: :person
+      #   through: :linked_people
+      #
+      def has_linked(
+        link_name,
+        class_name: nil,
+        through: nil,
+        source: nil,
+        accessing: []
+      )
         singular_link_name = link_name.to_s.singularize
         class_name ||= "#{model_name}Link"
         klass = class_name.constantize
@@ -74,8 +77,13 @@ module StandardProcedure
 
         has_many_association_name = through
 
-        self.has_many has_many_association_name, class_name: class_name, dependent: :destroy
-        self.has_many link_name, through: source
+        self.has_many has_many_association_name,
+                      class_name: class_name,
+                      dependent: :destroy
+
+        define_method link_name do
+          self.send(has_many_association_name).distinct.collect(&source)
+        end
 
         define_method :link_for do |item|
           self.send(has_many_association_name).find_by(source => item)
@@ -87,9 +95,10 @@ module StandardProcedure
 
         define_method :link_to do |item|
           return if item.blank? || item.destroyed? || linked_to?(item)
-          self.send(has_many_association_name).build(source => item).tap do |link|
-            link.save! unless self.new_record?
-          end
+          self
+            .send(has_many_association_name)
+            .build(source => item)
+            .tap { |link| link.save! unless self.new_record? }
         end
 
         define_method :unlink_from do |item|
@@ -99,11 +108,18 @@ module StandardProcedure
         define_method :linked do |class_name|
           type_field = :"#{singular_link_name}_type"
           id_field = :"#{singular_link_name}_id"
-          ids = self.send(has_many_association_name).where(type_field => class_name).pluck(id_field).uniq
+          ids =
+            self
+              .send(has_many_association_name)
+              .where(type_field => class_name)
+              .distinct
+              .pluck(id_field)
           class_name.constantize.where(id: ids)
         end
 
-        Array.wrap(accessing).each do |class_name|
+        Array
+          .wrap(accessing)
+          .each do |class_name|
           klass = class_name.to_s.constantize
           singular = klass.model_name.singular.to_sym
           plural = klass.model_name.plural.to_sym
@@ -136,14 +152,28 @@ module StandardProcedure
       # If `is_linked_to :notifications` is called, this will add two associations:
       #   has_many :notification_links, class_name: "NotificationLink", as: :item, dependent: :destroy
       #   has_many :notifications, through: :notification_links
-      def is_linked_to(association, class_name: nil, intermediary_class_name: nil, intermediary_association: nil, as: :item)
+      def is_linked_to(
+        association,
+        class_name: nil,
+        intermediary_class_name: nil,
+        intermediary_association: nil,
+        as: :item
+      )
         singular_association = association.to_s.singularize
         class_name ||= association.to_s.singularize.camelize
         intermediary_class_name ||= "#{class_name}Link"
-        intermediary_association ||= intermediary_class_name.demodulize.tableize.to_sym
+        intermediary_association ||=
+          intermediary_class_name.demodulize.tableize.to_sym
 
-        has_many intermediary_association, class_name: intermediary_class_name, as: as, dependent: :destroy
-        has_many association.to_sym, -> { order(:created_at).distinct }, class_name: class_name, through: intermediary_association, source: singular_association.to_sym
+        has_many intermediary_association,
+                 class_name: intermediary_class_name,
+                 as: as,
+                 dependent: :destroy
+        has_many association.to_sym,
+                 -> { order(:created_at).distinct },
+                 class_name: class_name,
+                 through: intermediary_association,
+                 source: singular_association.to_sym
       end
     end
   end

@@ -1,7 +1,7 @@
 FROM ruby:3.1.3
 # Set up the image
 RUN curl -fsSL https://deb.nodesource.com/setup_19.x | bash -
-RUN apt-get -y update -y && apt-get -y upgrade && apt-get install -y build-essential curl git mariadb-client imagemagick memcached nodejs
+RUN apt-get -y update -y && apt-get -y upgrade && apt-get install -y build-essential curl imagemagick memcached nodejs
 
 WORKDIR /usr/src/app
 COPY ./lib /usr/src/app/lib/

@@ -4,6 +4,7 @@ class CreateStandardProcedureContacts < ActiveRecord::Migration[7.0]
       t.belongs_to :user, foreign_key: { to_table: :standard_procedure_users }
       t.belongs_to :group, foreign_key: { to_table: :standard_procedure_groups }
       t.belongs_to :role, foreign_key: { to_table: :standard_procedure_roles }
+      t.string :access_code, null: false, default: ""
       t.string :reference, null: false, default: ""
       t.string :name, null: false, default: ""
       t.string :type, null: false, default: ""

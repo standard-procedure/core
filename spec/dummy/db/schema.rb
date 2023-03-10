@@ -126,6 +126,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_01_114812) do
     t.integer "user_id"
     t.integer "group_id"
     t.integer "role_id"
+    t.string "access_code", default: "", null: false
     t.string "reference", default: "", null: false
     t.string "name", default: "", null: false
     t.string "type", default: "", null: false

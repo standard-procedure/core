@@ -44,12 +44,11 @@ module StandardProcedure
       end
     end
     # `perform_action user, action_reference: @action_reference, **params`
-    # - user: the user who is performing the action
+    # - performed_by: the user who is performing the action
     # - action_reference: the reference of the action to perform
     # - **params: any other parameters needed by the action
     command :perform_action do |**params|
-      user = params.delete(:performed_by)
-      status.perform_action user, **params.merge(item: self)
+      status.perform_action **params.merge(item: self)
     end
 
     # `set_status user, reference: "a_status_reference"`

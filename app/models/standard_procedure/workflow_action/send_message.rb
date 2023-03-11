@@ -17,7 +17,7 @@ module StandardProcedure
           recipients: contacts,
           subject: subject,
           contents: contents.to_s,
-          performed_by: user,
+          performed_by: performed_by,
         )
       message.link_to item
     end
@@ -27,7 +27,7 @@ module StandardProcedure
                      due_at: reminder_after.hours.from_now,
                      message: "Follow up on sent message: #{subject}",
                      contacts: [contact],
-                     performed_by: user
+                     performed_by: performed_by
     end
   end
 end

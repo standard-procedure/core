@@ -1,4 +1,6 @@
-Then("the {string} should have a {int} hour alert set against it") do |item_type, h|
+Then(
+  "the {string} should have a {int} hour alert set against it",
+) do |item_type, h|
   time = h.hours.from_now
   @alert = @item.alerts.active.due_at(time).first
   expect(@alert).to_not be_nil

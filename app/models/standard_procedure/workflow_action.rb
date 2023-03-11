@@ -1,12 +1,13 @@
 module StandardProcedure
   class WorkflowAction < ApplicationRecord
     has_fields
-    belongs_to :user, class_name: "StandardProcedure::User"
+    belongs_to :performed_by, class_name: "StandardProcedure::User"
     belongs_to :item, class_name: "StandardProcedure::WorkflowItem"
     has_hash :configuration
     delegate :status, to: :item
     delegate :workflow, to: :status
     delegate :account, to: :workflow
+    alias user performed_by
 
     def perform
     end

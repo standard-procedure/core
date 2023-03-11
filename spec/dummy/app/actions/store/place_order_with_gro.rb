@@ -6,7 +6,7 @@ module Store
     validates :gro_reference, presence: true
 
     def perform
-      item.set_status user, reference: "order_placed"
+      item.set_status reference: "order_placed", performed_by: performed_by
     end
   end
 end

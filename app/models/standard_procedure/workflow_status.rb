@@ -46,14 +46,11 @@ module StandardProcedure
     # - item: the workflow-item that will be acted on
     # - **params: any other parameters needed by the action
     command :perform_action do |action_reference: nil, item: nil, **params|
-      user = params.delete(:performed_by)
       params =
         params.merge(
           configuration_for(action_reference).excluding(:name, :reference),
         )
-      action_handler_for(action_reference).perform(
-        params.merge(user: user, item: item),
-      )
+      action_handler_for(action_reference).perform(params.merge(item: item))
     end
 
     command :add_alerts do |item: nil, performed_by:|

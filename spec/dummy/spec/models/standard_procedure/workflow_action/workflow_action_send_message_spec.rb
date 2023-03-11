@@ -24,12 +24,12 @@ module StandardProcedure
         contents: "<div class=\"trix-content\">\n  Message\n</div>\n",
       ).and_return message
       expect(message).to receive(:link_to).with(item)
-      WorkflowAction::SendMessage.perform user: user,
-                                          item: item,
+      WorkflowAction::SendMessage.perform item: item,
                                           subject: "Test",
                                           contents: "Message",
                                           reminder_after: 24,
-                                          recipients: [first, second]
+                                          recipients: [first, second],
+                                          performed_by: user
     end
     it "sets a reminder for the sender" do
       Timecop.freeze do
@@ -40,12 +40,12 @@ module StandardProcedure
           contacts: [sender],
           performed_by: user,
         )
-        WorkflowAction::SendMessage.perform user: user,
-                                            item: item,
+        WorkflowAction::SendMessage.perform item: item,
                                             subject: "Test",
                                             contents: "Message",
                                             reminder_after: 24,
-                                            recipients: [first, second]
+                                            recipients: [first, second],
+                                            performed_by: user
       end
     end
   end

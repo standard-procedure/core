@@ -7,15 +7,21 @@ module StandardProcedure
     end
 
     def perform_outcomes
-      Array.wrap(configuration[:outcomes]).each do |outcome_params|
-        perform_outcome_from outcome_params
-      end
+      Array
+        .wrap(configuration[:outcomes])
+        .each { |outcome_params| perform_outcome_from outcome_params }
     end
 
     def perform_outcome_from(configuration)
       class_name = configuration.delete(:type)
-      configuration[:status] = workflow.statuses.find_by(reference: configuration[:status]) if configuration[:status].is_a? String
-      class_name.constantize.perform configuration.merge(user: user, item: item, configuration: configuration)
+      configuration[:status] = workflow.statuses.find_by(
+        reference: configuration[:status],
+      ) if configuration[:status].is_a? String
+      class_name.constantize.perform configuration.merge(
+                                       performed_by: performed_by,
+                                       item: item,
+                                       configuration: configuration,
+                                     )
     end
 
     def prepare

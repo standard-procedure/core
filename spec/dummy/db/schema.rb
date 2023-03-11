@@ -288,14 +288,14 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_01_114812) do
   end
 
   create_table "standard_procedure_workflow_actions", force: :cascade do |t|
-    t.integer "user_id"
+    t.integer "performed_by_id"
     t.integer "item_id"
     t.string "type", default: "", null: false
     t.text "field_data", limit: 16777216
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["item_id"], name: "index_standard_procedure_workflow_actions_on_item_id"
-    t.index ["user_id"], name: "index_standard_procedure_workflow_actions_on_user_id"
+    t.index ["performed_by_id"], name: "index_standard_procedure_workflow_actions_on_performed_by_id"
   end
 
   create_table "standard_procedure_workflow_item_templates", force: :cascade do |t|
@@ -384,7 +384,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_01_114812) do
   add_foreign_key "standard_procedure_related_items", "standard_procedure_folder_items", column: "folder_item_id"
   add_foreign_key "standard_procedure_related_items", "standard_procedure_workflow_items", column: "workflow_item_id"
   add_foreign_key "standard_procedure_roles", "standard_procedure_accounts", column: "account_id"
-  add_foreign_key "standard_procedure_workflow_actions", "standard_procedure_users", column: "user_id"
+  add_foreign_key "standard_procedure_workflow_actions", "standard_procedure_users", column: "performed_by_id"
   add_foreign_key "standard_procedure_workflow_actions", "standard_procedure_workflow_items", column: "item_id"
   add_foreign_key "standard_procedure_workflow_item_templates", "standard_procedure_accounts", column: "account_id"
   add_foreign_key "standard_procedure_workflow_items", "standard_procedure_contacts", column: "assigned_to_id"

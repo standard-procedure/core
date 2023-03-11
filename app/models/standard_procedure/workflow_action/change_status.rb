@@ -9,7 +9,7 @@ module StandardProcedure
 
     def update_status
       item.update status: self.status
-      status.item_added(item: item, performed_by: user)
+      status.item_added(item: item, performed_by: performed_by)
     end
   end
 end

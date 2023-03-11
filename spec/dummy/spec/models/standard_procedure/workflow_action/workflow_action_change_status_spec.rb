@@ -34,10 +34,10 @@ module StandardProcedure
         :item_added,
       ).with(performed_by: user, item: item)
       WorkflowAction::ChangeStatus.perform(
-        user: user,
         item: item,
         configuration: configuration,
         status: stage_two,
+        performed_by: user,
       )
     end
   end

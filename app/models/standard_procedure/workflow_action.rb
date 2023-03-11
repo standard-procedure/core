@@ -30,7 +30,7 @@ module StandardProcedure
         configuration = params.delete(:configuration)
         prepare_from(configuration).tap do |action|
           action.update! params
-          action.perform
+          action.perform()
         end
       end
 
@@ -42,9 +42,13 @@ module StandardProcedure
     protected
 
     def load_field_definitions
-      Array.wrap(configuration[:fields]).each do |field_data|
-        field_definitions.where(reference: field_data[:reference]).first_or_initialize(field_data)
-      end
+      Array
+        .wrap(configuration[:fields])
+        .each do |field_data|
+          field_definitions.where(
+            reference: field_data[:reference],
+          ).first_or_initialize(field_data)
+        end
     end
   end
 end

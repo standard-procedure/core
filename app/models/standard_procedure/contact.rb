@@ -42,7 +42,7 @@ module StandardProcedure
       user.blank?
     end
 
-    command :send_message do |user, recipients: [], subject: "", contents: ""|
+    command :send_message do |recipients: [], subject:, contents:, performed_by:|
       Message
         .create!(sender: self, subject: subject, contents: contents)
         .tap do |message|

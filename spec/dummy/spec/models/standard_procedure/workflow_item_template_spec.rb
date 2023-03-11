@@ -41,15 +41,30 @@ module StandardProcedure
       end
       it "tells the status that the item has been added" do
         expect(incoming_status).to receive(:item_added)
-        subject.add_item user, name: "Order 123", group: customers, status: incoming_status
+        subject.add_item name: "Order 123",
+                         group: customers,
+                         status: incoming_status,
+                         performed_by: user
       end
       it "uses the contact's group from the contact if no group is provided" do
-        contact = account.add_contact user, group: customers, name: "Some person", role: role
-        item = subject.add_item user, name: "Order 123", contact: contact, status: incoming_status
+        contact =
+          account.add_contact group: customers,
+                              name: "Some person",
+                              role: role,
+                              performed_by: user
+        item =
+          subject.add_item name: "Order 123",
+                           contact: contact,
+                           status: incoming_status,
+                           performed_by: user
         expect(item.group).to eq customers
       end
       it "uses the initial status if the workflow is provided" do
-        item = subject.add_item user, name: "Order 123", group: customers, workflow: workflow
+        item =
+          subject.add_item name: "Order 123",
+                           group: customers,
+                           workflow: workflow,
+                           performed_by: user
         expect(item.status).to eq incoming_status
       end
     end

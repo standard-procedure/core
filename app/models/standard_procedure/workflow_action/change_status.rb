@@ -4,8 +4,12 @@ module StandardProcedure
     validates :status, presence: true
 
     def perform
+      update_status
+    end
+
+    def update_status
       item.update status: self.status
-      status.item_added user, item: item
+      status.item_added(item: item, performed_by: user)
     end
   end
 end

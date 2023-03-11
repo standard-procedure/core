@@ -17,10 +17,10 @@ module StandardProcedure
       it "sends messages to other contacts" do
         nathan.touch
 
-        subject.send_message user,
+        subject.send_message subject: "Hello",
+                             contents: "World!",
                              recipients: [nathan],
-                             subject: "Hello",
-                             contents: "World!"
+                             performed_by: user
 
         message = subject.sent_messages.last
         expect(message).to_not be_nil

@@ -7,13 +7,14 @@ module StandardProcedure
              class_name: "StandardProcedure::Contact",
              dependent: :destroy
 
-    command :attach do |user, access_code: ""|
+    command :attach do |access_code:, performed_by:|
       Contact.find_by!(access_code: access_code).update user: self
     end
 
-    command :amend do |user, **params|
+    command :amend do |**params|
+      user = params.delete(:performed_by)
       update! params
-      contacts.each { |c| c.amend user, name: self.name }
+      contacts.each { |c| c.amend name: self.name, performed_by: user }
     end
 
     # TODO: Replace with proper permissions

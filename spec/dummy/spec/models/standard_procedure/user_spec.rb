@@ -16,7 +16,7 @@ module StandardProcedure
       first_anna.touch
       second_anna.touch
 
-      subject.amend User.root, name: "Anna-Maria"
+      subject.amend name: "Anna-Maria", performed_by: User.root
 
       expect(first_anna.reload.name).to eq "Anna-Maria"
       expect(second_anna.reload.name).to eq "Anna-Maria"
@@ -30,7 +30,7 @@ module StandardProcedure
       second_anna.update user: nil
       expect(subject.contacts).to_not include(second_anna)
 
-      subject.attach subject, access_code: second_anna.access_code
+      subject.attach access_code: second_anna.access_code, performed_by: subject
       expect(subject.contacts).to_not include(second_anna)
     end
   end

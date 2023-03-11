@@ -6,11 +6,28 @@ module StandardProcedure
     has_field :reminder_after
 
     def perform
+      send_message
+      set_reminder if reminder_after.present?
+    end
+
+    def send_message
       contacts = Array.wrap(recipients).map { |r| item.find_contact_from(r) }
-      contact.send_message(user, recipients: contacts, subject: subject, contents: contents.to_s).tap do |message|
-        message.link_to item
-        item.add_alert user, type: "StandardProcedure::Alert::SendNotification", due_at: reminder_after.hours.from_now, message: "Follow up on sent message: #{subject}", contacts: [contact] unless reminder_after.blank?
-      end
+      message =
+        contact.send_message(
+          recipients: contacts,
+          subject: subject,
+          contents: contents.to_s,
+          performed_by: user,
+        )
+      message.link_to item
+    end
+
+    def set_reminder
+      item.add_alert type: "StandardProcedure::Alert::SendNotification",
+                     due_at: reminder_after.hours.from_now,
+                     message: "Follow up on sent message: #{subject}",
+                     contacts: [contact],
+                     performed_by: user
     end
   end
 end

@@ -1,41 +1,35 @@
-When("posts a new standard order to be processed") do
-  @customer =
-    @account.add_contact role: "customer",
-                         group: "customers",
-                         name: "George Testington", #, address: "123 Fake Street", postcode: "SP1 1SP"
-                         performed_by: @user
-  @order_processing = @account.workflows.find_by reference: "order_processing"
+When "posts a new standard order in the customer's orders folder" do
+  workflow = @account.workflows.find_by reference: "order_processing"
+  folder = @customer.folders.find_by name: "Orders"
+  template = @account.templates.find_by reference: "order"
   @item =
-    @order_processing.add_item contact: @customer,
-                               template: "order",
-                               name: "ORDER101",
-                               workflow: @order_processing,
-                               order_number: "123",
-                               first_name: "George",
-                               last_name: "Testington",
-                               product: "Birth Certificate",
-                               priority: "Standard",
-                               performed_by: @user
+    template.add_item_to folder: folder,
+                         contact: @customer,
+                         name: "ORDER101",
+                         workflow: workflow,
+                         order_number: "123",
+                         first_name: "George",
+                         last_name: "Testington",
+                         product: "Birth Certificate",
+                         priority: "Standard",
+                         performed_by: @user
 end
 
-When("posts a new priority order to be processed") do
-  @customer =
-    @account.add_contact role: "customer",
-                         group: "customers",
-                         name: "George Testington", #, address: "123 Fake Street", postcode: "SP1 1SP"
-                         performed_by: @user
-  @order_processing = @account.workflows.find_by reference: "order_processing"
+When("posts a new priority order in the customer's orders folder") do
+  workflow = @account.workflows.find_by reference: "order_processing"
+  folder = @customer.folders.find_by name: "Orders"
+  template = @account.templates.find_by reference: "order"
   @item =
-    @order_processing.add_item contact: @customer,
-                               template: "order",
-                               name: "ORDER101",
-                               workflow: @order_processing,
-                               order_number: "123",
-                               first_name: "George",
-                               last_name: "Testington",
-                               product: "Birth Certificate",
-                               priority: "Priority",
-                               performed_by: @user
+    template.add_item_to folder: folder,
+                         contact: @customer,
+                         name: "ORDER101",
+                         workflow: workflow,
+                         order_number: "123",
+                         first_name: "George",
+                         last_name: "Testington",
+                         product: "Birth Certificate",
+                         priority: "Priority",
+                         performed_by: @user
 end
 
 Then("she/he should see the newly received order") do

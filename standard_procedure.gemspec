@@ -17,15 +17,15 @@ Gem::Specification.new do |spec|
   spec.metadata["source_code_uri"] = "https://example.com"
   spec.metadata["changelog_uri"] = "https://example.com"
 
-  spec.files = Dir.chdir(File.expand_path(__dir__)) do
-    Dir["{app,config,db,lib}/**/*", "Rakefile", "README.md"]
-  end
-  spec.test_files = Dir.chdir(File.expand_path(__dir__)) do
-    Dir["spec/**/*"]
-  end
+  spec.files =
+    Dir.chdir(File.expand_path(__dir__)) do
+      Dir["{app,config,db,lib}/**/*", "Rakefile", "README.md"]
+    end
+  spec.test_files = Dir.chdir(File.expand_path(__dir__)) { Dir["spec/**/*"] }
 
   spec.add_dependency "rails", ">=  6.1"
   spec.add_dependency "acts_as_list", ">= 1.0"
+  spec.add_dependency "ancestry"
   spec.add_dependency "rujitsu"
   spec.add_dependency "cancancan"
 end

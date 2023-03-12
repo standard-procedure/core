@@ -10,6 +10,6 @@ class CreateStandardProcedureAlerts < ActiveRecord::Migration[7.0]
       t.timestamps
     end
 
-    create_join_table :standard_procedure_alerts, :standard_procedure_contacts
+    create_join_table :standard_procedure_alerts, :standard_procedure_folders
   end
 end

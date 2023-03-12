@@ -1,14 +1,6 @@
 module StandardProcedure
-  class WorkflowItem < ApplicationRecord
-    has_name
-    has_reference
-    has_fields
-    belongs_to :template, class_name: "StandardProcedure::WorkflowItemTemplate"
+  class WorkflowItem < Document
     belongs_to :status, class_name: "StandardProcedure::WorkflowStatus"
-    belongs_to :group, class_name: "StandardProcedure::Group"
-    belongs_to :contact,
-               class_name: "StandardProcedure::Contact",
-               optional: true
     belongs_to :assigned_to,
                class_name: "StandardProcedure::Contact",
                optional: true
@@ -21,7 +13,6 @@ module StandardProcedure
              as: :item,
              dependent: :destroy
     delegate :workflow, to: :status
-    delegate :account, to: :workflow
     delegate :available_actions, to: :status
     delegate :name_for, to: :status
     delegate :required_fields_for, to: :status
@@ -31,7 +22,6 @@ module StandardProcedure
                             foreign_key: "workflow_item_id",
                             association_foreign_key: "folder_item_id"
     enum item_status: { active: 0, completed: 100, cancelled: -1 }
-    acts_as_list scope: :status
 
     command :add_alert
     # `assign_to @user, contact: @contact`
@@ -63,19 +53,15 @@ module StandardProcedure
     def find_contact_from(reference)
       return reference if reference.is_a? StandardProcedure::Contact
       return nil unless reference.is_a? String
-      unless self.respond_to? reference.to_sym
+      if !self.respond_to? reference.to_sym
         return account.contacts.find_by(reference: reference)
       end
       possible_contact = self.send reference.to_sym
-      return(
-        (
-          if possible_contact.is_a?(StandardProcedure::Contact)
-            possible_contact
-          else
-            nil
-          end
-        )
-      )
+      if possible_contact.is_a?(StandardProcedure::Contact)
+        return possible_contact
+      else
+        return nil
+      end
     end
   end
 end

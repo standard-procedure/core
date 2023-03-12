@@ -1,6 +1,7 @@
 templates:
   - reference: order
     name: Order
+    item_type: Order
     fields:
       - reference: order_number
         name: Order No.
@@ -20,13 +21,11 @@ templates:
         name: Last name
         type: StandardProcedure::FieldDefinition::Text
       - reference: priority
-        name: Priority 
+        name: Priority
         type: StandardProcedure::FieldDefinition::Dropdown
         options:
           - Standard
           - Priority
-slot_definitions:
-form_templates:
 roles:
   - reference: manager
     name: Manager
@@ -71,7 +70,7 @@ workflows:
       - reference: incoming_order
         name: Incoming
         type: List
-        assign_to: 
+        assign_to:
           - if: priority == "Priority"
             contact: anna@example.com
           - contact: nichola@example.com
@@ -108,10 +107,10 @@ workflows:
         type: List
         alerts:
           - if: priority == "Priority"
-            hours: 24 
+            hours: 24
             type: StandardProcedure::Alert::SendNotification
             message: Priority order needs follow up
-            contacts: 
+            contacts:
               - anna@example.com
           - hours: 120
             type: StandardProcedure::Alert::SendNotification
@@ -140,7 +139,7 @@ workflows:
           - hours: 24
             type: StandardProcedure::Alert::SendNotification
             message: Order needs dispatching
-            contacts: 
+            contacts:
               - nichola@example.com
         actions:
           - name: Reassign
@@ -149,7 +148,7 @@ workflows:
             name: Dispatch
             configuration:
               fields:
-                - reference: delivery_type 
+                - reference: delivery_type
                   name: Delivery
                   type: StandardProcedure::FieldDefinition::Dropdown
                   options:
@@ -172,15 +171,15 @@ workflows:
         type: List
         alerts:
           - if: priority == "Priority"
-            hours: 24 
+            hours: 24
             type: StandardProcedure::Alert::SendNotification
             message: Check if priority order has arrived
-            contacts: 
+            contacts:
               - anna@example.com
-          - hours: 48 
+          - hours: 48
             type: StandardProcedure::Alert::SendNotification
             message: Check if order has arrived
-            contacts: 
+            contacts:
               - nichola@example.com
         actions:
           - reference: complete

@@ -7,7 +7,7 @@ class CreateStandardProcedureWorkflowActions < ActiveRecord::Migration[7.0]
                    }
       t.belongs_to :item,
                    foreign_key: {
-                     to_table: :standard_procedure_workflow_items,
+                     to_table: :standard_procedure_folder_items,
                    }
       t.string :type, null: false, default: ""
       t.text :field_data, limit: 16.megabytes

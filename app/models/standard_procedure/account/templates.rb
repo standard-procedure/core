@@ -4,7 +4,10 @@ module StandardProcedure
       extend ActiveSupport::Concern
 
       included do
-        has_many :templates, -> { order :name }, class_name: "StandardProcedure::WorkflowItemTemplate", dependent: :destroy
+        has_many :templates,
+                 -> { order :name },
+                 class_name: "StandardProcedure::DocumentTemplate",
+                 dependent: :destroy
         has_many :items, -> { order :position }, through: :templates
 
         command :add_template, :remove_template

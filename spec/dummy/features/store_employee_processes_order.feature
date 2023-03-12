@@ -11,7 +11,8 @@ Feature: Store employee processes order
 
   Scenario: Receiving a standard order
     When "API" logs in
-    And posts a new standard order to be processed
+    And creates a new "customer" called "Dave Potato" in the "customers" group
+    And posts a new standard order in the customer's orders folder
     Then the "order" should have a 24 hour alert set against it
     And the "order" should have a status of "incoming_order"
     And "Nichola" should be notified
@@ -34,14 +35,16 @@ Feature: Store employee processes order
 
   Scenario: Order is not processed in time
     When "API" logs in
-    And posts a new standard order to be processed
+    And creates a new "customer" called "Leo Langsam" in the "customers" group
+    And posts a new standard order in the customer's orders folder
     Then the "order" should have a 24 hour alert set against it
     When the 24 hour alert has passed
     Then "Nichola" should be notified
 
   Scenario: Receiving a priority order
     When "API" logs in
-    And posts a new priority order to be processed
+    And creates a new "customer" called "Sue Speedy" in the "customers" group
+    And posts a new priority order in the customer's orders folder
     Then the "order" should have a 8 hour alert set against it
     And the "order" should have a status of "incoming_order"
     And "Anna" should be notified

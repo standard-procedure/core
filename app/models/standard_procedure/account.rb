@@ -7,7 +7,7 @@ module StandardProcedure
              dependent: :destroy
     include StandardProcedure::Account::Configuration
     include StandardProcedure::Account::Roles
-    include StandardProcedure::Account::Groups
+    include StandardProcedure::Account::Organisations
     include StandardProcedure::Account::Workflows
     include StandardProcedure::Account::Templates
 

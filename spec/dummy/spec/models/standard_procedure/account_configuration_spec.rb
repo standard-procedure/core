@@ -46,7 +46,8 @@ module StandardProcedure
         end
         it "does not replace existing groups" do
           account = a_saved Account
-          suppliers = account.groups.create reference: "organisations", name: "Supplier"
+          suppliers =
+            account.groups.create reference: "organisations", name: "Supplier"
           account.configure_from standard_configuration
           group = account.groups.find_by reference: "organisations"
           expect(suppliers).to eq group
@@ -65,7 +66,9 @@ module StandardProcedure
           group = account.groups.find_by reference: "organisations"
           address_field = group.field_definitions.find_by reference: "address"
           expect(address_field).to_not be_nil
-          expect(address_field.model_name.to_s).to eq "StandardProcedure::FieldDefinition::Address"
+          expect(
+            address_field.model_name.to_s,
+          ).to eq "StandardProcedure::FieldDefinition::Address"
         end
       end
       describe "roles" do
@@ -116,7 +119,9 @@ module StandardProcedure
           staff = account.roles.find_by reference: "staff"
           ni_field = staff.field_definitions.find_by reference: "ni_number"
           expect(ni_field).to_not be_nil
-          expect(ni_field.model_name.to_s).to eq "StandardProcedure::FieldDefinition::Text"
+          expect(
+            ni_field.model_name.to_s,
+          ).to eq "StandardProcedure::FieldDefinition::Text"
         end
       end
       describe "workflows" do
@@ -135,7 +140,7 @@ module StandardProcedure
                   - reference: draft
                     name: Draft
                     position: 1
-                    assign_to: 
+                    assign_to:
                       - contact: someone@example.com
                     actions:
                       - reference: postpone
@@ -143,7 +148,7 @@ module StandardProcedure
                         type: StandardProcedure::WorkflowItem::Postpone
                       - reference: record_minutes
                         name: Record Minutes
-                        type: Disciplinary::RecordMinutes                          
+                        type: Disciplinary::RecordMinutes
                   - reference: hearing_complete
                     name: Hearing Complete
                     position: 2
@@ -172,13 +177,17 @@ module StandardProcedure
           status = workflow.statuses.find_by reference: "draft"
           expect(status).to_not be_nil
           expect(status.position).to eq 1
-          expect(status.assign_to).to eq [{ "contact" => "someone@example.com" }]
+          expect(status.assign_to).to eq [
+               { "contact" => "someone@example.com" },
+             ]
           # Check the actions were imported
           postpone = status.actions.first
           expect(postpone).to_not be_nil
           expect(postpone["reference"]).to eq "postpone"
           expect(postpone["name"]).to eq "Postpone"
-          expect(postpone["type"]).to eq "StandardProcedure::WorkflowItem::Postpone"
+          expect(
+            postpone["type"],
+          ).to eq "StandardProcedure::WorkflowItem::Postpone"
           record_minutes = status.actions.last
           expect(record_minutes).to_not be_nil
           expect(record_minutes["reference"]).to eq "record_minutes"
@@ -187,8 +196,12 @@ module StandardProcedure
         end
         it "does not replace existing workflows" do
           account = a_saved Account
-          procedures = account.workflows.create reference: "disciplinaries", name: "HR Procedures"
-          invited = procedures.statuses.create reference: "draft", name: "Invited to hearing"
+          procedures =
+            account.workflows.create reference: "disciplinaries",
+                                     name: "HR Procedures"
+          invited =
+            procedures.statuses.create reference: "draft",
+                                       name: "Invited to hearing"
           account.configure_from standard_configuration
           workflow = account.workflows.find_by reference: "disciplinaries"
           expect(procedures).to eq workflow
@@ -217,6 +230,7 @@ module StandardProcedure
             templates:
               - reference: orders
                 name: Order
+                item_type: Order
                 fields:
                   - reference: address
                     name: Address
@@ -229,6 +243,7 @@ module StandardProcedure
               - reference: orders
                 name: Order
                 type: CardType
+                item_type: Order
           YAML
         end
 
@@ -237,8 +252,9 @@ module StandardProcedure
           account.configure_from standard_configuration
           template = account.templates.find_by reference: "orders"
           expect(template).to_not be_nil
+          expect(template.item_type).to eq "Order"
         end
-        it "does not replace existing groups" do
+        it "does not replace existing templates" do
           account = a_saved Account
           sales = account.templates.create reference: "orders", name: "Sales"
           account.configure_from standard_configuration
@@ -257,9 +273,12 @@ module StandardProcedure
           account = a_saved Account
           account.configure_from standard_configuration
           template = account.templates.find_by reference: "orders"
-          address_field = template.field_definitions.find_by reference: "address"
+          address_field =
+            template.field_definitions.find_by reference: "address"
           expect(address_field).to_not be_nil
-          expect(address_field.model_name.to_s).to eq "StandardProcedure::FieldDefinition::Address"
+          expect(
+            address_field.model_name.to_s,
+          ).to eq "StandardProcedure::FieldDefinition::Address"
         end
       end
     end

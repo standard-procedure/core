@@ -2,20 +2,20 @@ require "rails_helper"
 
 module StandardProcedure
   RSpec.describe WorkflowAction::UserDefined, type: :model do
-    let(:item) { a_saved_item_titled "Something" }
-    let(:stage_one) { item.status }
+    let(:document) { a_saved_document_titled "Something" }
+    let(:stage_one) { document.status }
     let(:stage_two) do
       a_saved WorkflowStatus,
               reference: "stage_two",
               workflow: workflow,
               position: 2
     end
-    let(:workflow) { stage_one.workflow }
-    let(:account) { workflow.account }
+    let(:workflow) { a_saved Workflow, account: account }
+    let(:account) { a_saved Account }
     let(:contact) do
-      a_saved_contact_called "Someone", account: account, user: user
+      a_saved_contact_called "User", account: account, user: user
     end
-    let(:user) { a_saved ::User }
+    let(:user) { a_saved User }
     let(:configuration) do
       {
         reference: "some_action",
@@ -40,6 +40,9 @@ module StandardProcedure
         ],
       }
     end
+
+    before { contact.touch }
+
     it "builds and assigns user-defined fields" do
       action = WorkflowAction::UserDefined.prepare_from(configuration)
       field_definition = action.field_definitions.first
@@ -68,7 +71,7 @@ module StandardProcedure
 
       WorkflowAction::UserDefined.perform(
         performed_by: user,
-        item: item,
+        document: document,
         configuration: configuration,
       )
     end

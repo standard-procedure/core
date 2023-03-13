@@ -19,7 +19,7 @@ module StandardProcedure
       ) if configuration[:status].is_a? String
       class_name.constantize.perform configuration.merge(
                                        performed_by: performed_by,
-                                       item: item,
+                                       document: document,
                                        configuration: configuration,
                                      )
     end

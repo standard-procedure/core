@@ -53,7 +53,7 @@ roles:
   - reference: registry_office
     name: Registry Office
     access_level: restricted
-groups:
+organisations:
   - reference: api_users
     name: API
   - reference: employees

@@ -14,8 +14,10 @@ class CreateStandardProcedureFolders < ActiveRecord::Migration[7.0]
 
       t.text :field_data, limit: 16.megabytes
 
-      # Contact defailts
+      # Contact fields
+      t.belongs_to :user, foreign_key: { to_table: :standard_procedure_users }
       t.belongs_to :role, foreign_key: { to_table: :standard_procedure_roles }
+      t.string :access_code, default: "", null: false, index: true
       t.timestamps
     end
   end

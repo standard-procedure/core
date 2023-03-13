@@ -10,7 +10,6 @@ module StandardProcedure
     include StandardProcedure::HasFieldDefinitions
     include StandardProcedure::HasFields
     include StandardProcedure::HasLinkedItems
-    include StandardProcedure::HasAncestors
     include StandardProcedure::HasCommands
 
     defines_commands

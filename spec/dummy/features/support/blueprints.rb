@@ -41,6 +41,7 @@ def a_saved_contact_called(
   role: nil,
   user: nil
 )
+  reference ||= name
   user ||= StandardProcedure::User.where(name: name).first_or_create
   account ||= a_saved StandardProcedure::Account
   organisation ||= a_saved StandardProcedure::Organisation, account: account
@@ -48,6 +49,7 @@ def a_saved_contact_called(
 
   return(
     a_saved StandardProcedure::Contact,
+            account: account,
             parent: organisation,
             name: name,
             reference: reference,
@@ -71,19 +73,15 @@ when_creating_a StandardProcedure::WorkflowStatus,
                 generate: {
                   workflow: -> { a_saved StandardProcedure::Workflow },
                 }
-when_creating_a StandardProcedure::WorkflowItem,
+when_creating_a StandardProcedure::Document,
                 auto_generate: [:name],
                 generate: {
-                  template: -> {
-                    a_saved StandardProcedure::WorkflowItemTemplate,
-                            status: -> {
-                              a_saved StandardProcedure::WorkflowStatus
-                            }
-                  },
+                  template: -> { a_saved StandardProcedure::DocumentTemplate },
                 }
 
-def a_saved_item_titled(
-  reference,
+def a_saved_document_titled(
+  name,
+  reference: nil,
   account: nil,
   status: nil,
   workflow: nil,
@@ -92,19 +90,22 @@ def a_saved_item_titled(
   organisation: nil
 )
   account ||= a_saved StandardProcedure::Account
-  template ||= a_saved StandardProcedure::WorkflowItemTemplate, account: account
+  template ||= a_saved StandardProcedure::DocumentTemplate, account: account
   organisation ||= a_saved StandardProcedure::Organisation, account: account
   contact ||=
-    a_saved_contact_called "Someone", account: account, parent: organisation
+    a_saved_contact_called "Someone",
+                           account: account,
+                           organisation: organisation
   workflow ||= a_saved StandardProcedure::Workflow, account: account
   status ||=
     workflow.statuses.first ||
       a_saved(StandardProcedure::WorkflowStatus, workflow: workflow)
   return(
-    a_saved StandardProcedure::WorkflowItem,
+    a_saved StandardProcedure::Document,
+            name: name,
             reference: reference,
             template: template,
             status: status,
-            contact: contact
+            folder: contact
   )
 end

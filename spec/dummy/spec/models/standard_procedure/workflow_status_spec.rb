@@ -3,10 +3,10 @@ require "rails_helper"
 module StandardProcedure
   RSpec.describe WorkflowStatus, type: :model do
     subject { workflow.statuses.find_by reference: "incoming" }
-    let(:item) do
-      a_saved StandardProcedure::WorkflowItem,
+    let(:document) do
+      a_saved StandardProcedure::Document,
               type: "Order",
-              group: employees,
+              folder: employees,
               status: subject,
               template: template,
               name: "Something"
@@ -16,23 +16,26 @@ module StandardProcedure
     let(:template) { account.templates.find_by reference: "order" }
     let(:workflow) { account.workflows.find_by reference: "order_processing" }
     let(:staff) { account.roles.find_by reference: "staff" }
-    let(:employees) { account.groups.find_by reference: "employees" }
-    let(:suppliers) { account.groups.find_by reference: "suppliers" }
+    let(:employees) { account.organisations.find_by reference: "employees" }
+    let(:suppliers) { account.organisations.find_by reference: "suppliers" }
     let(:nichola) do
       a_saved StandardProcedure::Contact,
-              group: employees,
+              account: account,
+              parent: employees,
               role: staff,
               reference: "nichola@example.com"
     end
     let(:anna) do
       a_saved StandardProcedure::Contact,
-              group: employees,
+              account: account,
+              parent: employees,
               role: staff,
               reference: "anna@example.com"
     end
     let(:supplier_1) do
       a_saved StandardProcedure::Contact,
-              group: suppliers,
+              account: account,
+              parent: suppliers,
               role: supplier,
               reference: "supplier1@example.com"
     end
@@ -43,7 +46,7 @@ module StandardProcedure
             name: Staff
           - reference: supplier
             name: Supplier
-        groups:
+        organisations:
           - reference: employees
             name: Employee
           - reference: suppliers
@@ -92,24 +95,24 @@ module StandardProcedure
       YAML
     end
 
-    it "sets the default assignment on the item when it is added" do
+    it "sets the default assignment on the document when it is added" do
       anna.touch
       nichola.touch
 
-      subject.item_added item: item, performed_by: user
-      expect(item.assigned_to).to eq nichola
+      subject.document_added document: document, performed_by: user
+      expect(document.assigned_to).to eq nichola
     end
 
     it "sets the assignment based on the rules defined" do
-      item.update name: "For Anna"
+      document.update name: "For Anna"
       anna.touch
       nichola.touch
 
-      subject.item_added item: item, performed_by: user
-      expect(item.assigned_to).to eq anna
+      subject.document_added document: document, performed_by: user
+      expect(document.assigned_to).to eq anna
     end
 
-    class ::Order < StandardProcedure::WorkflowItem
+    class ::Order < StandardProcedure::Document
       has_field :priority, default: "low"
     end
 
@@ -118,7 +121,7 @@ module StandardProcedure
       validates :escalation_reason, presence: true
 
       def perform
-        item.update! priority: "high"
+        document.update! priority: "high"
       end
     end
 
@@ -154,46 +157,46 @@ module StandardProcedure
       action =
         subject.perform_action(
           action_reference: "make_priority",
-          item: item,
+          document: document,
           escalation_reason: "It's urgent",
           performed_by: user,
         )
       expect(action.escalation_reason).to eq "It's urgent"
-      expect(action.item.priority).to eq "high"
+      expect(action.document.priority).to eq "high"
     end
     it "performs a user-defined action" do
       expect_any_instance_of(
         StandardProcedure::WorkflowAction::UserDefined,
       ).to receive(:perform)
       subject.perform_action action_reference: "place_order_with_supplier",
-                             item: item,
+                             document: document,
                              performed_by: user
     end
 
-    it "adds alerts to an item when it is added" do
+    it "adds alerts to an document when it is added" do
       Timecop.freeze(Time.now) do
         anna.touch
         nichola.touch
 
-        subject.item_added item: item, performed_by: user
-        expect(item.alerts).to_not be_empty
-        alert = item.alerts.first
+        subject.document_added document: document, performed_by: user
+        expect(document.alerts).to_not be_empty
+        alert = document.alerts.first
         expect(alert.due_at.to_date).to eq (Date.today + 2)
         expect(alert.contacts).to include nichola
       end
     end
-    it "adds conditional alerts to an item when it is added" do
-      item.update name: "For Anna"
+    it "adds conditional alerts to an document when it is added" do
+      document.update name: "For Anna"
       Timecop.freeze(Time.now) do
         anna.touch
         nichola.touch
 
-        subject.item_added item: item, performed_by: user
-        expect(item.alerts).to_not be_empty
-        alert = item.alerts.first
+        subject.document_added document: document, performed_by: user
+        expect(document.alerts).to_not be_empty
+        alert = document.alerts.first
         expect(alert.due_at.to_date).to eq (Date.today + 1)
         expect(alert.contacts).to include anna
-        alert = item.alerts.last
+        alert = document.alerts.last
         expect(alert.due_at.to_date).to eq (Date.today + 2)
         expect(alert.contacts).to include nichola
       end
@@ -203,11 +206,11 @@ module StandardProcedure
       anna.touch
       nichola.touch
       existing_alert =
-        item.alerts.create! due_at: 2.days.from_now,
-                            status: "active",
-                            contacts: [anna, nichola]
+        document.alerts.create! due_at: 2.days.from_now,
+                                status: "active",
+                                contacts: [anna, nichola]
 
-      subject.item_added item: item, performed_by: user
+      subject.document_added document: document, performed_by: user
 
       existing_alert.reload
       expect(existing_alert).to be_inactive

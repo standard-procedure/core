@@ -1,11 +1,10 @@
 module StandardProcedure
   class Contact < Folder
     belongs_to :user, class_name: "StandardProcedure::User", optional: true
-    belongs_to :group, class_name: "StandardProcedure::Group"
     belongs_to :role, class_name: "StandardProcedure::Role"
-    has_many :assigned_items,
+    has_many :assigned_documents,
              -> { order :name },
-             class_name: "StandardProcedure::WorkflowItem",
+             class_name: "StandardProcedure::Document",
              foreign_key: "assigned_to_id",
              dependent: :destroy
     has_many :notifications,
@@ -53,6 +52,7 @@ module StandardProcedure
           )
         notification.link_to message
       end
+      message
     end
 
     protected

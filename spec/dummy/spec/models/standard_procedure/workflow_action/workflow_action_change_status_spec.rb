@@ -2,8 +2,8 @@ require "rails_helper"
 
 module StandardProcedure
   RSpec.describe WorkflowAction::ChangeStatus, type: :model do
-    let(:item) { a_saved_item_titled "Something" }
-    let(:stage_one) { item.status }
+    let(:document) { a_saved_document_titled "Something" }
+    let(:stage_one) { document.status }
     let(:stage_two) do
       a_saved WorkflowStatus,
               reference: "stage_two",
@@ -24,17 +24,16 @@ module StandardProcedure
         status: "stage_two",
       }
     end
-    it "changes the status of the given item" do
+    it "changes the status of the given document" do
       stage_two.touch
-      contact.touch
 
       # have to use `expect_any_instance_of` as the actual status is going to be loaded dynamically so we don't
       # know which actual status-instance will receive the message
       expect_any_instance_of(StandardProcedure::WorkflowStatus).to receive(
-        :item_added,
-      ).with(performed_by: user, item: item)
+        :document_added,
+      ).with(performed_by: user, document: document)
       WorkflowAction::ChangeStatus.perform(
-        item: item,
+        document: document,
         configuration: configuration,
         status: stage_two,
         performed_by: user,

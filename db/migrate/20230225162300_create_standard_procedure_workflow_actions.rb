@@ -5,7 +5,7 @@ class CreateStandardProcedureWorkflowActions < ActiveRecord::Migration[7.0]
                    foreign_key: {
                      to_table: :standard_procedure_users,
                    }
-      t.belongs_to :item,
+      t.belongs_to :document,
                    foreign_key: {
                      to_table: :standard_procedure_folder_items,
                    }

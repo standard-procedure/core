@@ -14,13 +14,13 @@ module StandardProcedure
         expect(account).to_not be_valid
       end
 
-      describe "groups" do
-        class ::Organisation < StandardProcedure::Group
+      describe "organisations" do
+        class ::Company < StandardProcedure::Organisation
         end
 
         let :standard_configuration do
           <<-YAML
-            groups:
+            organisations:
               - reference: organisations
                 name: Organisation
                 fields:
@@ -31,40 +31,47 @@ module StandardProcedure
         end
         let :custom_configuration do
           <<-YAML
-            groups:
+            organisations:
               - reference: organisations
                 name: Organisation
-                type: Organisation
+                type: Company
           YAML
         end
 
-        it "adds groups to the account" do
+        it "adds organisations to the account" do
           account = a_saved Account
           account.configure_from standard_configuration
-          group = account.groups.find_by reference: "organisations"
-          expect(group).to_not be_nil
+          organisation =
+            account.organisations.find_by reference: "organisations"
+          expect(organisation).to_not be_nil
         end
-        it "does not replace existing groups" do
+        it "does not replace existing organisations" do
           account = a_saved Account
           suppliers =
-            account.groups.create reference: "organisations", name: "Supplier"
+            account.organisations.create parent: nil,
+                                         reference: "organisations",
+                                         name: "Supplier"
           account.configure_from standard_configuration
-          group = account.groups.find_by reference: "organisations"
-          expect(suppliers).to eq group
+          organisation =
+            account.organisations.find_by reference: "organisations"
+          expect(suppliers).to eq organisation
           expect(suppliers.name).to eq "Supplier"
         end
-        it "creates groups based on the type provided" do
+        it "creates organisations based on the type provided" do
           account = a_saved Account
           account.configure_from custom_configuration
-          group = account.groups.find_by reference: "organisations"
-          expect(group).to_not be_nil
-          expect(group.model_name.to_s).to eq "Organisation"
+          organisation =
+            account.organisations.find_by reference: "organisations"
+          expect(organisation).to_not be_nil
+          expect(organisation.model_name.to_s).to eq "Company"
         end
-        it "adds fields to the group" do
+        it "adds fields to the organisation" do
           account = a_saved Account
           account.configure_from standard_configuration
-          group = account.groups.find_by reference: "organisations"
-          address_field = group.field_definitions.find_by reference: "address"
+          organisation =
+            account.organisations.find_by reference: "organisations"
+          address_field =
+            organisation.field_definitions.find_by reference: "address"
           expect(address_field).to_not be_nil
           expect(
             address_field.model_name.to_s,
@@ -145,7 +152,7 @@ module StandardProcedure
                     actions:
                       - reference: postpone
                         name: Postpone
-                        type: StandardProcedure::WorkflowItem::Postpone
+                        type: StandardProcedure::Document::Postpone
                       - reference: record_minutes
                         name: Record Minutes
                         type: Disciplinary::RecordMinutes
@@ -185,9 +192,7 @@ module StandardProcedure
           expect(postpone).to_not be_nil
           expect(postpone["reference"]).to eq "postpone"
           expect(postpone["name"]).to eq "Postpone"
-          expect(
-            postpone["type"],
-          ).to eq "StandardProcedure::WorkflowItem::Postpone"
+          expect(postpone["type"]).to eq "StandardProcedure::Document::Postpone"
           record_minutes = status.actions.last
           expect(record_minutes).to_not be_nil
           expect(record_minutes["reference"]).to eq "record_minutes"
@@ -222,7 +227,7 @@ module StandardProcedure
         end
       end
       describe "templates" do
-        class ::CardType < StandardProcedure::WorkflowItemTemplate
+        class ::CardType < StandardProcedure::DocumentTemplate
         end
 
         let :standard_configuration do

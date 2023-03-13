@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_03_11_231831) do
+ActiveRecord::Schema[7.0].define(version: 2023_03_01_114812) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -135,6 +135,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_11_231831) do
     t.string "name", default: "", null: false
     t.string "plural", default: "", null: false
     t.string "type", default: "", null: false
+    t.string "item_type", default: "StandardProcedure::Document", null: false
     t.text "field_data", limit: 16777216
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -186,12 +187,16 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_11_231831) do
     t.integer "ancestry_depth", default: 0, null: false
     t.integer "account_id"
     t.text "field_data", limit: 16777216
+    t.integer "user_id"
     t.integer "role_id"
+    t.string "access_code", default: "", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["access_code"], name: "index_standard_procedure_folders_on_access_code"
     t.index ["account_id"], name: "index_standard_procedure_folders_on_account_id"
     t.index ["ancestry"], name: "index_standard_procedure_folders_on_ancestry"
     t.index ["role_id"], name: "index_standard_procedure_folders_on_role_id"
+    t.index ["user_id"], name: "index_standard_procedure_folders_on_user_id"
   end
 
   create_table "standard_procedure_message_links", force: :cascade do |t|
@@ -257,10 +262,10 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_11_231831) do
   end
 
   create_table "standard_procedure_related_items", id: false, force: :cascade do |t|
-    t.integer "workflow_item_id"
+    t.integer "document_id"
     t.integer "folder_item_id"
+    t.index ["document_id"], name: "index_standard_procedure_related_items_on_document_id"
     t.index ["folder_item_id"], name: "index_standard_procedure_related_items_on_folder_item_id"
-    t.index ["workflow_item_id"], name: "index_standard_procedure_related_items_on_workflow_item_id"
   end
 
   create_table "standard_procedure_roles", force: :cascade do |t|
@@ -286,12 +291,12 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_11_231831) do
 
   create_table "standard_procedure_workflow_actions", force: :cascade do |t|
     t.integer "performed_by_id"
-    t.integer "item_id"
+    t.integer "document_id"
     t.string "type", default: "", null: false
     t.text "field_data", limit: 16777216
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["item_id"], name: "index_standard_procedure_workflow_actions_on_item_id"
+    t.index ["document_id"], name: "index_standard_procedure_workflow_actions_on_document_id"
     t.index ["performed_by_id"], name: "index_standard_procedure_workflow_actions_on_performed_by_id"
   end
 
@@ -330,7 +335,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_11_231831) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "standard_procedure_alert_contacts_links", "standard_procedure_alerts", column: "alert_id"
-  add_foreign_key "standard_procedure_alert_contacts_links", "standard_procedure_folder_items", column: "contact_id"
+  add_foreign_key "standard_procedure_alert_contacts_links", "standard_procedure_folders", column: "contact_id"
   add_foreign_key "standard_procedure_command_links", "standard_procedure_commands", column: "command_id"
   add_foreign_key "standard_procedure_document_templates", "standard_procedure_accounts", column: "account_id"
   add_foreign_key "standard_procedure_folder_items", "standard_procedure_document_templates", column: "template_id"
@@ -340,16 +345,17 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_11_231831) do
   add_foreign_key "standard_procedure_folder_items", "standard_procedure_workflow_statuses", column: "status_id"
   add_foreign_key "standard_procedure_folders", "standard_procedure_accounts", column: "account_id"
   add_foreign_key "standard_procedure_folders", "standard_procedure_roles", column: "role_id"
+  add_foreign_key "standard_procedure_folders", "standard_procedure_users", column: "user_id"
   add_foreign_key "standard_procedure_message_links", "standard_procedure_messages", column: "message_id"
   add_foreign_key "standard_procedure_message_recipients", "standard_procedure_folders", column: "recipient_id"
   add_foreign_key "standard_procedure_message_recipients", "standard_procedure_messages", column: "message_id"
   add_foreign_key "standard_procedure_messages", "standard_procedure_folders", column: "sender_id"
   add_foreign_key "standard_procedure_notification_links", "standard_procedure_notifications", column: "notification_id"
   add_foreign_key "standard_procedure_notifications", "standard_procedure_folders", column: "contact_id"
+  add_foreign_key "standard_procedure_related_items", "standard_procedure_folder_items", column: "document_id"
   add_foreign_key "standard_procedure_related_items", "standard_procedure_folder_items", column: "folder_item_id"
-  add_foreign_key "standard_procedure_related_items", "standard_procedure_folder_items", column: "workflow_item_id"
   add_foreign_key "standard_procedure_roles", "standard_procedure_accounts", column: "account_id"
-  add_foreign_key "standard_procedure_workflow_actions", "standard_procedure_folder_items", column: "item_id"
+  add_foreign_key "standard_procedure_workflow_actions", "standard_procedure_folder_items", column: "document_id"
   add_foreign_key "standard_procedure_workflow_actions", "standard_procedure_users", column: "performed_by_id"
   add_foreign_key "standard_procedure_workflow_statuses", "standard_procedure_workflows", column: "workflow_id"
   add_foreign_key "standard_procedure_workflows", "standard_procedure_accounts", column: "account_id"

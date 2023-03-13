@@ -16,7 +16,9 @@ module StandardProcedure
       protected
 
       def build_templates_from_configuration
-        build_configuration_for :templates, include_fields: true
+        build_configuration_for :templates,
+                                include_fields: true,
+                                params: %i[reference name plural type item_type]
       end
     end
   end

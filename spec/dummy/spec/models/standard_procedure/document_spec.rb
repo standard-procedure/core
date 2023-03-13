@@ -1,10 +1,10 @@
 require "rails_helper"
 
 module StandardProcedure
-  RSpec.describe WorkflowItem, type: :model do
+  RSpec.describe Document, type: :model do
     subject do
-      a_saved StandardProcedure::WorkflowItem,
-              group: employees,
+      a_saved StandardProcedure::Document,
+              folder: employees,
               status: incoming_status,
               template: template,
               name: "Something"
@@ -18,16 +18,18 @@ module StandardProcedure
       workflow.statuses.find_by reference: "in_progress"
     end
     let(:staff) { account.roles.find_by reference: "staff" }
-    let(:employees) { account.groups.find_by reference: "employees" }
+    let(:employees) { account.organisations.find_by reference: "employees" }
     let(:nichola) do
       a_saved StandardProcedure::Contact,
-              group: employees,
+              account: account,
+              parent: employees,
               role: staff,
               reference: "nichola@example.com"
     end
     let(:anna) do
       a_saved StandardProcedure::Contact,
-              group: employees,
+              account: account,
+              parent: employees,
               role: staff,
               reference: "anna@example.com"
     end
@@ -36,7 +38,7 @@ module StandardProcedure
         roles:
           - reference: staff
             name: Staff
-        groups:
+        organisations:
           - reference: employees
             name: Employees
         templates:
@@ -82,9 +84,9 @@ module StandardProcedure
       end
 
       it "notifies the status that this item has been updated" do
-        expect(in_progress_status).to receive(:item_added).with(
+        expect(in_progress_status).to receive(:document_added).with(
           performed_by: user,
-          item: subject,
+          document: subject,
         )
         subject.set_status status: in_progress_status, performed_by: user
       end
@@ -98,11 +100,12 @@ module StandardProcedure
         expect(subject.find_contact_from("nichola@example.com")).to eq nichola
       end
       it "finds the item's contact" do
-        subject.update contact: nichola
+        folder = nichola.folders.create name: "Nichola's orders"
+        subject.update folder: folder
         expect(subject.find_contact_from("contact")).to eq nichola
       end
       it "finds contacts by referencing a custom field" do
-        subject.with_fields_from(template.field_definitions).update contact:
+        subject.with_fields_from(template.field_definitions).update folder:
                    nichola,
                  supervisor: anna
         expect(subject.find_contact_from("supervisor")).to eq anna

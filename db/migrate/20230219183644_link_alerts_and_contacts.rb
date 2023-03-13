@@ -4,7 +4,7 @@ class LinkAlertsAndContacts < ActiveRecord::Migration[7.0]
       t.belongs_to :alert, foreign_key: { to_table: :standard_procedure_alerts }
       t.belongs_to :contact,
                    foreign_key: {
-                     to_table: :standard_procedure_folder_items,
+                     to_table: :standard_procedure_folders,
                    }
     end
   end

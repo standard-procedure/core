@@ -1,12 +1,12 @@
 require "rails_helper"
 
 module StandardProcedure
-  RSpec.describe WorkflowItemTemplate, type: :model do
+  RSpec.describe DocumentTemplate, type: :model do
     describe "adding items" do
       subject { account.templates.find_by reference: "order" }
       let(:user) { a_saved ::User }
       let(:account) { a_saved(Account).configure_from(configuration) }
-      let(:customers) { account.groups.find_by reference: "customers" }
+      let(:customers) { account.organisations.find_by reference: "customers" }
       let(:role) { account.roles.find_by reference: "customer" }
       let(:workflow) { account.workflows.find_by reference: "order_processing" }
       let(:incoming_status) { workflow.statuses.find_by reference: "incoming" }
@@ -18,7 +18,7 @@ module StandardProcedure
           roles:
             - reference: customer
               name: Customer
-          groups:
+          organisations:
             - reference: customers
               name: Customer
           workflows:
@@ -39,33 +39,35 @@ module StandardProcedure
                   position: 2
         YAML
       end
-      it "tells the status that the item has been added" do
-        expect(incoming_status).to receive(:item_added)
-        subject.add_item name: "Order 123",
-                         group: customers,
-                         status: incoming_status,
-                         performed_by: user
+      it "tells the status that the document has been added" do
+        expect(incoming_status).to receive(:document_added)
+        subject.create_document name: "Order 123",
+                                folder: customers,
+                                status: incoming_status,
+                                performed_by: user
       end
-      it "uses the contact's group from the contact if no group is provided" do
+      it "uses the contact's organisation if no organisation is provided" do
         contact =
-          account.add_contact group: customers,
+          account.add_contact organisation: customers,
                               name: "Some person",
                               role: role,
                               performed_by: user
-        item =
-          subject.add_item name: "Order 123",
-                           contact: contact,
-                           status: incoming_status,
-                           performed_by: user
-        expect(item.group).to eq customers
+        folder = contact.folders.create! account: account, name: "Folder"
+        document =
+          subject.create_document name: "Order 123",
+                                  folder: folder,
+                                  status: incoming_status,
+                                  performed_by: user
+        expect(document.organisation).to eq customers
+        expect(document.contact).to eq contact
       end
       it "uses the initial status if the workflow is provided" do
-        item =
-          subject.add_item name: "Order 123",
-                           group: customers,
-                           workflow: workflow,
-                           performed_by: user
-        expect(item.status).to eq incoming_status
+        document =
+          subject.create_document name: "Order 123",
+                                  folder: customers,
+                                  workflow: workflow,
+                                  performed_by: user
+        expect(document.status).to eq incoming_status
       end
     end
   end

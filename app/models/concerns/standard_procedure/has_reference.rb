@@ -21,7 +21,7 @@ module StandardProcedure
       # then the reference is automatically copied to the given field (if it is blank).
       # For example `has_reference copy_to: :title` will copy the reference to the `title` field
       def has_reference(length: 4, prefix: nil, copy_to: nil)
-        validates :reference, presence: true, uniqueness: { case_sensitive: false }
+        validates :reference, presence: true, uniqueness: {case_sensitive: false}
         before_validation :set_reference
 
         define_method :generate_reference_value do
@@ -30,11 +30,11 @@ module StandardProcedure
 
         define_method :set_reference do
           self.reference = generate_reference_value if reference.blank?
-          self.send :"#{copy_to}=", reference if copy_to.present? && self.send(copy_to.to_sym).blank?
+          send :"#{copy_to}=", reference if copy_to.present? && send(copy_to.to_sym).blank?
         end
 
         define_method :to_param do
-          "#{self.id}-#{self.reference}".parameterize
+          "#{id}-#{reference}".parameterize
         end
       end
     end

@@ -14,20 +14,18 @@ module StandardProcedure
         build_organisations_from_configuration
         build_workflows_from_configuration
         build_templates_from_configuration
-        return self
+        self
       end
 
       protected
 
       def config
         @config ||=
-          (
-            if configuration.blank?
-              {}
-            else
-              YAML.load(configuration).deep_symbolize_keys
-            end
-          )
+          if configuration.blank?
+            {}
+          else
+            YAML.load(configuration).deep_symbolize_keys
+          end
       end
 
       def configuration_is_valid_yaml

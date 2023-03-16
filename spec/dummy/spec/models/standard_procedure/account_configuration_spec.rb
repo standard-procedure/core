@@ -8,7 +8,7 @@ module StandardProcedure
           first_key: first_value
           second_key: second_value
             wrong_key: third_value
-          YAML
+        YAML
         account = a_saved Account
         account.configuration = invalid_yaml
         expect(account).to_not be_valid
@@ -49,8 +49,8 @@ module StandardProcedure
           account = a_saved Account
           suppliers =
             account.organisations.create parent: nil,
-                                         reference: "organisations",
-                                         name: "Supplier"
+              reference: "organisations",
+              name: "Supplier"
           account.configure_from standard_configuration
           organisation =
             account.organisations.find_by reference: "organisations"
@@ -74,7 +74,7 @@ module StandardProcedure
             organisation.field_definitions.find_by reference: "address"
           expect(address_field).to_not be_nil
           expect(
-            address_field.model_name.to_s,
+            address_field.model_name.to_s
           ).to eq "StandardProcedure::FieldDefinition::Address"
         end
       end
@@ -127,7 +127,7 @@ module StandardProcedure
           ni_field = staff.field_definitions.find_by reference: "ni_number"
           expect(ni_field).to_not be_nil
           expect(
-            ni_field.model_name.to_s,
+            ni_field.model_name.to_s
           ).to eq "StandardProcedure::FieldDefinition::Text"
         end
       end
@@ -159,7 +159,7 @@ module StandardProcedure
                   - reference: hearing_complete
                     name: Hearing Complete
                     position: 2
-            YAML
+          YAML
         end
         let :custom_configuration do
           <<-YAML
@@ -185,8 +185,8 @@ module StandardProcedure
           expect(status).to_not be_nil
           expect(status.position).to eq 1
           expect(status.assign_to).to eq [
-               { "contact" => "someone@example.com" },
-             ]
+            {"contact" => "someone@example.com"}
+          ]
           # Check the actions were imported
           postpone = status.actions.first
           expect(postpone).to_not be_nil
@@ -203,10 +203,10 @@ module StandardProcedure
           account = a_saved Account
           procedures =
             account.workflows.create reference: "disciplinaries",
-                                     name: "HR Procedures"
+              name: "HR Procedures"
           invited =
             procedures.statuses.create reference: "draft",
-                                       name: "Invited to hearing"
+              name: "Invited to hearing"
           account.configure_from standard_configuration
           workflow = account.workflows.find_by reference: "disciplinaries"
           expect(procedures).to eq workflow
@@ -282,7 +282,7 @@ module StandardProcedure
             template.field_definitions.find_by reference: "address"
           expect(address_field).to_not be_nil
           expect(
-            address_field.model_name.to_s,
+            address_field.model_name.to_s
           ).to eq "StandardProcedure::FieldDefinition::Address"
         end
       end

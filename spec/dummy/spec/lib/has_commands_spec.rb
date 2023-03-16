@@ -70,8 +70,8 @@ RSpec.describe StandardProcedure::HasCommands do
     end
 
     category.move thing: thing_1,
-                  destination: other_category,
-                  performed_by: User.root
+      destination: other_category,
+      performed_by: User.root
 
     command = category.commands.first
     expect(command).to_not be_nil
@@ -83,11 +83,11 @@ RSpec.describe StandardProcedure::HasCommands do
 
   it "nests commands within the command log" do
     Category.class_eval do
-      command :move_things do |things: [], destination:, performed_by:|
+      command :move_things do |destination:, performed_by:, things: []|
         things.each do |thing|
           move thing: thing,
-               destination: destination,
-               performed_by: performed_by
+            destination: destination,
+            performed_by: performed_by
         end
       end
       command(:move) do |thing:, destination:, performed_by:|
@@ -96,8 +96,8 @@ RSpec.describe StandardProcedure::HasCommands do
     end
 
     category.move_things things: [thing_1, thing_2],
-                         destination: other_category,
-                         performed_by: User.root
+      destination: other_category,
+      performed_by: User.root
 
     command = category.commands.find_by command: "category_move_things"
     expect(command).to_not be_nil
@@ -116,7 +116,7 @@ RSpec.describe StandardProcedure::HasCommands do
     end
 
     expect { category.gone_wrong(performed_by: User.root) }.to raise_exception(
-      GoneWrong,
+      GoneWrong
     )
     command = category.commands.first
     expect(command).to be_failed
@@ -176,7 +176,7 @@ RSpec.describe StandardProcedure::HasCommands do
     Category.class_eval { command :remove_child }
     expect(category.available_commands).to include(:remove_child)
     category.remove_child child: sub_category, performed_by: User.root
-    expect(Category.find_by id: sub_category.id).to be_nil
+    expect(Category.find_by(id: sub_category.id)).to be_nil
     command = user.commands.find_by command: "category_remove_child"
     expect(command).to_not be_nil
     expect(category.commands).to include(command)
@@ -186,7 +186,7 @@ RSpec.describe StandardProcedure::HasCommands do
     Category.class_eval { command(:remove_child) { |**params| "do nothing" } }
     expect(category.available_commands).to include(:remove_child)
     category.remove_child child: sub_category, performed_by: User.root
-    expect(Category.find_by id: sub_category.id).to_not be_nil
+    expect(Category.find_by(id: sub_category.id)).to_not be_nil
     command = user.commands.find_by command: "category_remove_child"
     expect(command).to_not be_nil
     expect(category.commands).to include(command)

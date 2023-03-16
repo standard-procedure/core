@@ -7,7 +7,7 @@ module StandardProcedure
         scope :in_name_order, -> { order :name }
         validates :name, presence: true
         define_method :to_s do
-          self.name
+          name
         end
         define_method :to_param do
           "#{id}-#{name}".parameterize

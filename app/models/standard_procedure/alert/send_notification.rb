@@ -4,7 +4,7 @@ module StandardProcedure
       contacts.each do |contact|
         contact
           .notifications
-          .create!(details: self.message)
+          .create!(details: message)
           .tap { |notification| notification.link_to item }
       end
     end

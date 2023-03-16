@@ -42,31 +42,31 @@ module StandardProcedure
       it "tells the status that the document has been added" do
         expect(incoming_status).to receive(:document_added)
         subject.create_document name: "Order 123",
-                                folder: customers,
-                                status: incoming_status,
-                                performed_by: user
+          folder: customers,
+          status: incoming_status,
+          performed_by: user
       end
       it "uses the contact's organisation if no organisation is provided" do
         contact =
           account.add_contact organisation: customers,
-                              name: "Some person",
-                              role: role,
-                              performed_by: user
+            name: "Some person",
+            role: role,
+            performed_by: user
         folder = contact.folders.create! account: account, name: "Folder"
         document =
           subject.create_document name: "Order 123",
-                                  folder: folder,
-                                  status: incoming_status,
-                                  performed_by: user
+            folder: folder,
+            status: incoming_status,
+            performed_by: user
         expect(document.organisation).to eq customers
         expect(document.contact).to eq contact
       end
       it "uses the initial status if the workflow is provided" do
         document =
           subject.create_document name: "Order 123",
-                                  folder: customers,
-                                  workflow: workflow,
-                                  performed_by: user
+            folder: customers,
+            workflow: workflow,
+            performed_by: user
         expect(document.status).to eq incoming_status
       end
     end

@@ -9,7 +9,7 @@ module StandardProcedure
   class Exception < StandardError
   end
 
-  def StandardProcedure.config
+  def self.config
     @config ||= ActiveSupport::OrderedOptions.new
   end
 end

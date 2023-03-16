@@ -11,8 +11,8 @@ module StandardProcedure
       test_file = ::File.open(Rails.root.join("spec", "files", "test-file.txt"))
       uploaded_file =
         subject.upload_file name: "test-file.txt",
-                            io: test_file,
-                            performed_by: user
+          io: test_file,
+          performed_by: user
       expect(uploaded_file).to_not be_nil
       expect(uploaded_file.contact).to eq contact
       expect(uploaded_file.file).to be_attached

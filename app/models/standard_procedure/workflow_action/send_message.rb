@@ -18,17 +18,17 @@ module StandardProcedure
           recipients: contacts,
           subject: subject,
           contents: contents.to_s,
-          performed_by: performed_by,
+          performed_by: performed_by
         )
       message.link_to document
     end
 
     def set_reminder
       document.add_alert type: "StandardProcedure::Alert::SendNotification",
-                         due_at: reminder_after.hours.from_now,
-                         message: "Follow up on sent message: #{subject}",
-                         contacts: [contact],
-                         performed_by: performed_by
+        due_at: reminder_after.hours.from_now,
+        message: "Follow up on sent message: #{subject}",
+        contacts: [contact],
+        performed_by: performed_by
     end
   end
 end

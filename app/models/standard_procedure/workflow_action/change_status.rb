@@ -8,7 +8,7 @@ module StandardProcedure
     end
 
     def update_status
-      document.update status: self.status
+      document.update status: status
       status.document_added(document: document, performed_by: performed_by)
     end
   end

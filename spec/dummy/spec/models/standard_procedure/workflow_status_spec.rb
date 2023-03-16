@@ -5,11 +5,11 @@ module StandardProcedure
     subject { workflow.statuses.find_by reference: "incoming" }
     let(:document) do
       a_saved StandardProcedure::Document,
-              type: "Order",
-              folder: employees,
-              status: subject,
-              template: template,
-              name: "Something"
+        type: "Order",
+        folder: employees,
+        status: subject,
+        template: template,
+        name: "Something"
     end
     let(:user) { a_saved ::User }
     let(:account) { a_saved(Account).configure_from(configuration) }
@@ -20,24 +20,24 @@ module StandardProcedure
     let(:suppliers) { account.organisations.find_by reference: "suppliers" }
     let(:nichola) do
       a_saved StandardProcedure::Contact,
-              account: account,
-              parent: employees,
-              role: staff,
-              reference: "nichola@example.com"
+        account: account,
+        parent: employees,
+        role: staff,
+        reference: "nichola@example.com"
     end
     let(:anna) do
       a_saved StandardProcedure::Contact,
-              account: account,
-              parent: employees,
-              role: staff,
-              reference: "anna@example.com"
+        account: account,
+        parent: employees,
+        role: staff,
+        reference: "anna@example.com"
     end
     let(:supplier_1) do
       a_saved StandardProcedure::Contact,
-              account: account,
-              parent: suppliers,
-              role: supplier,
-              reference: "supplier1@example.com"
+        account: account,
+        parent: suppliers,
+        role: supplier,
+        reference: "supplier1@example.com"
     end
     let :configuration do
       <<-YAML
@@ -127,30 +127,30 @@ module StandardProcedure
 
     it "knows which actions are available" do
       expect(subject.available_actions).to eq %w[
-           place_order_with_supplier
-           make_priority
-         ]
+        place_order_with_supplier
+        make_priority
+      ]
     end
     it "knows the names of the available actions" do
       expect(
-        subject.name_for(:place_order_with_supplier),
+        subject.name_for(:place_order_with_supplier)
       ).to eq "Place order with Supplier"
       expect(
-        subject.name_for(:make_priority),
+        subject.name_for(:make_priority)
       ).to eq "Make this a priority order"
       expect { subject.name_for(:something_else) }.to raise_exception(
-        StandardProcedure::WorkflowStatus::InvalidActionReference,
+        StandardProcedure::WorkflowStatus::InvalidActionReference
       )
     end
     it "builds an action" do
       expect(
-        subject.build_action(:place_order_with_supplier).class.name,
+        subject.build_action(:place_order_with_supplier).class.name
       ).to eq "StandardProcedure::WorkflowAction::UserDefined"
       expect(
-        subject.build_action(:make_priority).class.name,
+        subject.build_action(:make_priority).class.name
       ).to eq "MakePriorityOrder"
       expect { subject.build_action(:something_else) }.to raise_exception(
-        StandardProcedure::WorkflowStatus::InvalidActionReference,
+        StandardProcedure::WorkflowStatus::InvalidActionReference
       )
     end
     it "performs an action via a ruby class" do
@@ -159,18 +159,18 @@ module StandardProcedure
           action: "make_priority",
           document: document,
           escalation_reason: "It's urgent",
-          performed_by: user,
+          performed_by: user
         )
       expect(action.escalation_reason).to eq "It's urgent"
       expect(action.document.priority).to eq "high"
     end
     it "performs a user-defined action" do
       expect_any_instance_of(
-        StandardProcedure::WorkflowAction::UserDefined,
+        StandardProcedure::WorkflowAction::UserDefined
       ).to receive(:perform)
       subject.perform_action action: "place_order_with_supplier",
-                             document: document,
-                             performed_by: user
+        document: document,
+        performed_by: user
     end
 
     it "adds alerts to an document when it is added" do
@@ -181,7 +181,7 @@ module StandardProcedure
         subject.document_added document: document, performed_by: user
         expect(document.alerts).to_not be_empty
         alert = document.alerts.first
-        expect(alert.due_at.to_date).to eq (Date.today + 2)
+        expect(alert.due_at.to_date).to eq(Date.today + 2)
         expect(alert.contacts).to include nichola
       end
     end
@@ -194,10 +194,10 @@ module StandardProcedure
         subject.document_added document: document, performed_by: user
         expect(document.alerts).to_not be_empty
         alert = document.alerts.first
-        expect(alert.due_at.to_date).to eq (Date.today + 1)
+        expect(alert.due_at.to_date).to eq(Date.today + 1)
         expect(alert.contacts).to include anna
         alert = document.alerts.last
-        expect(alert.due_at.to_date).to eq (Date.today + 2)
+        expect(alert.due_at.to_date).to eq(Date.today + 2)
         expect(alert.contacts).to include nichola
       end
     end
@@ -207,8 +207,8 @@ module StandardProcedure
       nichola.touch
       existing_alert =
         document.alerts.create! due_at: 2.days.from_now,
-                                status: "active",
-                                contacts: [anna, nichola]
+          status: "active",
+          contacts: [anna, nichola]
 
       subject.document_added document: document, performed_by: user
 

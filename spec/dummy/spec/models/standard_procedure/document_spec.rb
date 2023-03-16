@@ -4,10 +4,10 @@ module StandardProcedure
   RSpec.describe Document, type: :model do
     subject do
       a_saved StandardProcedure::Document,
-              folder: employees,
-              status: incoming_status,
-              template: template,
-              name: "Something"
+        folder: employees,
+        status: incoming_status,
+        template: template,
+        name: "Something"
     end
     let(:user) { a_saved ::User }
     let(:account) { a_saved(Account).configure_from(configuration) }
@@ -21,17 +21,17 @@ module StandardProcedure
     let(:employees) { account.organisations.find_by reference: "employees" }
     let(:nichola) do
       a_saved StandardProcedure::Contact,
-              account: account,
-              parent: employees,
-              role: staff,
-              reference: "nichola@example.com"
+        account: account,
+        parent: employees,
+        role: staff,
+        reference: "nichola@example.com"
     end
     let(:anna) do
       a_saved StandardProcedure::Contact,
-              account: account,
-              parent: employees,
-              role: staff,
-              reference: "anna@example.com"
+        account: account,
+        parent: employees,
+        role: staff,
+        reference: "anna@example.com"
     end
     let :configuration do
       <<-YAML
@@ -74,7 +74,7 @@ module StandardProcedure
       expect(subject.assigned_to).to eq nichola
       notification = nichola.notifications.last
       expect(notification).to_not be_nil
-      expect(notification.linked_to? subject).to eq true
+      expect(notification.linked_to?(subject)).to eq true
     end
 
     describe "changing status" do
@@ -86,7 +86,7 @@ module StandardProcedure
       it "notifies the status that this item has been updated" do
         expect(in_progress_status).to receive(:document_added).with(
           performed_by: user,
-          document: subject,
+          document: subject
         )
         subject.set_status status: in_progress_status, performed_by: user
       end
@@ -107,7 +107,7 @@ module StandardProcedure
       it "finds contacts by referencing a custom field" do
         subject.with_fields_from(template.field_definitions).update folder:
                    nichola,
-                 supervisor: anna
+          supervisor: anna
         expect(subject.find_contact_from("supervisor")).to eq anna
       end
     end

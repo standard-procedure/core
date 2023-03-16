@@ -14,14 +14,16 @@ module StandardProcedure
 
     def perform_outcome_from(configuration)
       class_name = configuration.delete(:type)
-      configuration[:status] = workflow.statuses.find_by(
-        reference: configuration[:status],
-      ) if configuration[:status].is_a? String
+      if configuration[:status].is_a? String
+        configuration[:status] = workflow.statuses.find_by(
+          reference: configuration[:status]
+        )
+      end
       class_name.constantize.perform configuration.merge(
-                                       performed_by: performed_by,
-                                       document: document,
-                                       configuration: configuration,
-                                     )
+        performed_by: performed_by,
+        document: document,
+        configuration: configuration
+      )
     end
 
     def prepare

@@ -2,7 +2,7 @@ module StandardProcedure
   class User
     class Root < StandardProcedure::User
       def can?(perform_command, on_target)
-        return true
+        true
       end
     end
   end

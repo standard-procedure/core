@@ -9,11 +9,11 @@ module StandardProcedure
     end
 
     def field_names
-      field_definitions.collect &:field_name
+      field_definitions.collect(&:field_name)
     end
 
     def field_accessors
-      field_definitions.collect &:reader
+      field_definitions.collect(&:reader)
     end
   end
 end

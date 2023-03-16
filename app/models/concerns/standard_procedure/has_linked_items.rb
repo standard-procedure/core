@@ -18,7 +18,7 @@ module StandardProcedure
       # `has_linked :people`
       #
       # Which adds a new method `people` which returns an array of all people - which in this example will be a mix
-      # of users and contacts.
+      #  of users and contacts.
       #
       # It works by generating an association with an intermediary class:
       #   `has_many :linked_people, class_name: "NotificationLink", dependent: :destroy`
@@ -77,16 +77,16 @@ module StandardProcedure
 
         has_many_association_name = through
 
-        self.has_many has_many_association_name,
-                      class_name: class_name,
-                      dependent: :destroy
+        has_many has_many_association_name,
+          class_name: class_name,
+          dependent: :destroy
 
         define_method link_name do
-          self.send(has_many_association_name).distinct.collect(&source)
+          send(has_many_association_name).distinct.collect(&source)
         end
 
         define_method :link_for do |item|
-          self.send(has_many_association_name).find_by(source => item)
+          send(has_many_association_name).find_by(source => item)
         end
 
         define_method :linked_to? do |item|
@@ -95,10 +95,10 @@ module StandardProcedure
 
         define_method :link_to do |item|
           return if item.blank? || item.destroyed? || linked_to?(item)
-          self
-            .send(has_many_association_name)
+
+          send(has_many_association_name)
             .build(source => item)
-            .tap { |link| link.save! unless self.new_record? }
+            .tap { |link| link.save! unless new_record? }
         end
 
         define_method :unlink_from do |item|
@@ -109,8 +109,8 @@ module StandardProcedure
           type_field = :"#{singular_link_name}_type"
           id_field = :"#{singular_link_name}_id"
           ids =
-            self
-              .send(has_many_association_name)
+
+            send(has_many_association_name)
               .where(type_field => class_name)
               .distinct
               .pluck(id_field)
@@ -145,9 +145,9 @@ module StandardProcedure
       # Build a HABTM style polymorphic association between this model and a destination model - the inverse of `has_linked`
       # Params:
       #   association: the name of the association to access the destination models - for example `is_linked_to :notifications`
-      #   class_name: the name of the destination model - if the association is :notifications then this defaults to Notification
+      #    class_name: the name of the destination model - if the association is :notifications then this defaults to Notification
       #   intermediary_class_name: the name of the intermediary class - if the association is :notifications then this defaults to "NotificationLink"
-      #   intermediary_association: the name of the association to access the intermediaries - if the association is :notifications then this defaults to :notification_links
+      #    intermediary_association: the name of the association to access the intermediaries - if the association is :notifications then this defaults to :notification_links
       #   as: the attribute on the intermediary class to access this model - this defaults to :item
       # If `is_linked_to :notifications` is called, this will add two associations:
       #   has_many :notification_links, class_name: "NotificationLink", as: :item, dependent: :destroy
@@ -166,14 +166,14 @@ module StandardProcedure
           intermediary_class_name.demodulize.tableize.to_sym
 
         has_many intermediary_association,
-                 class_name: intermediary_class_name,
-                 as: as,
-                 dependent: :destroy
+          class_name: intermediary_class_name,
+          as: as,
+          dependent: :destroy
         has_many association.to_sym,
-                 -> { order(:created_at).distinct },
-                 class_name: class_name,
-                 through: intermediary_association,
-                 source: singular_association.to_sym
+          -> { order(:created_at).distinct },
+          class_name: class_name,
+          through: intermediary_association,
+          source: singular_association.to_sym
       end
     end
   end

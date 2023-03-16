@@ -4,7 +4,7 @@ module StandardProcedure
     belongs_to :user, polymorphic: true
     belongs_to :target, polymorphic: true
     has_many :follow_on_commands, class_name: "StandardProcedure::Command", foreign_key: "context_id", dependent: :nullify
-    enum status: { ready: 0, in_progress: 10, completed: 100, failed: -1 }
+    enum status: {ready: 0, in_progress: 10, completed: 100, failed: -1}
     has_fields
     has_hash :params
     has_field :error

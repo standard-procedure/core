@@ -7,7 +7,7 @@ module StandardProcedure
     delegate :status, to: :document
     delegate :workflow, to: :status
     delegate :account, to: :workflow
-    alias user performed_by
+    alias_method :user, :performed_by
 
     def perform
     end
@@ -31,7 +31,7 @@ module StandardProcedure
         configuration = params.delete(:configuration)
         prepare_from(configuration).tap do |action|
           action.update! params
-          action.perform()
+          action.perform
         end
       end
 
@@ -47,7 +47,7 @@ module StandardProcedure
         .wrap(configuration[:fields])
         .each do |field_data|
           field_definitions.where(
-            reference: field_data[:reference],
+            reference: field_data[:reference]
           ).first_or_initialize(field_data)
         end
     end

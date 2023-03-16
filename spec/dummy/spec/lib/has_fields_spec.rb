@@ -86,9 +86,9 @@ RSpec.describe StandardProcedure::HasFields do
     expect(thing).to respond_to(:my_internal_hash)
     expect(thing_2).to_not respond_to(:my_internal_hash)
 
-    thing.update my_internal_hash: { key: "value" }
+    thing.update my_internal_hash: {key: "value"}
     thing.reload
-    expect(thing.my_internal_hash).to eq({ key: "value" })
+    expect(thing.my_internal_hash).to eq({key: "value"})
   end
 
   describe "from field definitions" do

@@ -8,15 +8,15 @@ class CreateStandardProcedureFolders < ActiveRecord::Migration[7.0]
       t.integer :ancestry_depth, null: false, default: 0
 
       t.belongs_to :account,
-                   foreign_key: {
-                     to_table: :standard_procedure_accounts,
-                   }
+        foreign_key: {
+          to_table: :standard_procedure_accounts
+        }
 
       t.text :field_data, limit: 16.megabytes
 
       # Contact fields
-      t.belongs_to :user, foreign_key: { to_table: :standard_procedure_users }
-      t.belongs_to :role, foreign_key: { to_table: :standard_procedure_roles }
+      t.belongs_to :user, foreign_key: {to_table: :standard_procedure_users}
+      t.belongs_to :role, foreign_key: {to_table: :standard_procedure_roles}
       t.string :access_code, default: "", null: false, index: true
       t.timestamps
     end

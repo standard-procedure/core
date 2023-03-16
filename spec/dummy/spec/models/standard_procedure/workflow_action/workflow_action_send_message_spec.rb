@@ -15,20 +15,20 @@ module StandardProcedure
       message = double("StandardProcedure::Message")
       # have to use any_instance_of because a different instance of sender gets loaded by the action
       expect_any_instance_of(StandardProcedure::Contact).to receive(
-        :send_message,
+        :send_message
       ).with(
         performed_by: user,
         recipients: [first, second],
         subject: "Test",
-        contents: "<div class=\"trix-content\">\n  Message\n</div>\n",
+        contents: "<div class=\"trix-content\">\n  Message\n</div>\n"
       ).and_return message
       expect(message).to receive(:link_to).with(document)
       WorkflowAction::SendMessage.perform document: document,
-                                          subject: "Test",
-                                          contents: "Message",
-                                          reminder_after: 24,
-                                          recipients: [first, second],
-                                          performed_by: user
+        subject: "Test",
+        contents: "Message",
+        reminder_after: 24,
+        recipients: [first, second],
+        performed_by: user
     end
     it "sets a reminder for the sender" do
       Timecop.freeze do
@@ -37,14 +37,14 @@ module StandardProcedure
           due_at: 24.hours.from_now,
           message: "Follow up on sent message: Test",
           contacts: [sender],
-          performed_by: user,
+          performed_by: user
         )
         WorkflowAction::SendMessage.perform document: document,
-                                            subject: "Test",
-                                            contents: "Message",
-                                            reminder_after: 24,
-                                            recipients: [first, second],
-                                            performed_by: user
+          subject: "Test",
+          contents: "Message",
+          reminder_after: 24,
+          recipients: [first, second],
+          performed_by: user
       end
     end
   end

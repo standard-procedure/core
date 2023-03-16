@@ -7,17 +7,17 @@ module StandardProcedure
         storage = store_in.to_sym
         serialize storage, JSON
         define_method :field_storage do
-          self.send(:"#{storage}=", {}) if self.send(storage).nil?
-          self.send(storage)
+          send(:"#{storage}=", {}) if send(storage).nil?
+          send(storage)
         end
         has_array :models
 
         define_method :get_field do |name|
-          self.field_storage[name.to_s]
+          field_storage[name.to_s]
         end
 
         define_method :set_field do |name, value|
-          self.field_storage[name.to_s] = value
+          field_storage[name.to_s] = value
         end
 
         define_method :with_fields_from do |field_definitions, &block|
@@ -25,17 +25,17 @@ module StandardProcedure
             field_definition.define_on self
           end
           block&.call(self)
-          return self
+          self
         end
       end
 
       def has_field(name, default: nil)
         name = name.to_sym
         define_method name.to_sym do
-          self.get_field(name) || default
+          get_field(name) || default
         end
         define_method :"#{name}=" do |value|
-          self.set_field name, value
+          set_field name, value
         end
       end
 
@@ -44,11 +44,11 @@ module StandardProcedure
         class_name ||= name.to_s.classify
 
         define_method name.to_sym do
-          model_id = self.send :"#{name}_id"
+          model_id = send :"#{name}_id"
           model_id.blank? ? nil : class_name.constantize.find_by(id: model_id)
         end
         define_method :"#{name}=" do |model|
-          self._add_to_models model
+          _add_to_models model
           set_field "#{name}_id", model&.id
         end
       end
@@ -57,14 +57,14 @@ module StandardProcedure
         has_field :"#{name}_array"
 
         define_method name.to_sym do
-          array = self.send :"#{name}_array"
+          array = send :"#{name}_array"
           array.blank? ? [] : _unwrap_array_field(array)
         end
         define_method :"#{name}=" do |array|
-          self.send :"#{name}_array=", _wrap_array_field(array)
+          send :"#{name}_array=", _wrap_array_field(array)
         end
         define_method :"add_to_#{name}" do |items|
-          self.send :"#{name}=", (self.send(name.to_sym) + Array.wrap(item))
+          send :"#{name}=", (send(name.to_sym) + Array.wrap(item))
         end
       end
 
@@ -72,11 +72,11 @@ module StandardProcedure
         has_field :"#{name}_hash"
 
         define_method name.to_sym do
-          hash = self.send :"#{name}_hash"
+          hash = send :"#{name}_hash"
           hash.blank? ? {} : _unwrap_hash_field(hash)
         end
         define_method :"#{name}=" do |hash|
-          self.send :"#{name}_hash=", _wrap_hash_field(hash)
+          send :"#{name}_hash=", _wrap_hash_field(hash)
         end
       end
     end
@@ -118,7 +118,10 @@ module StandardProcedure
       return {} if hash.blank?
       hash.transform_values do |value|
         # is this a global ID?
-        (value.respond_to?(:starts_with?) && value.starts_with?("gid:")) ? GlobalID::Locator.locate(value) : value rescue nil
+
+        (value.respond_to?(:starts_with?) && value.starts_with?("gid:")) ? GlobalID::Locator.locate(value) : value
+      rescue
+        nil
       end.deep_symbolize_keys
     end
 
@@ -130,7 +133,7 @@ module StandardProcedure
     end
 
     def _add_to_models(model)
-      self.models << model
+      models << model
     end
   end
 end

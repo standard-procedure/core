@@ -18,6 +18,8 @@ module StandardProcedure
              -> { order :position },
              class_name: "StandardProcedure::Document"
 
+    before_validation :set_account
+
     def organisation
       Organisation.where(id: ancestor_ids).first
     end
@@ -34,13 +36,22 @@ module StandardProcedure
       files.create!(name: name).tap { |f| f.file.attach io: io, filename: name }
     end
 
-    command :create_document do |name:, template: nil, workflow: nil, status: nil, performed_by:, **params|
-      template.create_document name: name,
+    command :create_document do |name:, reference: nil, template: nil, workflow: nil, status: nil, performed_by:, **params|
+      template =
+        account.templates.find_by(reference: template) if template.is_a? String
+      template.create_document reference: reference,
+                               name: name,
                                folder: self,
                                workflow: workflow,
                                status: status,
                                performed_by: performed_by,
                                **params
+    end
+
+    protected
+
+    def set_account
+      self.account ||= self.parent.account
     end
   end
 end

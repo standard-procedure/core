@@ -43,8 +43,10 @@ module StandardProcedure
     # - performed_by: the user who is performing the action
     # - action_reference: the reference of the action to perform
     # - **params: any other parameters needed by the action
-    command :perform_action do |**params|
-      status.perform_action **params.merge(item: self)
+    command :perform_action do |action: nil, performed_by:, **params|
+      status.perform_action action: action,
+                            performed_by: performed_by,
+                            **params.merge(document: self)
     end
 
     # `set_status user, reference: "a_status_reference"`

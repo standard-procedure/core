@@ -28,5 +28,11 @@ module StandardProcedure
     def perform
       raise "Not yet implemented"
     end
+
+    class << self
+      def trigger_all
+        due_now.find_each { |alert| alert.trigger }
+      end
+    end
   end
 end

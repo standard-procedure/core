@@ -183,7 +183,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_01_114812) do
     t.string "reference", default: "", null: false
     t.string "name", default: "", null: false
     t.string "type", default: "", null: false
-    t.string "ancestry", null: false
+    t.string "ancestry", default: "", null: false
     t.integer "ancestry_depth", default: 0, null: false
     t.integer "account_id"
     t.text "field_data", limit: 16777216

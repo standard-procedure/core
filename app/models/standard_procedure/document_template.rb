@@ -12,13 +12,19 @@ module StandardProcedure
              foreign_key: "template_id",
              dependent: :destroy
 
-    command :create_document do |name:, folder:, workflow: nil, status: nil, performed_by:, **params|
+    command :create_document do |name:, folder:, reference: nil, workflow: nil, status: nil, performed_by:, **params|
+      workflow =
+        account.workflows.find_by(reference: workflow) if workflow.is_a? String
+      status =
+        workflow.statuses.find_by(reference: status) if workflow.present? &&
+        status.is_a?(String)
       status ||= workflow.statuses.first
       document =
-        folder.items.build name: name,
-                           type: self.item_type,
-                           status: status,
-                           template: self
+        folder.documents.build name: name,
+                               reference: reference,
+                               type: self.item_type,
+                               status: status,
+                               template: self
       document
         .with_fields_from(field_definitions)
         .tap do |d|

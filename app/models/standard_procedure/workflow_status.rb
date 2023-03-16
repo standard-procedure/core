@@ -46,13 +46,11 @@ module StandardProcedure
     # - action_reference: the reference of the action to perform
     # - document: the document that will be acted on
     # - **params: any other parameters needed by the action
-    command :perform_action do |action_reference: nil, document: nil, **params|
+    command :perform_action do |action: nil, document: nil, performed_by:, **params|
       params =
-        params.merge(
-          configuration_for(action_reference).excluding(:name, :reference),
-        )
-      action_handler_for(action_reference).perform(
-        params.merge(document: document),
+        params.merge(configuration_for(action).excluding(:name, :reference))
+      action_handler_for(action).perform(
+        params.merge(document: document, performed_by: performed_by),
       )
     end
 

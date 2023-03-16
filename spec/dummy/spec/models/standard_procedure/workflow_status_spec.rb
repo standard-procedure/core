@@ -156,7 +156,7 @@ module StandardProcedure
     it "performs an action via a ruby class" do
       action =
         subject.perform_action(
-          action_reference: "make_priority",
+          action: "make_priority",
           document: document,
           escalation_reason: "It's urgent",
           performed_by: user,
@@ -168,7 +168,7 @@ module StandardProcedure
       expect_any_instance_of(
         StandardProcedure::WorkflowAction::UserDefined,
       ).to receive(:perform)
-      subject.perform_action action_reference: "place_order_with_supplier",
+      subject.perform_action action: "place_order_with_supplier",
                              document: document,
                              performed_by: user
     end

@@ -13,16 +13,17 @@ module StandardProcedure
       dependent: :destroy
 
     command :create_document do |name:, folder:, performed_by:, reference: nil, workflow: nil, status: nil, **params|
+      document = folder.documents.find_by(reference: reference)
+      return document unless document.blank?
+
       if workflow.is_a? String
-        workflow =
-          account.workflows.find_by(reference: workflow)
+        workflow = account.workflows.find_by(reference: workflow)
       end
-      if workflow.present? &&
-          status.is_a?(String)
-        status =
-          workflow.statuses.find_by(reference: status)
+      if workflow.present? && status.is_a?(String)
+        status = workflow.statuses.find_by(reference: status)
       end
       status ||= workflow.statuses.first
+
       document =
         folder.documents.build name: name,
           reference: reference,
@@ -30,7 +31,7 @@ module StandardProcedure
           status: status,
           template: self
       document
-        .with_fields_from(field_definitions)
+        .with_fields_from(self)
         .tap do |d|
           d.update! params
           status&.document_added document: d, performed_by: performed_by

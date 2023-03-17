@@ -10,24 +10,23 @@ module StandardProcedure
       Contect.where(id: subtree_ids).order(:name)
     end
 
-    command :add_organisation do |name:, reference:, performed_by:, type: nil, **params|
+    command :add_organisation do |name:, performed_by:, reference: nil, type: nil, **params|
       type ||= "StandardProcedure::Organisation"
-      folders.create! params.merge(
+      folders.where(reference: reference).first_or_create! params.merge(
         name: name,
-        reference: reference,
         type: type,
         account: account
       )
     end
 
-    command :add_contact do |name:, reference:, role:, performed_by:, type: nil, **params|
+    command :add_contact do |name:, role:, performed_by:, reference: nil, type: nil, **params|
       type ||= "StandardProcedure::Contact"
       role = account.roles.find_by reference: role if role.is_a? String
-      folders.create! params.merge(
+      folders.where(reference: reference).first_or_create! params.merge(
         name: name,
         reference: reference,
-        type: type,
         role: role,
+        type: type,
         account: account
       )
     end

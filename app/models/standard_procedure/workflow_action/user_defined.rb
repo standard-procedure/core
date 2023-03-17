@@ -28,7 +28,7 @@ module StandardProcedure
 
     def prepare
       load_field_definitions
-      with_fields_from field_definitions
+      with_fields_from self
     end
   end
 end

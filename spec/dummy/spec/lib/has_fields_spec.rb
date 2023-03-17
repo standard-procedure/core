@@ -97,7 +97,7 @@ RSpec.describe StandardProcedure::HasFields do
       category.field_definitions.create reference: "number", name: "Number", type: "StandardProcedure::FieldDefinition::Number"
       category.field_definitions.create reference: "another_category", name: "Another Category", type: "StandardProcedure::FieldDefinition::Model", model_type: "Category"
 
-      thing.with_fields_from(category.field_definitions) do |t|
+      thing.with_fields_from(category) do |t|
         expect(t).to respond_to(:address)
         expect(t).to respond_to(:"address=")
         expect(t).to respond_to(:number)
@@ -112,5 +112,15 @@ RSpec.describe StandardProcedure::HasFields do
     it "enforces mandatory fields"
     it "sets a default value for fields"
     it "generates a calculated value for fields"
+
+    it "creates a new instance with the fields defined" do
+      category.field_definitions.create reference: "number", name: "Number", type: "StandardProcedure::FieldDefinition::Number"
+
+      Thing.create_with_fields_from!(category, name: "Thing", category: category, number: 123).tap do |t|
+        expect(t.name).to eq "Thing"
+        expect(t.category).to eq category
+        expect(t.number).to eq 123
+      end
+    end
   end
 end

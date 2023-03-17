@@ -105,7 +105,7 @@ module StandardProcedure
         expect(subject.find_contact_from("contact")).to eq nichola
       end
       it "finds contacts by referencing a custom field" do
-        subject.with_fields_from(template.field_definitions).update folder:
+        subject.with_fields_from(template).update folder:
                    nichola,
           supervisor: anna
         expect(subject.find_contact_from("supervisor")).to eq anna

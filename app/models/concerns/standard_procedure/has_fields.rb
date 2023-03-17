@@ -20,8 +20,8 @@ module StandardProcedure
           field_storage[name.to_s] = value
         end
 
-        define_method :with_fields_from do |field_definitions, &block|
-          field_definitions.each do |field_definition|
+        define_method :with_fields_from do |source, &block|
+          source.field_definitions.each do |field_definition|
             field_definition.define_on self
           end
           block&.call(self)
@@ -77,6 +77,18 @@ module StandardProcedure
         end
         define_method :"#{name}=" do |hash|
           send :"#{name}_hash=", _wrap_hash_field(hash)
+        end
+      end
+
+      def create_with_fields_from source, **params
+        new.with_fields_from(source).tap do |model|
+          model.update(**params)
+        end
+      end
+
+      def create_with_fields_from! source, **params
+        new.with_fields_from(source).tap do |model|
+          model.update!(**params)
         end
       end
     end

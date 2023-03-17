@@ -3,12 +3,12 @@ module StandardProcedure
     belongs_to :definable, polymorphic: true
     acts_as_list scope: :definable
     has_name
-    has_reference
+    has_reference scope: :definable
     has_fields
     has_field :default_value
     has_field :calculated_value
-    enum :visible_to, [:all, :owner, :manager], prefix: true, scopes: false
-    enum :editable_by, [:all, :owner, :manager], prefix: true, scopes: false
+    enum :visible_to, %i[all owner manager], prefix: true, scopes: false
+    enum :editable_by, %i[all owner manager], prefix: true, scopes: false
 
     def reader
       @reader ||= reference.parameterize(separator: "_").to_sym

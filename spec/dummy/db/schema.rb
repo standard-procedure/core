@@ -59,9 +59,11 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_01_114812) do
   end
 
   create_table "people", force: :cascade do |t|
+    t.integer "category_id"
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_people_on_category_id"
   end
 
   create_table "standard_procedure_accounts", force: :cascade do |t|
@@ -325,11 +327,13 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_01_114812) do
 
   create_table "things", force: :cascade do |t|
     t.integer "category_id"
+    t.integer "person_id"
     t.string "name"
     t.text "field_data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["category_id"], name: "index_things_on_category_id"
+    t.index ["person_id"], name: "index_things_on_person_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

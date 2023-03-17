@@ -1,4 +1,10 @@
+# Test builders
 when_creating_a User, auto_generate: [:name]
+when_creating_a Category, auto_generate: [:name]
+when_creating_a Person, auto_generate: [:name]
+when_creating_a Thing, auto_generate: [:name], generate: {category: -> { a_saved Category }, person: -> { a_saved Person }}
+
+# StandardProcedure builders
 when_creating_a StandardProcedure::User, auto_generate: [:name]
 
 when_creating_a StandardProcedure::Account,

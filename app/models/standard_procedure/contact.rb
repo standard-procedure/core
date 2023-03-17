@@ -20,7 +20,6 @@ module StandardProcedure
       class_name: "StandardProcedure::MessageRecipient",
       foreign_key: "recipient_id"
     has_many :messages, through: :received_messages
-    delegate :account, to: :role
     delegate :access_level, to: :role
 
     before_validation :generate_access_code

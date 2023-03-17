@@ -172,6 +172,8 @@ GEM
     nio4r (2.5.8)
     nokogiri (1.14.0-aarch64-linux)
       racc (~> 1.4)
+    nokogiri (1.14.0-arm64-darwin)
+      racc (~> 1.4)
     nokogiri (1.14.0-x86_64-linux)
       racc (~> 1.4)
     object-factory (0.2.4)
@@ -236,6 +238,7 @@ GEM
       activesupport (>= 5.2)
       sprockets (>= 3.0.0)
     sqlite3 (1.6.0-aarch64-linux)
+    sqlite3 (1.6.0-arm64-darwin)
     sqlite3 (1.6.0-x86_64-linux)
     sys-uname (1.2.2)
       ffi (~> 1.1)
@@ -254,6 +257,7 @@ GEM
 
 PLATFORMS
   aarch64-linux
+  arm64-darwin-22
   x86_64-linux
 
 DEPENDENCIES

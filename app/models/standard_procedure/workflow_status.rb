@@ -83,12 +83,9 @@ module StandardProcedure
     def default_contact_for(document)
       return nil if assign_to.blank?
       return @default_contact unless @default_contact.blank?
-
       # Go through the rules to see if any apply
       rule = assign_to.find { |rule| evaluate(rule.symbolize_keys, document) }
-      @default_contact =
-        rule.blank? ? nil : find_contact_from(rule.symbolize_keys)
-      @default_contact
+      @default_contact = rule.blank? ? nil : find_contact_from(rule.symbolize_keys)
     end
 
     # If no "if" clause is supplied, we assume this is the default contact rule
@@ -103,19 +100,13 @@ module StandardProcedure
 
     def configuration_for(action_reference)
       action_reference = action_reference.to_s
-      configuration =
-        actions.find { |a| a["reference"] == action_reference } ||
-        raise(InvalidActionReference.new("#{action_reference} not found"))
+      configuration = actions.find { |a| a["reference"] == action_reference } || raise(InvalidActionReference.new("#{action_reference} not found"))
       configuration.symbolize_keys
     end
 
     def action_handler_for(action_reference)
       configuration = configuration_for(action_reference)
-      if configuration[:type].blank?
-        StandardProcedure::WorkflowAction::UserDefined
-      else
-        configuration[:type].constantize
-      end
+      configuration[:type].blank? ? StandardProcedure::WorkflowAction::UserDefined : configuration[:type].constantize
     end
   end
 end

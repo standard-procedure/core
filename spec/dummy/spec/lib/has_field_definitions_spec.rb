@@ -7,8 +7,7 @@ RSpec.describe StandardProcedure::HasFieldDefinitions do
 
   describe "associations defined on another model " do
     Person.class_eval do
-      uses_field_definitions
-      has_many :things, dependent: :destroy
+      has_many_extended :things, dependent: :destroy
     end
 
     let(:category) { a_saved Category }

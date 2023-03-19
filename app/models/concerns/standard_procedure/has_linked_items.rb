@@ -62,13 +62,7 @@ module StandardProcedure
       #   source: :person
       #   through: :linked_people
       #
-      def has_linked(
-        link_name,
-        class_name: nil,
-        through: nil,
-        source: nil,
-        accessing: []
-      )
+      def has_linked(link_name, class_name: nil, through: nil, source: nil, accessing: [])
         singular_link_name = link_name.to_s.singularize
         class_name ||= "#{model_name}Link"
         klass = class_name.constantize
@@ -77,9 +71,7 @@ module StandardProcedure
 
         has_many_association_name = through
 
-        has_many has_many_association_name,
-          class_name: class_name,
-          dependent: :destroy
+        has_many has_many_association_name, class_name: class_name, dependent: :destroy
 
         define_method link_name do
           send(has_many_association_name).distinct.collect(&source)
@@ -96,9 +88,7 @@ module StandardProcedure
         define_method :link_to do |item|
           return if item.blank? || item.destroyed? || linked_to?(item)
 
-          send(has_many_association_name)
-            .build(source => item)
-            .tap { |link| link.save! unless new_record? }
+          send(has_many_association_name).build(source => item).tap { |link| link.save! unless new_record? }
         end
 
         define_method :unlink_from do |item|
@@ -108,18 +98,11 @@ module StandardProcedure
         define_method :linked do |class_name|
           type_field = :"#{singular_link_name}_type"
           id_field = :"#{singular_link_name}_id"
-          ids =
-
-            send(has_many_association_name)
-              .where(type_field => class_name)
-              .distinct
-              .pluck(id_field)
+          ids = send(has_many_association_name).where(type_field => class_name).distinct.pluck(id_field)
           class_name.constantize.where(id: ids)
         end
 
-        Array
-          .wrap(accessing)
-          .each do |class_name|
+        Array.wrap(accessing).each do |class_name|
           klass = class_name.to_s.constantize
           singular = klass.model_name.singular.to_sym
           plural = klass.model_name.plural.to_sym
@@ -152,28 +135,14 @@ module StandardProcedure
       # If `is_linked_to :notifications` is called, this will add two associations:
       #   has_many :notification_links, class_name: "NotificationLink", as: :item, dependent: :destroy
       #   has_many :notifications, through: :notification_links
-      def is_linked_to(
-        association,
-        class_name: nil,
-        intermediary_class_name: nil,
-        intermediary_association: nil,
-        as: :item
-      )
+      def is_linked_to(association, class_name: nil, intermediary_class_name: nil, intermediary_association: nil, as: :item)
         singular_association = association.to_s.singularize
         class_name ||= association.to_s.singularize.camelize
         intermediary_class_name ||= "#{class_name}Link"
-        intermediary_association ||=
-          intermediary_class_name.demodulize.tableize.to_sym
+        intermediary_association ||= intermediary_class_name.demodulize.tableize.to_sym
 
-        has_many intermediary_association,
-          class_name: intermediary_class_name,
-          as: as,
-          dependent: :destroy
-        has_many association.to_sym,
-          -> { order(:created_at).distinct },
-          class_name: class_name,
-          through: intermediary_association,
-          source: singular_association.to_sym
+        has_many intermediary_association, class_name: intermediary_class_name, as: as, dependent: :destroy
+        has_many association.to_sym, -> { order(:created_at).distinct }, class_name: class_name, through: intermediary_association, source: singular_association.to_sym
       end
     end
   end

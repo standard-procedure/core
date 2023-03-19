@@ -4,6 +4,7 @@ class CreateThings < ActiveRecord::Migration[7.0]
       t.belongs_to :category
       t.belongs_to :person
       t.string :name
+      t.string :reference
       t.text :field_data
       t.timestamps
     end

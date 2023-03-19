@@ -6,7 +6,7 @@ module StandardProcedure
     has_fields
     has_field_definitions
     belongs_to :account, class_name: "StandardProcedure::Account"
-    has_many :items,
+    has_many_extended :documents,
       -> { order :position },
       class_name: "StandardProcedure:Document",
       foreign_key: "template_id",
@@ -24,20 +24,11 @@ module StandardProcedure
       end
       status ||= workflow.statuses.first
 
-      document =
-        folder.documents.build name: name,
-          reference: reference,
-          type: item_type,
-          status: status,
-          template: self
-      document
-        .with_fields_from(self)
-        .tap do |d|
-          d.update! params
-          status&.document_added document: d, performed_by: performed_by
-        end
+      folder.documents.create_with_fields_from(self, name: name, reference: reference, type: item_type, status: status, template: self).tap do |document|
+        status&.document_added document: document, performed_by: performed_by
+      end
     end
 
-    command :remove_item
+    command :remove_document
   end
 end

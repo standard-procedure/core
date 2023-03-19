@@ -9,54 +9,30 @@ module StandardProcedure
           intermediary_class_name: "StandardProcedure::CommandLink"
 
         def command(*names, &implementation)
-          Array
-            .wrap(names)
-            .each do |name|
-              if implementation.nil?
-                send(
-                  :"define_#{command_type_for(name)}_command",
-                  name,
-                  &implementation
-                )
-              else
-                define_standard_command(name, &implementation)
-              end
-            end
+          Array.wrap(names).each do |name|
+            implementation.nil? ? send(:"define_#{command_type_for(name)}_command", name) : define_standard_command(name, &implementation)
+          end
         end
 
         def define_standard_command(command_name, &implementation)
           command_name = command_name.to_sym
-          unless available_commands.include? command_name
-            available_commands << command_name
-          end
+          available_commands << command_name unless available_commands.include? command_name
           instance_eval do
             # Define the command wrapper (that checks authorisation and logs the outcome)
             define_method command_name do |**params|
               user = params.delete(:performed_by)
               authorise! command_name, user
-              command =
-                user.build_command_for self,
-                  command_name: command_name,
-                  **params
-              user.acts_on self,
-                command: command,
-                command_name: command_name,
-                **params
+              command = user.build_command_for self, command_name: command_name, **params
+              user.acts_on self, command: command, command_name: command_name, **params
             end
             # Define the asynchronous version if config.async is set
             if StandardProcedure.config.async
               define_method :"#{command_name}_later" do |**params|
                 user = params.delete(:performed_by)
                 authorise! command_name, user
-                command =
-                  user.build_command_for self,
-                    command_name: command_name,
-                    **params
+                command = user.build_command_for self, command_name: command_name, **params
                 ConcurrentRails::Promises.future do
-                  user.acts_on self,
-                    command: command,
-                    command_name: command_name,
-                    **params
+                  user.acts_on self, command: command, command_name: command_name, **params
                 end
               end
             end
@@ -85,9 +61,7 @@ module StandardProcedure
         end
 
         define_method :authorise! do |do_command, user|
-          unless authorised_to? do_command, user
-            raise StandardProcedure::Command::Unauthorised
-          end
+          raise StandardProcedure::Command::Unauthorised unless authorised_to? do_command, user
         end
 
         define_method :available_commands do
@@ -95,9 +69,7 @@ module StandardProcedure
         end
 
         define_method :available_commands_for do |user|
-          available_commands
-            .select { |command| authorised_to?(command, user) }
-            .uniq
+          available_commands.select { |command| authorised_to?(command, user) }.uniq
         end
 
         def available_commands

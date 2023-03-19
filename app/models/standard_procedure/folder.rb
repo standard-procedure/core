@@ -5,27 +5,28 @@ module StandardProcedure
     has_fields
     has_ancestry
     belongs_to :account, class_name: "StandardProcedure::Account"
-    has_many :items,
-      -> { order :position },
-      class_name: "StandardProcedure::FolderItem",
-      dependent: :destroy
-    has_many :files,
-      -> { order :position },
-      class_name: "StandardProcedure::File"
+    has_many :items, -> { order :position }, class_name: "StandardProcedure::FolderItem", dependent: :destroy
+    has_many :files, -> { order :position }, class_name: "StandardProcedure::File"
     # has_many :slots, -> { order :position}, class_name: "StandardProcedure::Slot"
     # has_many :links, -> { order :position}, class_name: "StandardProcedure::Link"
-    has_many :documents,
-      -> { order :position },
-      class_name: "StandardProcedure::Document"
+    has_many_extended :documents, -> { order :position }, class_name: "StandardProcedure::Document"
 
     before_validation :set_account
 
     def organisation
-      Organisation.where(id: ancestor_ids).first
+      Organisation.where(id: path_ids).last
     end
 
     def contact
-      Contact.where(id: ancestor_ids).first
+      Contact.where(id: path_ids).last
+    end
+
+    def organisations
+      Organisation.where(id: subtree_ids).order(:name)
+    end
+
+    def contacts
+      Contect.where(id: subtree_ids).order(:name)
     end
 
     def folders
@@ -37,17 +38,8 @@ module StandardProcedure
     end
 
     command :create_document do |name:, performed_by:, reference: nil, template: nil, workflow: nil, status: nil, **params|
-      if template.is_a? String
-        template =
-          account.templates.find_by(reference: template)
-      end
-      template.create_document reference: reference,
-        name: name,
-        folder: self,
-        workflow: workflow,
-        status: status,
-        performed_by: performed_by,
-                               **params
+      template = account.templates.find_by(reference: template) if template.is_a? String
+      template.create_document reference: reference, name: name, folder: self, workflow: workflow, status: status, performed_by: performed_by, **params
     end
 
     protected

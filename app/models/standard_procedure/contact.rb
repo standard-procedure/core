@@ -24,31 +24,17 @@ module StandardProcedure
 
     before_validation :generate_access_code
     validate :parent_must_be_an_organisation
-    validates :access_code,
-      presence: true,
-      uniqueness: {
-        case_sensitive: false
-      },
-      if: :detached?
-
-    def organisation
-      parent
-    end
+    validates :access_code, presence: true, uniqueness: {case_sensitive: false}, if: :detached?
 
     def detached?
       user.blank?
     end
 
     command :send_message do |subject:, contents:, performed_by:, recipients: []|
-      message =
-        Message.create!(sender: self, subject: subject, contents: contents)
+      message = Message.create!(sender: self, subject: subject, contents: contents)
       recipients.each do |recipient|
         message.message_recipients.create! recipient: recipient
-        notification =
-          recipient.notifications.create!(
-            details: contents,
-            type: "StandardProcedure::Notification::MessageReceived"
-          )
+        notification = recipient.notifications.create! details: contents, type: "StandardProcedure::Notification::MessageReceived"
         notification.link_to message
       end
       message
@@ -57,20 +43,14 @@ module StandardProcedure
     protected
 
     def generate_access_code
-      if user.blank?
-        if access_code.blank?
-          self.access_code =
-            "#{4.random_letters}-#{4.random_letters}".upcase
-        end
-      else
-        self.access_code = ""
-      end
+      return if user.present? && access_code.blank?
+      return if user.blank? && access_code.present?
+
+      self.access_code = user.blank? ? "#{4.random_letters}-#{4.random_letters}".upcase : ""
     end
 
     def parent_must_be_an_organisation
-      if !parent.is_a? StandardProcedure::Organisation
-        errors.add :parent, :must_be_an_organisation
-      end
+      errors.add :parent, :must_be_an_organisation if !parent.is_a? StandardProcedure::Organisation
     end
   end
 end

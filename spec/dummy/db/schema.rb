@@ -329,6 +329,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_01_114812) do
     t.integer "category_id"
     t.integer "person_id"
     t.string "name"
+    t.string "reference"
     t.text "field_data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

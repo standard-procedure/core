@@ -28,7 +28,7 @@ module StandardProcedure
         before_validation :set_reference
 
         define_method :generate_reference_value do
-          ([prefix] + (1..4).collect { |i| 4.random_letters.upcase }).compact.join("-")
+          ([prefix] + (1..length).collect { |i| 4.random_letters.upcase }).compact.join("-")
         end
 
         define_method :set_reference do

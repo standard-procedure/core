@@ -10,7 +10,6 @@ module StandardProcedure
     # has_many :slots, -> { order :position}, class_name: "StandardProcedure::Slot"
     # has_many :links, -> { order :position}, class_name: "StandardProcedure::Link"
     has_many_extended :documents, -> { order :position }, class_name: "StandardProcedure::Document"
-
     before_validation :set_account
 
     def organisation

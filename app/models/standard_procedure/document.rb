@@ -30,6 +30,7 @@ module StandardProcedure
     enum item_status: {active: 0, completed: 100, cancelled: -1}
 
     command :add_alert
+
     # `assign_to @user, contact: @contact`
     # - user: the user who is performing the action
     # - contact: the contact to whom the item will be assigned
@@ -39,20 +40,19 @@ module StandardProcedure
         notification.link_to self
       end
     end
+
     # `perform_action user, action_reference: @action_reference, **params`
     # - performed_by: the user who is performing the action
     # - action_reference: the reference of the action to perform
     # - **params: any other parameters needed by the action
-    command :perform_action do |performed_by:, action: nil, **params|
-      status.perform_action action: action,
-        performed_by: performed_by,
-                            **params.merge(document: self)
+    command :perform_action do |action: nil, performed_by: nil, **params|
+      status.perform_action action: action, performed_by: performed_by, **params.merge(document: self)
     end
 
     # `set_status user, reference: "a_status_reference"`
     # or
     # `set_status user, status: @status`
-    command :set_status do |performed_by:, status: nil, reference: nil|
+    command :set_status do |status: nil, reference: nil, performed_by: nil|
       status ||= workflow.status(reference)
       update! status: status
       status.document_added document: self, performed_by: performed_by

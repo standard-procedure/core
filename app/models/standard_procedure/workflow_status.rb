@@ -15,43 +15,24 @@ module StandardProcedure
 
     command :document_added do |document:, performed_by:|
       user = performed_by
-      document.alerts.each do |existing_alert|
-        existing_alert.amend status: "inactive", performed_by: user
-      end
+      document.alerts.each { |existing_alert| existing_alert.amend status: "inactive", performed_by: user }
 
-      if default_contact_for(document).present?
-        document.assign_to contact: default_contact_for(document),
-          performed_by: user
-      end
+      document.assign_to contact: default_contact_for(document), performed_by: user if default_contact_for(document).present?
 
       alerts.each do |alert_data|
         alert_data.symbolize_keys!
         #  Only add this alert if it meets any "if" clauses in the definition
         next unless evaluate(alert_data, document)
-        contacts =
-          alert_data[:contacts]
-            .map { |reference| document.find_contact_from(reference) }
-            .compact
+        contacts = alert_data[:contacts].map { |reference| document.find_contact_from(reference) }.compact
         hours = alert_data[:hours].hours
-        document.add_alert type: alert_data[:type],
-          due_at: hours.from_now,
-          message: alert_data[:message],
-          contacts: contacts,
-          performed_by: user
+        document.add_alert type: alert_data[:type], due_at: hours.from_now, message: alert_data[:message], contacts: contacts, performed_by: user
       end
     end
 
-    # `perform_action user, action_reference: @action_reference, document: document, **params`
-    # - user: the user who is performing the action
-    # - action_reference: the reference of the action to perform
-    # - document: the document that will be acted on
-    # - **params: any other parameters needed by the action
-    command :perform_action do |performed_by:, action: nil, document: nil, **params|
-      params =
-        params.merge(configuration_for(action).excluding(:name, :reference))
-      action_handler_for(action).perform(
-        params.merge(document: document, performed_by: performed_by)
-      )
+    # `perform_action action: "action", document: @document, performed_by: @user, **params`
+    command :perform_action do |action: nil, document: nil, performed_by: nil, **params|
+      params = params.merge(configuration_for(action).excluding(:name, :reference))
+      action_handler_for(action).perform(params.merge(document: document, performed_by: performed_by))
     end
 
     command :add_alerts do |performed_by:, document: nil|
@@ -73,9 +54,7 @@ module StandardProcedure
     end
 
     def build_action(action_reference)
-      action_handler_for(action_reference).prepare_from(
-        configuration_for(action_reference)
-      )
+      action_handler_for(action_reference).prepare_from(configuration_for(action_reference))
     end
 
     protected

@@ -2,23 +2,11 @@ module StandardProcedure
   class Contact < Folder
     belongs_to :user, class_name: "StandardProcedure::User", optional: true
     belongs_to :role, class_name: "StandardProcedure::Role"
-    has_many :assigned_documents,
-      -> { order :name },
-      class_name: "StandardProcedure::Document",
-      foreign_key: "assigned_to_id",
-      dependent: :destroy
-    has_many :notifications,
-      -> { order :acknowledged_at },
-      foreign_key: "contact_id",
-      class_name: "StandardProcedure::Notification",
-      dependent: :destroy
+    has_many :assigned_documents, -> { order :name }, class_name: "StandardProcedure::Document", foreign_key: "assigned_to_id", dependent: :destroy
+    has_many :notifications, -> { order :acknowledged_at }, foreign_key: "contact_id", class_name: "StandardProcedure::Notification", dependent: :destroy
     has_and_belongs_to_many :alerts, class_name: "StandardProcedure::Alert"
-    has_many :sent_messages,
-      class_name: "StandardProcedure::Message",
-      foreign_key: "sender_id"
-    has_many :received_messages,
-      class_name: "StandardProcedure::MessageRecipient",
-      foreign_key: "recipient_id"
+    has_many :sent_messages, class_name: "StandardProcedure::Message", foreign_key: "sender_id"
+    has_many :received_messages, class_name: "StandardProcedure::MessageRecipient", foreign_key: "recipient_id"
     has_many :messages, through: :received_messages
     delegate :access_level, to: :role
 

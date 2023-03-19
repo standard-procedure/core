@@ -11,9 +11,7 @@ module StandardProcedure
 
     command :add_contact do |organisation: nil, role: nil, reference: nil, name: nil, **params|
       user = params.delete :performed_by
-      if organisation.is_a? String
-        organisation = organisations.find_by!(reference: organisation)
-      end
+      organisation = organisations.find_by!(reference: organisation) if organisation.is_a? String
       role = roles.find_by!(reference: role) if role.is_a? String
       reference ||= name
       organisation.add_contact(**params.merge(role: role, reference: reference, name: name, performed_by: user))

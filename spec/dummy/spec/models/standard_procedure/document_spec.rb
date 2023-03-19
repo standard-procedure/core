@@ -2,37 +2,17 @@ require "rails_helper"
 
 module StandardProcedure
   RSpec.describe Document, type: :model do
-    subject do
-      a_saved StandardProcedure::Document,
-        folder: employees,
-        status: incoming_status,
-        template: template,
-        name: "Something"
-    end
+    subject { a_saved StandardProcedure::Document, folder: employees, status: incoming_status, template: template, name: "Something" }
     let(:user) { a_saved ::User }
     let(:account) { a_saved(Account).configure_from(configuration) }
     let(:template) { account.templates.find_by reference: "order" }
     let(:workflow) { account.workflows.find_by reference: "order_processing" }
     let(:incoming_status) { workflow.statuses.find_by reference: "incoming" }
-    let(:in_progress_status) do
-      workflow.statuses.find_by reference: "in_progress"
-    end
+    let(:in_progress_status) { workflow.statuses.find_by reference: "in_progress" }
     let(:staff) { account.roles.find_by reference: "staff" }
     let(:employees) { account.organisations.find_by reference: "employees" }
-    let(:nichola) do
-      a_saved StandardProcedure::Contact,
-        account: account,
-        parent: employees,
-        role: staff,
-        reference: "nichola@example.com"
-    end
-    let(:anna) do
-      a_saved StandardProcedure::Contact,
-        account: account,
-        parent: employees,
-        role: staff,
-        reference: "anna@example.com"
-    end
+    let(:nichola) { a_saved StandardProcedure::Contact, account: account, parent: employees, role: staff, reference: "nichola@example.com" }
+    let(:anna) { a_saved StandardProcedure::Contact, account: account, parent: employees, role: staff, reference: "anna@example.com" }
     let :configuration do
       <<-YAML
         roles:
@@ -84,10 +64,7 @@ module StandardProcedure
       end
 
       it "notifies the status that this item has been updated" do
-        expect(in_progress_status).to receive(:document_added).with(
-          performed_by: user,
-          document: subject
-        )
+        expect(in_progress_status).to receive(:document_added).with(performed_by: user, document: subject)
         subject.set_status status: in_progress_status, performed_by: user
       end
     end
@@ -100,7 +77,7 @@ module StandardProcedure
         expect(subject.find_contact_from("nichola@example.com")).to eq nichola
       end
       it "finds the item's contact" do
-        folder = nichola.folders.create name: "Nichola's orders"
+        folder = Folder.create! parent: nichola, name: "Nichola's orders"
         subject.update folder: folder
         expect(subject.find_contact_from("contact")).to eq nichola
       end

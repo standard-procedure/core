@@ -29,7 +29,11 @@ module StandardProcedure
     end
 
     def folders
-      children
+      Folder.where(id: child_ids).order(:name)
+    end
+
+    command :add_folder do |name: nil, reference: nil, performed_by: nil|
+      Folder.create! parent: self, account: account, name: name, reference: reference
     end
 
     command :upload_file do |name:, io:, performed_by:|

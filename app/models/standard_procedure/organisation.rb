@@ -4,13 +4,16 @@ module StandardProcedure
 
     command :add_organisation do |name:, performed_by:, reference: nil, type: nil, **params|
       type ||= "StandardProcedure::Organisation"
-      folders.where(reference: reference).first_or_create! params.merge(name: name, type: type, account: account)
+      organisation_class = type.constantize
+      organisation_class.create!(**params.merge(parent: self, name: name, account: account))
     end
 
     command :add_contact do |name:, role:, performed_by:, reference: nil, type: nil, **params|
       type ||= "StandardProcedure::Contact"
+      contact_class = type.constantize
+
       role = account.roles.find_by reference: role if role.is_a? String
-      folders.where(reference: reference).first_or_create! params.merge(name: name, reference: reference, role: role, type: type, account: account)
+      contact_class.create_with_fields_from!(role, **params.merge(parent: self, name: name, reference: reference, role: role, account: account))
     end
   end
 end

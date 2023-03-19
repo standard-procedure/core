@@ -45,8 +45,9 @@ module StandardProcedure
       end
       it "uses the contact's organisation if no organisation is provided" do
         contact = account.add_contact organisation: customers, name: "Some person", role: role, performed_by: user
-        folder = contact.folders.create! account: account, name: "Folder"
+        folder = contact.add_folder name: "Folder", performed_by: user
         document = subject.create_document name: "Order 123", folder: folder, status: incoming_status, performed_by: user
+        puts document.folder.path.pluck(:name).join("/")
         expect(document.organisation).to eq customers
         expect(document.contact).to eq contact
       end

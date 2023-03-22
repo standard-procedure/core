@@ -1,11 +1,9 @@
 module StandardProcedure
   class User < ApplicationRecord
     is_user
-    has_reference
+    has_reference copy_to: :name
     has_name
-    has_many :contacts,
-      class_name: "StandardProcedure::Contact",
-      dependent: :destroy
+    has_many :contacts, class_name: "StandardProcedure::Contact", dependent: :destroy
 
     command :attach do |access_code:, performed_by:|
       Contact.find_by!(access_code: access_code).update user: self
@@ -22,7 +20,7 @@ module StandardProcedure
       true
     end
 
-    def orphaned?
+    def detached?
       contacts.empty?
     end
 
@@ -31,10 +29,7 @@ module StandardProcedure
     # Use StandardProcedure::User.root to set up your accounts before you've added any administrators
     # or to make it easier to write tests
     def self.root
-      @root ||=
-        StandardProcedure::User::Root.where(reference: "root").first_or_create(
-          name: "Root"
-        )
+      @root ||= StandardProcedure::User::Root.where(reference: "root").first_or_create(name: "Root")
     end
   end
 end

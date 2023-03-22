@@ -22,8 +22,8 @@ module StandardProcedure
       expect(second_anna.reload.name).to eq "Anna-Maria"
     end
 
-    it "knows when it is orphaned" do
-      expect(subject).to be_orphaned
+    it "knows when it is detached" do
+      expect(subject).to be_detached
     end
 
     it "attaches itself to a contact" do

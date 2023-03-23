@@ -3,10 +3,13 @@ module StandardProcedure
     is_user
     has_reference copy_to: :name
     has_name
-    has_many :contacts, class_name: "StandardProcedure::Contact", dependent: :destroy
+    has_many :contacts, class_name: "StandardProcedure::Contact", dependent: :nullify
 
     command :attach do |access_code:, performed_by:|
-      Contact.find_by!(access_code: access_code).update user: self
+      Contact.find_by(access_code: access_code).tap do |contact|
+        raise InvalidAccessCode.new(access_code) if contact.nil?
+        contact.update user: self
+      end
     end
 
     command :amend do |**params|
@@ -30,6 +33,9 @@ module StandardProcedure
     # or to make it easier to write tests
     def self.root
       @root ||= StandardProcedure::User::Root.where(reference: "root").first_or_create(name: "Root")
+    end
+
+    class InvalidAccessCode < StandardError
     end
   end
 end

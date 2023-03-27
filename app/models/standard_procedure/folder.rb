@@ -12,6 +12,10 @@ module StandardProcedure
     has_many_extended :documents, -> { order :position }, class_name: "StandardProcedure::Document"
     before_validation :set_account
 
+    def path_name
+      path.collect(&:name).join("/")
+    end
+
     def organisation
       Organisation.where(id: path_ids).last
     end

@@ -9,6 +9,7 @@ module StandardProcedure
     has_many :received_messages, class_name: "StandardProcedure::MessageRecipient", foreign_key: "recipient_id"
     has_many :messages, through: :received_messages
     delegate :access_level, to: :role
+    delegate :account, to: :role
 
     before_validation :generate_access_code
     validate :parent_must_be_an_organisation

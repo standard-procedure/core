@@ -4,10 +4,13 @@ module StandardProcedure
     has_reference copy_to: :name
     has_name
     has_many :contacts, class_name: "StandardProcedure::Contact", dependent: :nullify
+    has_many :roles, -> { distinct.order(:name) }, through: :contacts
+    has_many :accounts, -> { distinct.order(:name) }, through: :roles
+    attribute :access_code
 
     command :attach do |access_code:, performed_by:|
-      Contact.find_by(access_code: access_code).tap do |contact|
-        raise InvalidAccessCode.new(access_code) if contact.nil?
+      self.access_code = access_code
+      Contact.find_by!(access_code: access_code).tap do |contact|
         contact.update user: self
       end
     end

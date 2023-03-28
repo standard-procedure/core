@@ -4,6 +4,8 @@ module StandardProcedure
     belongs_to :performed_by, class_name: "StandardProcedure::User"
     belongs_to :document, class_name: "StandardProcedure::Document"
     has_hash :configuration
+    has_field :primary, default: false
+    has_field :colour, default: "neutral"
     delegate :status, to: :document
     delegate :workflow, to: :status
     delegate :account, to: :workflow
@@ -43,13 +45,9 @@ module StandardProcedure
     protected
 
     def load_field_definitions
-      Array
-        .wrap(configuration[:fields])
-        .each do |field_data|
-          field_definitions.where(
-            reference: field_data[:reference]
-          ).first_or_initialize(field_data)
-        end
+      Array.wrap(configuration[:fields]).each do |field_data|
+        field_definitions.where(reference: field_data[:reference]).first_or_initialize(field_data)
+      end
     end
   end
 end

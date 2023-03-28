@@ -44,6 +44,8 @@ module StandardProcedure
                 actions:
                   - reference: place_order_with_supplier
                     name: Place order with Supplier
+                    primary: true
+                    colour: success
                     configuration:
                       fields:
                         - reference: supplier
@@ -108,6 +110,10 @@ module StandardProcedure
       expect(subject.name_for(:place_order_with_supplier)).to eq "Place order with Supplier"
       expect(subject.name_for(:make_priority)).to eq "Make this a priority order"
       expect { subject.name_for(:something_else) }.to raise_exception(StandardProcedure::WorkflowStatus::InvalidActionReference)
+    end
+    it "knows the primary action" do
+      expect(subject.primary_action_reference).to eq "place_order_with_supplier"
+      expect(subject.primary_action_colour).to eq "success"
     end
     it "builds an action" do
       expect(subject.build_action(:place_order_with_supplier).class.name).to eq "StandardProcedure::WorkflowAction::UserDefined"

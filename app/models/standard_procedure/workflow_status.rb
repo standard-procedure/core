@@ -45,6 +45,14 @@ module StandardProcedure
       actions.map { |a| a["reference"] }
     end
 
+    def primary_action_reference
+      primary_action.blank? ? nil : primary_action["reference"]
+    end
+
+    def primary_action_colour
+      primary_action.blank? ? nil : primary_action["colour"]
+    end
+
     def name_for(action_reference)
       configuration_for(action_reference)[:name]
     end
@@ -75,6 +83,10 @@ module StandardProcedure
 
     def find_contact_from(rule)
       account.contacts.find_by reference: rule[:contact]
+    end
+
+    def primary_action
+      @primary_action ||= actions.find { |a| a["primary"] }
     end
 
     def configuration_for(action_reference)

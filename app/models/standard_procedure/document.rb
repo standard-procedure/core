@@ -1,23 +1,10 @@
 module StandardProcedure
   class Document < FolderItem
-    belongs_to :template,
-      class_name: "StandardProcedure::DocumentTemplate",
-      foreign_key: "template_id"
-    belongs_to :status,
-      class_name: "StandardProcedure::WorkflowStatus",
-      foreign_key: "status_id",
-      optional: true
-    belongs_to :assigned_to,
-      class_name: "StandardProcedure::Contact",
-      optional: true
-    has_many :actions,
-      class_name: "StandardProcedure::WorkflowAction",
-      dependent: :destroy
-    has_many :alerts,
-      -> { order :due_at },
-      class_name: "StandardProcedure::Alert",
-      as: :item,
-      dependent: :destroy
+    belongs_to :template, class_name: "StandardProcedure::DocumentTemplate", foreign_key: "template_id"
+    belongs_to :status, class_name: "StandardProcedure::WorkflowStatus", foreign_key: "status_id", optional: true
+    belongs_to :assigned_to, class_name: "StandardProcedure::Contact", optional: true
+    has_many :actions, class_name: "StandardProcedure::WorkflowAction", dependent: :destroy
+    has_many :alerts, -> { order :due_at }, class_name: "StandardProcedure::Alert", as: :item, dependent: :destroy
     delegate :workflow, to: :status
     delegate :available_actions, to: :status
     delegate :name_for, to: :status

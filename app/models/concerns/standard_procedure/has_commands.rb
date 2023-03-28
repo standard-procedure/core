@@ -4,9 +4,7 @@ module StandardProcedure
 
     class_methods do
       def defines_commands
-        is_linked_to :commands,
-          class_name: "StandardProcedure::Command",
-          intermediary_class_name: "StandardProcedure::CommandLink"
+        is_linked_to :commands, class_name: "StandardProcedure::Command", intermediary_class_name: "StandardProcedure::CommandLink"
 
         def command(*names, &implementation)
           Array.wrap(names).each do |name|
@@ -101,10 +99,7 @@ module StandardProcedure
       end
 
       def is_user
-        has_many :performed_commands,
-          class_name: "StandardProcedure::Command",
-          as: :user,
-          dependent: :destroy
+        has_many :performed_commands, class_name: "StandardProcedure::Command", as: :user, dependent: :destroy
 
         define_method :call_stack do
           @call_stack ||= Concurrent::Array.new
@@ -116,12 +111,7 @@ module StandardProcedure
 
         define_method :build_command_for do |target, command_name: nil, **params|
           command =
-            performed_commands.create! target: target,
-              context: current_context,
-              command:
-                "#{target.model_name.singular}_#{command_name}",
-              status: "ready",
-              params: params
+            performed_commands.create! target: target, context: current_context, command: "#{target.model_name.singular}_#{command_name}", status: "ready", params: params
         end
 
         define_method :acts_on do |target, command: nil, command_name: nil, **params, &implementation|
@@ -130,17 +120,13 @@ module StandardProcedure
           call_stack << command
           begin
             user = self
-            result =
-              target.instance_eval do
-                target.send :"#{command_name}_implementation",
-                            **params.merge(performed_by: user)
-              end
-            command.update! status: "completed",
-              params: params.merge(result: result)
+            result = target.instance_eval do
+              target.send :"#{command_name}_implementation", **params.merge(performed_by: user)
+            end
+            command.update! status: "completed", params: params.merge(result: result)
             result
           rescue => ex
-            command.update! status: "failed",
-              params: params.merge(error: ex.message)
+            command.update! status: "failed", params: params.merge(error: ex.message)
             raise ex
           ensure
             call_stack.pop

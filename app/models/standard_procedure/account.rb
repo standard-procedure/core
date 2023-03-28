@@ -2,7 +2,7 @@ module StandardProcedure
   class Account < ApplicationRecord
     has_name
     has_logo
-    has_many :folders, class_name: "StandardProcedure::Folder", dependent: :destroy
+    has_many :folders, -> { order :name }, class_name: "StandardProcedure::Folder", dependent: :destroy
     include StandardProcedure::Account::Configuration
     include StandardProcedure::Account::Roles
     include StandardProcedure::Account::Folders
@@ -19,6 +19,14 @@ module StandardProcedure
 
     command :remove_contact do |contact:, performed_by:|
       contact.destroy
+    end
+
+    command :add_folder do |parent: nil, name: nil, reference: nil, performed_by: nil|
+      Folder.create! parent: parent, account: self, name: name, reference: reference
+    end
+
+    command :remove_folder do |folder: nil, performed_by: nil|
+      folder.destroy
     end
 
     def contact_for(user)

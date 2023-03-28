@@ -37,7 +37,11 @@ module StandardProcedure
     end
 
     command :add_folder do |name: nil, reference: nil, performed_by: nil|
-      Folder.create! parent: self, account: account, name: name, reference: reference
+      account.add_folder parent: self, name: name, reference: reference, performed_by: performed_by
+    end
+
+    command :delete do |performed_by: nil|
+      account.remove_folder folder: self, performed_by: performed_by
     end
 
     command :upload_file do |name:, io:, performed_by:|

@@ -5,6 +5,7 @@ module StandardProcedure
     has_reference
     has_fields
     has_field_definitions
+    has_field :calendar_type
     belongs_to :account, class_name: "StandardProcedure::Account"
     has_many_extended :documents, -> { order :position }, class_name: "StandardProcedure:Document", foreign_key: "template_id", dependent: :destroy
 
@@ -26,7 +27,7 @@ module StandardProcedure
     protected
 
     def item_class
-      @item_class ||= item_type.constantize
+      @item_class ||= (item_type.blank? ? Document : item_type.constantize)
     end
   end
 end

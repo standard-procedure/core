@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_03_01_114812) do
+ActiveRecord::Schema[7.0].define(version: 2023_03_29_194159) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -104,6 +104,13 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_01_114812) do
     t.integer "standard_procedure_folder_id", null: false
   end
 
+  create_table "standard_procedure_calendar_item_attendees", id: false, force: :cascade do |t|
+    t.bigint "calendar_item_id"
+    t.bigint "attendee_id"
+    t.index ["attendee_id"], name: "attendee_calendar_items"
+    t.index ["calendar_item_id"], name: "calendar_item_attendees"
+  end
+
   create_table "standard_procedure_command_links", force: :cascade do |t|
     t.integer "command_id"
     t.string "item_type"
@@ -172,10 +179,14 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_01_114812) do
     t.integer "template_id"
     t.integer "status_id"
     t.integer "assigned_to_id"
+    t.date "date"
+    t.time "starts_at"
+    t.time "ends_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["assigned_to_id"], name: "index_standard_procedure_folder_items_on_assigned_to_id"
     t.index ["folder_id"], name: "index_standard_procedure_folder_items_on_folder_id"
+    t.index ["owner_id", "date"], name: "index_standard_procedure_folder_items_on_owner_id_and_date"
     t.index ["owner_id"], name: "index_standard_procedure_folder_items_on_owner_id"
     t.index ["status_id"], name: "index_standard_procedure_folder_items_on_status_id"
     t.index ["template_id"], name: "index_standard_procedure_folder_items_on_template_id"

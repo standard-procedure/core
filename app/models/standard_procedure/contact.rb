@@ -8,6 +8,11 @@ module StandardProcedure
     has_many :sent_messages, class_name: "StandardProcedure::Message", foreign_key: "sender_id"
     has_many :received_messages, class_name: "StandardProcedure::MessageRecipient", foreign_key: "recipient_id"
     has_many :messages, through: :received_messages
+    has_and_belongs_to_many :calendar_items,
+      class_name: "StandardProcedure::Document",
+      join_table: "standard_procedure_calendar_item_attendees",
+      foreign_key: "attendee_id",
+      association_foreign_key: "calendar_item_id"
     delegate :access_level, to: :role
     delegate :account, to: :role
 

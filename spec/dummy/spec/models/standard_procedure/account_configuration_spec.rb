@@ -240,6 +240,9 @@ module StandardProcedure
                   - reference: address
                     name: Address
                     type: StandardProcedure::FieldDefinition::Address
+              - reference: meetings
+                name: Meeting
+                calendar_type: time
           YAML
         end
         let :custom_configuration do
@@ -258,6 +261,11 @@ module StandardProcedure
           template = account.templates.find_by reference: "orders"
           expect(template).to_not be_nil
           expect(template.item_type).to eq "Order"
+          expect(template.calendar_type).to be_blank
+
+          template = account.templates.find_by reference: "meetings"
+          expect(template).to_not be_nil
+          expect(template.calendar_type).to eq "time"
         end
         it "does not replace existing templates" do
           account = a_saved Account
@@ -281,9 +289,7 @@ module StandardProcedure
           address_field =
             template.field_definitions.find_by reference: "address"
           expect(address_field).to_not be_nil
-          expect(
-            address_field.model_name.to_s
-          ).to eq "StandardProcedure::FieldDefinition::Address"
+          expect(address_field.model_name.to_s).to eq "StandardProcedure::FieldDefinition::Address"
         end
       end
     end

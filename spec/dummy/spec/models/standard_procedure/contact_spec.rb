@@ -17,22 +17,20 @@ module StandardProcedure
       it "sends messages to other contacts" do
         nathan.touch
 
-        subject.send_message subject: "Hello",
-          contents: "World!",
-          recipients: [nathan],
-          performed_by: user
+        subject.send_message subject: "Hello", contents: "World!", recipients: [nathan], performed_by: user
 
         message = subject.sent_messages.last
         expect(message).to_not be_nil
         expect(nathan.messages).to include(message)
         notification = nathan.notifications.last
         expect(notification).to_not be_nil
-        expect(
-          notification.model_name.to_s
-        ).to eq "StandardProcedure::Notification::MessageReceived"
+        expect(notification.model_name.to_s).to eq "StandardProcedure::Notification::MessageReceived"
         expect(notification.message).to eq message
         expect(notification.details.to_s).to include("World!")
       end
+    end
+
+    describe "calendar items" do
     end
   end
 end

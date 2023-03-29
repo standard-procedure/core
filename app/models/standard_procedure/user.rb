@@ -4,6 +4,7 @@ module StandardProcedure
     has_reference copy_to: :name
     has_name
     has_many :contacts, class_name: "StandardProcedure::Contact", dependent: :nullify
+    has_many :calendar_items, through: :contacts
     has_many :roles, -> { distinct.order(:name) }, through: :contacts
     has_many :accounts, -> { distinct.order(:name) }, through: :roles
     attribute :access_code

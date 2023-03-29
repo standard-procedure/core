@@ -14,7 +14,13 @@ module StandardProcedure
       join_table: "standard_procedure_related_items",
       foreign_key: "document_id",
       association_foreign_key: "folder_item_id"
+    has_and_belongs_to_many :attendees,
+      class_name: "StandardProcedure::Contact",
+      join_table: "standard_procedure_calendar_item_attendees",
+      foreign_key: "calendar_item_id",
+      association_foreign_key: "attendee_id"
     enum item_status: {active: 0, completed: 100, cancelled: -1}
+    validate :date_and_times
 
     command :add_alert
 
@@ -45,6 +51,15 @@ module StandardProcedure
       status.document_added document: self, performed_by: performed_by
     end
 
+    command :invite do |attendee: nil, performed_by: nil|
+      raise NotACalendarItem.new(self) unless calendar_item?
+      attendees << attendee unless attendees.include? attendee
+    end
+
+    command :deinvite do |attendee: nil, performed_by: nil|
+      attendees.delete(attendee)
+    end
+
     def find_contact_from(reference)
       return reference if reference.is_a? StandardProcedure::Contact
       return nil unless reference.is_a? String
@@ -55,6 +70,31 @@ module StandardProcedure
       if possible_contact.is_a?(StandardProcedure::Contact)
         possible_contact
       end
+    end
+
+    def calendar_item?
+      template&.calendar_type.present?
+    end
+
+    def requires_date?
+      calendar_item?
+    end
+
+    def requires_time?
+      template.calendar_type == "time"
+    end
+
+    class NotACalendarItem < StandardError
+    end
+
+    protected
+
+    def date_and_times
+      return unless requires_date?
+      errors.add :date, :blank if date.blank?
+      return unless requires_time?
+      errors.add :starts_at, :blank if starts_at.blank?
+      errors.add :ends_at, :blank if ends_at.blank?
     end
   end
 end

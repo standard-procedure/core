@@ -53,6 +53,14 @@ module StandardProcedure
       template.create_document reference: reference, name: name, folder: self, workflow: workflow, status: status, performed_by: performed_by, **params
     end
 
+    def is_organisation?
+      is_a? Organisation
+    end
+
+    def is_contact?
+      is_a? Contact
+    end
+
     protected
 
     def set_account

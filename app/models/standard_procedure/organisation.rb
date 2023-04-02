@@ -12,6 +12,9 @@ module StandardProcedure
       type ||= "StandardProcedure::Contact"
       contact_class = type.constantize
 
+      contact = contacts.find_by reference: reference
+      return contact unless contact.blank?
+
       role = account.roles.find_by reference: role if role.is_a? String
       contact_class.create_with_fields_from!(role, **params.merge(parent: self, name: name, reference: reference, role: role, account: account))
     end

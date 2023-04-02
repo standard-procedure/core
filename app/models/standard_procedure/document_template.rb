@@ -2,7 +2,7 @@ module StandardProcedure
   class DocumentTemplate < ApplicationRecord
     has_name
     has_plural
-    has_reference
+    has_reference scope: :account
     has_fields
     has_field_definitions
     has_field :calendar_type

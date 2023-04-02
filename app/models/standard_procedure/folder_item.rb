@@ -1,7 +1,7 @@
 module StandardProcedure
   class FolderItem < ApplicationRecord
     has_name
-    has_reference
+    has_reference scope: :folder
     has_fields
     belongs_to :folder, class_name: "StandardProcedure::Folder"
     has_and_belongs_to_many :documents,

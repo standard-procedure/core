@@ -2,7 +2,7 @@ module StandardProcedure
   class Role < ApplicationRecord
     has_name
     has_plural
-    has_reference
+    has_reference scope: :account
     has_fields
     has_field_definitions
     belongs_to :account, class_name: "StandardProcedure::Account"

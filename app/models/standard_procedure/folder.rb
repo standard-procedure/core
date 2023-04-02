@@ -1,7 +1,7 @@
 module StandardProcedure
   class Folder < ApplicationRecord
     has_name
-    has_reference
+    has_reference scope: :account
     has_fields
     has_ancestry
     belongs_to :account, class_name: "StandardProcedure::Account"
@@ -29,7 +29,7 @@ module StandardProcedure
     end
 
     def contacts
-      Contect.where(id: subtree_ids).order(:name)
+      Contact.where(id: subtree_ids).order(:name)
     end
 
     def folders

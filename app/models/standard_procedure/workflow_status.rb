@@ -1,12 +1,10 @@
 module StandardProcedure
   class WorkflowStatus < ApplicationRecord
     has_name
-    has_reference
+    has_reference scope: :workflow
     has_fields
     belongs_to :workflow, class_name: "StandardProcedure::Workflow"
-    has_many :documents,
-      class_name: "StandardProcedure::Document",
-      dependent: :destroy
+    has_many :documents, class_name: "StandardProcedure::Document", dependent: :destroy
     acts_as_list scope: :workflow
     delegate :account, to: :workflow
     has_array :alerts

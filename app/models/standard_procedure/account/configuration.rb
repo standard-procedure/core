@@ -35,28 +35,23 @@ module StandardProcedure
         errors.add :configuration, se.message
       end
 
-      def build_configuration_for(
-        things,
-        target: self,
-        configuration: nil,
-        include_fields: false,
-        params: %i[reference name plural type]
-      )
+      def build_configuration_for(things, target: self, configuration: nil, include_fields: false, params: %i[reference name plural type])
+        puts "Building #{things}..."
         configuration ||= config_for(things)
         collection = target.send things
 
         configuration.each do |data|
+          puts "...searching for #{data[:reference]}..."
           next if collection.find_by(reference: data[:reference]).present?
+          puts "...building from #{data.slice(*params)}..."
           thing = collection.create! data.slice(*params)
+          puts "...created #{thing}..."
+
           if include_fields
-            Array
-              .wrap(data[:fields])
-              .each do |field_data|
-                thing
-                  .field_definitions
-                  .where(reference: field_data[:reference])
-                  .first_or_create!(field_data)
-              end
+            Array.wrap(data[:fields]).each do |field_data|
+              puts "...adding field #{field_data[:reference]} from #{field_data}..."
+              thing.field_definitions.where(reference: field_data[:reference]).first_or_create!(field_data)
+            end
           end
           yield thing, data if block_given?
         end

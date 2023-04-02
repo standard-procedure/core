@@ -1,7 +1,7 @@
 module StandardProcedure
   class Workflow < ApplicationRecord
     has_name
-    has_reference
+    has_reference scope: :account
     has_fields
     belongs_to :account, class_name: "StandardProcedure::Account"
     has_many :statuses,

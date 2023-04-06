@@ -326,14 +326,14 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_29_194159) do
   end
 
   create_table "standard_procedure_workflows", force: :cascade do |t|
+    t.string "account_type"
     t.integer "account_id"
     t.string "reference", default: "", null: false
     t.string "name", default: "", null: false
-    t.string "type", default: "", null: false
     t.text "field_data", limit: 16777216
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["account_id"], name: "index_standard_procedure_workflows_on_account_id"
+    t.index ["account_type", "account_id"], name: "index_standard_procedure_workflows_on_account"
   end
 
   create_table "things", force: :cascade do |t|
@@ -374,5 +374,4 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_29_194159) do
   add_foreign_key "standard_procedure_workflow_actions", "standard_procedure_folder_items", column: "document_id"
   add_foreign_key "standard_procedure_workflow_actions", "standard_procedure_users", column: "performed_by_id"
   add_foreign_key "standard_procedure_workflow_statuses", "standard_procedure_workflows", column: "workflow_id"
-  add_foreign_key "standard_procedure_workflows", "standard_procedure_accounts", column: "account_id"
 end

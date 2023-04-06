@@ -1,13 +1,10 @@
 module StandardProcedure
   class Workflow < ApplicationRecord
     has_name
-    has_reference scope: :account
     has_fields
+    has_reference scope: :account
     belongs_to :account, class_name: "StandardProcedure::Account"
-    has_many :statuses,
-      -> { order :position },
-      class_name: "StandardProcedure::WorkflowStatus",
-      dependent: :destroy
+    has_many :statuses, -> { order :position }, class_name: "StandardProcedure::WorkflowStatus", dependent: :destroy
 
     command :add_status, :remove_status
 

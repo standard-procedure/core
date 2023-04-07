@@ -187,6 +187,8 @@ RSpec.describe StandardProcedure::HasCommands do
     expect(category.available_commands).to include(:remove_child)
     category.remove_child child: sub_category, performed_by: User.root
     expect(Category.find_by(id: sub_category.id)).to_not be_nil
+    puts StandardProcedure::CommandLink.model_name.inspect
+    puts user.command_links.inspect
     command = user.commands.find_by command: "category_remove_child"
     expect(command).to_not be_nil
     expect(category.commands).to include(command)

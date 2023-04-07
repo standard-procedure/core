@@ -330,6 +330,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_29_194159) do
     t.integer "account_id"
     t.string "reference", default: "", null: false
     t.string "name", default: "", null: false
+    t.string "type", default: "", null: false
     t.text "field_data", limit: 16777216
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

@@ -136,19 +136,12 @@ module StandardProcedure
       #   has_many :notification_links, class_name: "NotificationLink", as: :item, dependent: :destroy
       #   has_many :notifications, through: :notification_links
       def is_linked_to(association, class_name: nil, intermediary_class_name: nil, intermediary_association: nil, as: :item)
-        puts "DEFINING is_linked_to #{association}"
         singular_association = association.to_s.singularize
-        puts singular_association
         class_name ||= association.to_s.singularize.camelize
-        puts class_name
         intermediary_class_name ||= "#{class_name}Link"
-        puts intermediary_class_name
         intermediary_association ||= intermediary_class_name.demodulize.tableize.to_sym
-        puts intermediary_association
 
-        puts "has_many #{intermediary_association}, class_name: #{intermediary_class_name}, as: #{as}, dependent: :destroy"
         has_many intermediary_association, class_name: intermediary_class_name, as: as, dependent: :destroy
-        puts "has_many #{association.to_sym}, -> { order(:created_at).distinct }, class_name: #{class_name}, through: #{intermediary_association}, source: #{singular_association.to_sym}"
         has_many association.to_sym, -> { order(:created_at).distinct }, class_name: class_name, through: intermediary_association, source: singular_association.to_sym
       end
     end

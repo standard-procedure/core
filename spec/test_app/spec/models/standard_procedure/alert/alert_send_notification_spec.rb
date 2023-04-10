@@ -8,7 +8,7 @@ module StandardProcedure
     let(:chris) { a_saved User }
 
     it "sends notifications to each contact" do
-      alert = Alert::SendNotification.create! item: thing, due_at: 1.minute.ago, status: "active", message: "Here is your notification", recipients: [alice, bob]
+      alert = Alert::SendNotification.create! alertable: thing, due_at: 1.minute.ago, status: "active", message: "Here is your notification", recipients: [alice, bob]
       alert.trigger
 
       [alice, bob].each do |user|

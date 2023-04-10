@@ -3,74 +3,35 @@ require "rails_helper"
 module StandardProcedure
   RSpec.describe WorkflowStatus, type: :model do
     subject { workflow.statuses.find_by reference: "incoming" }
+    let(:account) { a_saved Category }
     let(:document) { a_saved Thing }
 
     let(:user) { a_saved User }
-    let(:account) { a_saved(Account).configure_from(configuration) }
-    let(:template) { account.templates.find_by reference: "order" }
-    let(:workflow) { account.workflows.find_by reference: "order_processing" }
-    let(:staff) { account.roles.find_by reference: "staff" }
-    let(:employees) { account.organisations.find_by reference: "employees" }
-    let(:suppliers) { account.organisations.find_by reference: "suppliers" }
-    let(:nichola) { a_saved StandardProcedure::Contact, account: account, parent: employees, role: staff, reference: "nichola@example.com" }
-    let(:anna) { a_saved StandardProcedure::Contact, account: account, parent: employees, role: staff, reference: "anna@example.com" }
-    let(:supplier_1) { a_saved StandardProcedure::Contact, account: account, parent: suppliers, role: supplier, reference: "supplier1@example.com" }
-    let :configuration do
-      <<-YAML
-        roles:
-          - reference: staff
-            name: Staff
-          - reference: supplier
-            name: Supplier
-        organisations:
-          - reference: employees
-            name: Employee
-          - reference: suppliers
-            name: Supplier
-        templates:
-          - reference: order
-            name: Order
-        workflows:
-          - reference: order_processing
-            name: Order Processing
-            statuses:
-              - reference: incoming
-                name: Incoming
-                position: 1
-                assign_to:
-                  - if: name == "For Anna"
-                    contact: anna@example.com
-                  - contact: nichola@example.com
-                actions:
-                  - reference: place_order_with_supplier
-                    name: Place order with Supplier
-                    primary: true
-                    colour: success
-                    configuration:
-                      fields:
-                        - reference: supplier
-                          name: Supplier
-                          type: StandardProcedure::FieldDefinition::Text
-                      outcomes:
-                        - type: StandardProcedure::WorkflowAction::ChangeStatus
-                          status: dispatched
-                  - reference: make_priority
-                    name: Make this a priority order
-                    type: MakePriorityOrder
-                alerts:
-                  - if: name == "For Anna"
-                    hours: 24
-                    type: StandardProcedure::Alert::SendNotification
-                    contacts:
-                      - anna@example.com
-                  - hours: 48
-                    type: StandardProcedure::Alert::SendNotification
-                    contacts:
-                      - nichola@example.com
-              - reference: in_progress
-                name: In Progress
-                position: 2
-      YAML
+    let(:workflow) { a_saved Workflow, account: account }
+    let(:nichola) { a_saved User, reference: "nichola@example.com" }
+    let(:anna) { a_saved User, reference: "anna@example.com" }
+    let(:supplier_1) { a_saved User, reference: "supplier1@example.com" }
+
+    before do
+      incoming = workflow.statuses.create name: "Incoming",
+        reference: "incoming", position: 1,
+        assign_to: [
+          {if: "name == 'For Anna'", contact: "anna@example.com"},
+          {contact: "nichola@example.com"}
+        ],
+        actions: [
+          {reference: "place_order_with_supplier", name: "Place order with Supplier", primary: true, colour: "success",
+           configuration: {
+             fields: [{reference: "supplier", name: "Supplier", type: "StandardProcedure::FieldDefinition::Text"}],
+             outcomes: [{type: "StandardProcedure::WorkflowAction::ChangeStatus", status: "dispatched"}]
+           }},
+          {reference: "make_priority", name: "Make this a priority order", type: "MakePriorityOrder"}
+        ],
+        alerts: [
+          {if: "name == 'For Anna'", hours: 24, type: "StandardProcedure::Alert::SendNotification", recipients: ["anna@example.com"]},
+          {hours: 48, type: "StandardProcedure::Alert::SendNotification", recipients: ["nichola@example.com"]}
+        ]
+      in_progress = workflow.statuses.create name: "In progress", reference: "in_progress", position: 2
     end
 
     it "sets the default assignment on the document when it is added" do
@@ -121,6 +82,9 @@ module StandardProcedure
       expect { subject.build_action(:something_else) }.to raise_exception(StandardProcedure::WorkflowStatus::InvalidActionReference)
     end
     it "performs an action via a ruby class" do
+      Thing.class_eval do
+        has_field :priority, default: "low"
+      end
       action = subject.perform_action(action: "make_priority", document: document, escalation_reason: "It's urgent", performed_by: user)
       expect(action.escalation_reason).to eq "It's urgent"
       expect(action.document.priority).to eq "high"
@@ -139,7 +103,7 @@ module StandardProcedure
         expect(document.alerts).to_not be_empty
         alert = document.alerts.first
         expect(alert.due_at.to_date).to eq(Date.today + 2)
-        expect(alert.contacts).to include nichola
+        expect(alert.recipients).to include nichola
       end
     end
     it "adds conditional alerts to an document when it is added" do
@@ -152,17 +116,17 @@ module StandardProcedure
         expect(document.alerts).to_not be_empty
         alert = document.alerts.first
         expect(alert.due_at.to_date).to eq(Date.today + 1)
-        expect(alert.contacts).to include anna
+        expect(alert.recipients).to include anna
         alert = document.alerts.last
         expect(alert.due_at.to_date).to eq(Date.today + 2)
-        expect(alert.contacts).to include nichola
+        expect(alert.recipients).to include nichola
       end
     end
 
     it "deactivates any existing alerts when it is added" do
       anna.touch
       nichola.touch
-      existing_alert = document.alerts.create! due_at: 2.days.from_now, status: "active", contacts: [anna, nichola]
+      existing_alert = document.alerts.create! due_at: 2.days.from_now, status: "active", recipients: [anna, nichola]
 
       subject.document_added document: document, performed_by: user
 

@@ -5,7 +5,7 @@ module StandardProcedure
 
     has_fields
     has_array :recipients
-    belongs_to :item, polymorphic: true
+    belongs_to :alertable, polymorphic: true
     enum status: {active: 0, triggered: 100, inactive: 1000}
     validates :due_at, presence: true
     has_rich_text :message

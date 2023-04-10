@@ -59,8 +59,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_04_10_164309) do
   end
 
   create_table "standard_procedure_alerts", force: :cascade do |t|
-    t.string "item_type"
-    t.integer "item_id"
+    t.string "alertable_type"
+    t.integer "alertable_id"
     t.string "type", default: "", null: false
     t.datetime "due_at", null: false
     t.datetime "triggered_at"
@@ -68,8 +68,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_04_10_164309) do
     t.text "field_data", limit: 16777216
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["alertable_type", "alertable_id"], name: "index_standard_procedure_alerts_on_alertable"
     t.index ["due_at"], name: "index_standard_procedure_alerts_on_due_at"
-    t.index ["item_type", "item_id"], name: "index_standard_procedure_alerts_on_item"
   end
 
   create_table "standard_procedure_command_links", force: :cascade do |t|
@@ -156,15 +156,15 @@ ActiveRecord::Schema[7.0].define(version: 2023_04_10_164309) do
   end
 
   create_table "standard_procedure_notifications", force: :cascade do |t|
-    t.string "user_type"
-    t.integer "user_id"
+    t.string "recipient_type"
+    t.integer "recipient_id"
     t.string "type", default: "", null: false
     t.datetime "sent_at"
     t.datetime "acknowledged_at"
     t.integer "notification_type", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["user_type", "user_id"], name: "index_standard_procedure_notifications_on_user"
+    t.index ["recipient_type", "recipient_id"], name: "index_standard_procedure_notifications_on_recipient"
   end
 
   create_table "standard_procedure_workflow_actions", force: :cascade do |t|
@@ -209,12 +209,14 @@ ActiveRecord::Schema[7.0].define(version: 2023_04_10_164309) do
   create_table "things", force: :cascade do |t|
     t.integer "category_id"
     t.integer "user_id"
+    t.integer "assigned_to_id"
     t.integer "workflow_status_id"
     t.string "name"
     t.string "reference"
     t.text "field_data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["assigned_to_id"], name: "index_things_on_assigned_to_id"
     t.index ["category_id"], name: "index_things_on_category_id"
     t.index ["user_id"], name: "index_things_on_user_id"
     t.index ["workflow_status_id"], name: "index_things_on_workflow_status_id"

@@ -19,10 +19,6 @@ module StandardProcedure
       self
     end
 
-    def contact
-      account.contact_for user
-    end
-
     class << self
       # Create a new instance of this action,
       # then load the configuration, prepare any user-defined fields,

@@ -14,15 +14,15 @@ module StandardProcedure
       user = performed_by
       document.alerts.each { |existing_alert| existing_alert.amend status: "inactive", performed_by: user }
 
-      document.assign_to contact: default_contact_for(document), performed_by: user if default_contact_for(document).present?
+      document.assign_to user: default_contact_for(document), performed_by: user if default_contact_for(document).present?
 
       alerts.each do |alert_data|
         alert_data.symbolize_keys!
         #  Only add this alert if it meets any "if" clauses in the definition
         next unless evaluate(alert_data, document)
-        contacts = alert_data[:contacts].map { |reference| document.find_contact_from(reference) }.compact
+        recipients = alert_data[:recipients].map { |reference| document._workflow_find_user(reference) }.compact
         hours = alert_data[:hours].hours
-        document.add_alert type: alert_data[:type], due_at: hours.from_now, message: alert_data[:message], contacts: contacts, performed_by: user
+        document.add_alert type: alert_data[:type], due_at: hours.from_now, message: alert_data[:message], recipients: recipients, performed_by: user
       end
     end
 
@@ -69,17 +69,13 @@ module StandardProcedure
       return @default_contact unless @default_contact.blank?
       # Go through the rules to see if any apply
       rule = assign_to.find { |rule| evaluate(rule.symbolize_keys, document) }
-      @default_contact = rule.blank? ? nil : find_contact_from(rule.symbolize_keys)
+      @default_contact = rule.blank? ? nil : document.find_contact_from(rule.symbolize_keys[:contact])
     end
 
     # If no "if" clause is supplied, we assume this is the default contact rule
     # If an "if" clause is supplied, we evaluate the "if" clause to see if it applies
     def evaluate(rule, document)
       rule[:if].blank? ? true : document.instance_eval(rule[:if])
-    end
-
-    def find_contact_from(rule)
-      account.contacts.find_by reference: rule[:contact]
     end
 
     def primary_action

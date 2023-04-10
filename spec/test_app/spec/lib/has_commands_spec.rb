@@ -1,7 +1,8 @@
 require_relative "../rails_helper"
 
 RSpec.describe StandardProcedure::HasCommands do
-  let(:user) { StandardProcedure::User.create name: "Trevor Testington" }
+  let(:root) { a_saved User }
+  let(:user) { User.create name: "Trevor Testington" }
   let(:second_user) { User.create name: "Stacey Soup-Spoon" }
   let(:category) { Category.create name: "Some things" }
   let(:sub_category) { Category.create parent: category, name: "More things" }
@@ -44,7 +45,7 @@ RSpec.describe StandardProcedure::HasCommands do
         things.create! name: name
       end
     end
-    thing = category.build_thing name: "testfile.txt", performed_by: User.root
+    thing = category.build_thing name: "testfile.txt", performed_by: root
 
     expect(thing).to_not be_nil
     expect(thing.name).to eq "testfile.txt"
@@ -54,11 +55,11 @@ RSpec.describe StandardProcedure::HasCommands do
     expect(command.command).to eq "category_build_thing"
     expect(command.params[:name]).to eq "testfile.txt"
     expect(command.status).to eq "completed"
-    expect(command.user).to eq User.root
+    expect(command.user).to eq root
     expect(command.result).to eq thing
     expect(command.context).to be_nil
     expect(category.commands).to include(command)
-    expect(User.root.commands).to include(command)
+    expect(root.commands).to include(command)
     expect(thing.commands).to include(command)
   end
 
@@ -69,9 +70,7 @@ RSpec.describe StandardProcedure::HasCommands do
       end
     end
 
-    category.move thing: thing_1,
-      destination: other_category,
-      performed_by: User.root
+    category.move thing: thing_1, destination: other_category, performed_by: user
 
     command = category.commands.first
     expect(command).to_not be_nil
@@ -97,7 +96,7 @@ RSpec.describe StandardProcedure::HasCommands do
 
     category.move_things things: [thing_1, thing_2],
       destination: other_category,
-      performed_by: User.root
+      performed_by: root
 
     command = category.commands.find_by command: "category_move_things"
     expect(command).to_not be_nil
@@ -115,7 +114,7 @@ RSpec.describe StandardProcedure::HasCommands do
       command(:gone_wrong) { |performed_by:| raise GoneWrong }
     end
 
-    expect { category.gone_wrong(performed_by: User.root) }.to raise_exception(
+    expect { category.gone_wrong(performed_by: root) }.to raise_exception(
       GoneWrong
     )
     command = category.commands.first
@@ -138,7 +137,7 @@ RSpec.describe StandardProcedure::HasCommands do
 
     expect(category).to respond_to :add_thing
 
-    thing = category.add_thing name: "testfile.txt", performed_by: User.root
+    thing = category.add_thing name: "testfile.txt", performed_by: root
     expect(thing).to_not be_nil
     expect(thing.name).to eq "testfile.txt"
   end
@@ -152,21 +151,21 @@ RSpec.describe StandardProcedure::HasCommands do
 
     expect(category).to respond_to :add_thing
 
-    thing = category.add_thing name: "override", performed_by: User.root
+    thing = category.add_thing name: "override", performed_by: root
     expect(thing).to_not be_nil
     expect(thing.name).to eq "override"
   end
 
   it "does not build predefined `add` commands if there is no association with that name" do
     Category.class_eval { command(:add_greeting) { |performed_by:| "Hello" } }
-    result = category.add_greeting performed_by: User.root
+    result = category.add_greeting performed_by: root
     expect(result).to eq "Hello"
   end
 
   it "adds a predefined amend command automatically" do
     Category.class_eval { defines_commands }
     expect(Category.available_commands).to include(:amend)
-    category.amend name: "Another name", performed_by: User.root
+    category.amend name: "Another name", performed_by: root
     expect(category.name).to eq "Another name"
     command = category.commands.find_by command: "category_amend"
     expect(command).to_not be_nil
@@ -175,7 +174,7 @@ RSpec.describe StandardProcedure::HasCommands do
   it "defines a predefined command for deleting an association" do
     Category.class_eval { command :remove_child }
     expect(category.available_commands).to include(:remove_child)
-    category.remove_child child: sub_category, performed_by: User.root
+    category.remove_child child: sub_category, performed_by: user
     expect(Category.find_by(id: sub_category.id)).to be_nil
     command = user.commands.find_by command: "category_remove_child"
     expect(command).to_not be_nil
@@ -185,10 +184,8 @@ RSpec.describe StandardProcedure::HasCommands do
   it "allows you to override the predefined command for deleting an association" do
     Category.class_eval { command(:remove_child) { |**params| "do nothing" } }
     expect(category.available_commands).to include(:remove_child)
-    category.remove_child child: sub_category, performed_by: User.root
+    category.remove_child child: sub_category, performed_by: user
     expect(Category.find_by(id: sub_category.id)).to_not be_nil
-    puts StandardProcedure::CommandLink.model_name.inspect
-    puts user.command_links.inspect
     command = user.commands.find_by command: "category_remove_child"
     expect(command).to_not be_nil
     expect(category.commands).to include(command)
@@ -248,7 +245,7 @@ RSpec.describe StandardProcedure::HasCommands do
       expect(category.commands).to be_empty
       # Calling _later will return a Concurrent::Rails::Future
       # which we can interrogate later on to find out when the task has completed
-      future = category.wait_then_do_something_later(performed_by: User.root)
+      future = category.wait_then_do_something_later(performed_by: root)
       expect(future.state).to eq :pending
       # Check that an command has been recorded for this command
       command =

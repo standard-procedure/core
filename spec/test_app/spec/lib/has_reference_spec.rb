@@ -8,6 +8,8 @@ RSpec.describe StandardProcedure::HasReference do
   it "copies the reference to another field"
   it "does not copy the reference if the other field has a value"
   it "uses the reference as the URL parameter"
+  it "finds referenced child records"
+  it "updates the referenced parent record"
 
   #   describe "finding" do
   #     it "finds by string reference" do

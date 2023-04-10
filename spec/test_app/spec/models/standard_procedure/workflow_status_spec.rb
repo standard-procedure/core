@@ -3,9 +3,9 @@ require "rails_helper"
 module StandardProcedure
   RSpec.describe WorkflowStatus, type: :model do
     subject { workflow.statuses.find_by reference: "incoming" }
-    let(:document) { a_saved StandardProcedure::Document, type: "Order", folder: employees, status: subject, template: template, name: "Something" }
+    let(:document) { a_saved Thing }
 
-    let(:user) { a_saved ::User }
+    let(:user) { a_saved User }
     let(:account) { a_saved(Account).configure_from(configuration) }
     let(:template) { account.templates.find_by reference: "order" }
     let(:workflow) { account.workflows.find_by reference: "order_processing" }
@@ -90,7 +90,7 @@ module StandardProcedure
       expect(document.assigned_to).to eq anna
     end
 
-    class ::Order < StandardProcedure::Document
+    class ::Order < Thing
       has_field :priority, default: "low"
     end
 

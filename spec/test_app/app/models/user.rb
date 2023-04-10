@@ -1,5 +1,7 @@
-class User < StandardProcedure::User
-  has_name
-  has_reference
-  has_fields
+class User < ApplicationRecord
+  is_user
+
+  def can? do_something, to_target
+    true
+  end
 end

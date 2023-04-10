@@ -9,7 +9,5 @@ class CreateStandardProcedureAlerts < ActiveRecord::Migration[7.0]
       t.text :field_data, limit: 16.megabytes
       t.timestamps
     end
-
-    create_join_table :standard_procedure_alerts, :standard_procedure_folders
   end
 end

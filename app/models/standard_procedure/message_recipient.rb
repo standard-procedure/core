@@ -4,6 +4,6 @@ module StandardProcedure
     scope :read, -> { where.not(read_at: nil) }
 
     belongs_to :message, class_name: "StandardProcedure::Message"
-    belongs_to :recipient, class_name: "StandardProcedure::Contact"
+    belongs_to :recipient, polymorphic: true
   end
 end

@@ -41,15 +41,16 @@ module StandardProcedure
         end
       end
 
-      def references association
+      def has_many_references_to association, scope = nil, **args
+        has_many association, scope, **args
         method_name = association.to_s.singularize
         define_method method_name.to_sym do |value|
           (value.is_a? String) ? send(association).find_by(reference: value) : value
         end
       end
 
-      def reference_to association, **args
-        belongs_to association, **args
+      def reference_to association, scope = nil, **args
+        belongs_to association, scope, **args
         args[:class_name] ||= association.to_s.classify
         define_method :"#{association}_reference=" do |reference|
           value = args[:class_name].constantize.find_by(reference: reference)

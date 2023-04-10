@@ -9,7 +9,7 @@ module StandardProcedure
     end
 
     def icon_name
-      model_name.singular_route_key
+      respond_to?(:icon) ? icon : model_name.singular_route_key
     end
   end
 end

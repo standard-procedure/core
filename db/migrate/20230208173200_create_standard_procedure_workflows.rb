@@ -4,7 +4,8 @@ class CreateStandardProcedureWorkflows < ActiveRecord::Migration[7.0]
       t.belongs_to :account, polymorphic: true, index: true
       t.string :reference, null: false, default: ""
       t.string :name, null: false, default: ""
-      t.string :type, null: false, default: ""
+      t.string :type, null: false, default: "StandardProcedure::Workflow"
+      t.string :icon, null: false, default: "workflow"
       t.text :field_data, limit: 16.megabytes
       t.timestamps
     end

@@ -14,7 +14,7 @@ module StandardProcedure
     include StandardProcedure::HasCommands
 
     defines_commands
-    is_linked_to :commands
-    is_linked_to :notifications
+    is_linked_to :commands, class_name: "StandardProcedure::Command"
+    is_linked_to :notifications, class_name: "StandardProcedure::Notification"
   end
 end

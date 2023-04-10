@@ -21,7 +21,7 @@ module StandardProcedure
       #  of users and contacts.
       #
       # It works by generating an association with an intermediary class:
-      #   `has_many :linked_people, class_name: "NotificationLink", dependent: :destroy`
+      #   `has_many :people_links, class_name: "NotificationLink", dependent: :destroy`
       #
       # And adds the following methods:
       #   `linked_to? person`
@@ -60,14 +60,14 @@ module StandardProcedure
       # In the example above - `Notification.has_linked :people` the default values would be:
       #   class_name: "NotificationLink"
       #   source: :person
-      #   through: :linked_people
+      #   through: :people_links
       #
       def has_linked(link_name, class_name: nil, through: nil, source: nil, accessing: [])
         singular_link_name = link_name.to_s.singularize
         class_name ||= "#{model_name}Link"
         klass = class_name.constantize
+        through ||= class_name.demodulize.tableize.to_sym
         source ||= :"#{singular_link_name}"
-        through ||= :"linked_#{link_name.to_s.pluralize}"
 
         has_many_association_name = through
 

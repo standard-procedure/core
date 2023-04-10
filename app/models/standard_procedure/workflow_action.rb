@@ -1,8 +1,8 @@
 module StandardProcedure
   class WorkflowAction < ApplicationRecord
     has_fields
-    belongs_to :performed_by, class_name: "StandardProcedure::User"
-    belongs_to :document, class_name: "StandardProcedure::Document"
+    belongs_to :performed_by, polymorphic: true
+    belongs_to :document, polymorphic: true
     has_hash :configuration
     has_field :primary, default: false
     has_field :colour, default: "neutral"
@@ -17,10 +17,6 @@ module StandardProcedure
     # Do any initialisation before the action is performed and return self
     def prepare
       self
-    end
-
-    def contact
-      account.contact_for user
     end
 
     class << self

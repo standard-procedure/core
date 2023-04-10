@@ -81,10 +81,7 @@ module StandardProcedure
         end
 
         def is_association_command?(command_name, prefix)
-          command_name.to_s.starts_with?(prefix) &&
-            reflect_on_association(
-              association_from(command_name, prefix)
-            ).present?
+          command_name.to_s.starts_with?(prefix) && reflect_on_association(association_from(command_name, prefix)).present?
         end
 
         def association_from(command_name, prefix, singular: false)
@@ -100,6 +97,7 @@ module StandardProcedure
 
       def is_user
         has_many :performed_commands, class_name: "StandardProcedure::Command", as: :user, dependent: :destroy
+        has_many :notifications, class_name: "StandardProcedure::Notification", as: :user, dependent: :destroy
 
         define_method :call_stack do
           @call_stack ||= Concurrent::Array.new
@@ -110,8 +108,7 @@ module StandardProcedure
         end
 
         define_method :build_command_for do |target, command_name: nil, **params|
-          command =
-            performed_commands.create! target: target, context: current_context, command: "#{target.model_name.singular}_#{command_name}", status: "ready", params: params
+          command = performed_commands.create! target: target, context: current_context, command: "#{target.model_name.singular}_#{command_name}", status: "ready", params: params
         end
 
         define_method :acts_on do |target, command: nil, command_name: nil, **params, &implementation|

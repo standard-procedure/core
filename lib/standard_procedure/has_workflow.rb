@@ -5,6 +5,11 @@ module StandardProcedure
     class_methods do
       def has_alerts
         has_many :alerts, class_name: "StandardProcedure::Alert", dependent: :destroy, as: :alertable
+        instance_eval do
+          command :add_alert do |performed_by:, **params|
+            alerts.create!(**params)
+          end
+        end
       end
 
       def find_workflow_users_with method
@@ -13,12 +18,6 @@ module StandardProcedure
             reference.is_a?(String) ? send(method.to_sym, reference) : reference
           end
         end
-      end
-    end
-
-    included do
-      command :add_alert do |performed_by:, **params|
-        alerts.create!(**params)
       end
     end
   end

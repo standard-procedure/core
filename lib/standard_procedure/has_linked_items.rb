@@ -140,7 +140,6 @@ module StandardProcedure
         class_name ||= association.to_s.singularize.camelize
         intermediary_class_name ||= "#{class_name}Link"
         intermediary_association ||= intermediary_class_name.demodulize.tableize.to_sym
-
         has_many intermediary_association, class_name: intermediary_class_name, as: as, dependent: :destroy
         has_many association.to_sym, -> { order(:created_at).distinct }, class_name: class_name, through: intermediary_association, source: singular_association.to_sym
       end

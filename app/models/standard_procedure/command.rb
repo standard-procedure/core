@@ -8,7 +8,7 @@ module StandardProcedure
     has_fields
     has_hash :params
     has_field :error
-    has_linked :items
+    has_linked :items, class_name: "StandardProcedure::CommandLink"
     validates :command, presence: true
     after_save :link_related_items
 

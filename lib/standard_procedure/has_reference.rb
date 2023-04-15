@@ -37,15 +37,16 @@ module StandardProcedure
         end
 
         define_method :to_param do
-          "#{id}#{reference}".parameterize
+          "#{id}-#{reference}".parameterize
         end
       end
 
       def has_many_references_to association, scope = nil, **args
         has_many association, scope, **args
         method_name = association.to_s.singularize
-        define_method method_name.to_sym do |value|
-          (value.is_a? String) ? send(association).find_by(reference: value) : value
+        define_method method_name.to_sym do |value, build: false|
+          return value unless value.is_a? String
+          build ? send(association).where(reference: value).first_or_initialize : send(association).find_by(reference: value)
         end
       end
 

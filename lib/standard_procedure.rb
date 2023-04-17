@@ -10,7 +10,6 @@ module StandardProcedure
   included do
     path = File.join(File.dirname(__FILE__), "standard_procedure", "has_*.rb")
     Dir[path].each do |file|
-      puts file
       require_relative file
     end
 
@@ -23,8 +22,6 @@ module StandardProcedure
     include StandardProcedure::HasFields
     include StandardProcedure::HasLinkedItems
     include StandardProcedure::HasCommands
-    defines_commands
-
     include StandardProcedure::HasWorkflow
     include StandardProcedure::HasMessages
     include StandardProcedure::HasNotifications

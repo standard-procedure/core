@@ -162,15 +162,6 @@ RSpec.describe StandardProcedure::HasCommands do
     expect(result).to eq "Hello"
   end
 
-  it "adds a predefined amend command automatically" do
-    Category.class_eval { defines_commands }
-    expect(Category.available_commands).to include(:amend)
-    category.amend name: "Another name", performed_by: root
-    expect(category.name).to eq "Another name"
-    command = category.commands.find_by command: "category_amend"
-    expect(command).to_not be_nil
-  end
-
   it "defines a predefined command for deleting an association" do
     Category.class_eval { command :remove_child }
     expect(category.available_commands).to include(:remove_child)

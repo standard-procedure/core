@@ -13,6 +13,7 @@ module StandardProcedure
       require_relative file
     end
 
+    include StandardProcedure::HasComponents
     include StandardProcedure::HasIcon
     include StandardProcedure::HasName
     include StandardProcedure::HasDescription

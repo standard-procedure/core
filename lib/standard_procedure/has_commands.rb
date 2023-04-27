@@ -11,6 +11,26 @@ module StandardProcedure
       end
     end
 
+    def available_commands
+      @available_commands ||= self.class.available_commands
+    end
+
+    def available_commands_for user
+      self.class.available_commands_for user
+    end
+
+    def authorised_to? do_command, user
+      self.class.authorised_to? do_command, user
+    end
+
+    def authorise! do_command, user
+      raise StandardProcedure::Command::Unauthorised unless authorised_to? do_command, user
+    end
+
+    def i18n_key_for command, attribute = nil
+      self.class.i18n_key_for command, attribute
+    end
+
     class_methods do
       def command(*names, &implementation)
         Array.wrap(names).each do |name|
@@ -24,6 +44,10 @@ module StandardProcedure
 
       def available_commands_for user
         available_commands.select { |command| authorised_to?(command, user) }.uniq
+      end
+
+      def i18n_key_for command, attribute = nil
+        [model_name.i18n_key, command, attribute].compact.map(&:to_s).join(".")
       end
 
       def authorised_to? do_command, user
@@ -124,22 +148,6 @@ module StandardProcedure
         command_name = command_name.to_s.sub(prefix, "")
         singular ? command_name.to_sym : command_name.pluralize.to_sym
       end
-    end
-
-    def available_commands
-      @available_commands ||= self.class.available_commands
-    end
-
-    def available_commands_for user
-      self.class.available_commands_for user
-    end
-
-    def authorised_to? do_command, user
-      self.class.authorised_to? do_command, user
-    end
-
-    def authorise! do_command, user
-      raise StandardProcedure::Command::Unauthorised unless authorised_to? do_command, user
     end
   end
 end

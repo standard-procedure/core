@@ -4,12 +4,7 @@ module StandardProcedure
     validates :status, presence: true
 
     def perform
-      update_status
-    end
-
-    def update_status
-      document.update status: status
-      status.document_added(document: document, performed_by: performed_by)
+      WorkflowAction::ChangeStatusJob.perform_now document, user: performed_by, status: status
     end
   end
 end

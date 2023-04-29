@@ -6,6 +6,12 @@ module StandardProcedure
     belongs_to :account, polymorphic: true, optional: true
     has_many_references_to :statuses, -> { order :position }, class_name: "StandardProcedure::WorkflowStatus", dependent: :destroy
 
-    command :add_status, :remove_status
+    def add_status user:, **params
+      AddRecordJob.perform_now self, :statuses, **params
+    end
+
+    def remove_status user:, status:
+      DeleteJob.perform_now status, user: user
+    end
   end
 end

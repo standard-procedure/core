@@ -1,0 +1,7 @@
+module StandardProdedure
+  class UpdateJob < ApplicationJob
+    def perform model, user:, **params
+      model.update! params
+    end
+  end
+end

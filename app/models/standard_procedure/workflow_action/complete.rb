@@ -1,7 +1,7 @@
 module StandardProcedure
   class WorkflowAction::Complete < WorkflowAction
     def perform
-      item.completed!
+      WorkflowAction::CompleteJob.perform_now item, user: performed_by
     end
   end
 end

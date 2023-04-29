@@ -13,7 +13,7 @@ module StandardProcedure
     let(:supplier_1) { a_saved User, reference: "supplier1@example.com" }
 
     before do
-      incoming = workflow.statuses.create name: "Incoming",
+      workflow.statuses.create name: "Incoming",
         reference: "incoming", position: 1,
         assign_to: [
           {if: "name == 'For Anna'", contact: "anna@example.com"},
@@ -31,7 +31,7 @@ module StandardProcedure
           {if: "name == 'For Anna'", hours: 24, type: "StandardProcedure::Alert::SendNotification", recipients: ["anna@example.com"]},
           {hours: 48, type: "StandardProcedure::Alert::SendNotification", recipients: ["nichola@example.com"]}
         ]
-      in_progress = workflow.statuses.create name: "In progress", reference: "in_progress", position: 2
+      workflow.statuses.create name: "In progress", reference: "in_progress", position: 2
     end
 
     it "sets the default assignment on the document when it is added" do

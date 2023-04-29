@@ -12,12 +12,11 @@ module StandardProcedure
 
     def send_message
       people = Array.wrap(recipients).map { |r| document._workflow_find_user(r) }.compact
-      message = user.send_message(recipients: people, subject: subject, contents: contents.to_s, performed_by: performed_by)
-      message.link_to document
+      Message::SendJob.perform_now subject: subject, user: performed_by, contents: contents.to_s, recipients: people, links: document
     end
 
     def set_reminder
-      document.add_alert type: "StandardProcedure::Alert::SendNotification", due_at: reminder_after.hours.from_now, message: "Follow up on sent message: #{subject}", recipients: [user], performed_by: performed_by
+      AddRecordJob.perform_now document, :alerts, user: performed_by, type: "StandardProcedure::Alert::SendNotification", due_at: reminder_after.hours.from_now, message: "Follow up on sent message: #{subject}", recipients: [user]
     end
   end
 end

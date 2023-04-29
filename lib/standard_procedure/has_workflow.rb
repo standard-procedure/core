@@ -5,10 +5,9 @@ module StandardProcedure
     class_methods do
       def has_alerts
         has_many :alerts, class_name: "StandardProcedure::Alert", dependent: :destroy, as: :alertable
-        instance_eval do
-          command :add_alert do |performed_by:, **params|
-            alerts.create!(**params)
-          end
+
+        define_method :add_alert do |performed_by:, **params|
+          alerts.create!(**params)
         end
       end
 

@@ -1,5 +1,11 @@
 require "rails_helper"
 module StandardProcedure
+  class TestParametersJob < ApplicationJob
+    def perform thing, user:, item:
+      item
+    end
+  end
+
   class TestSingleJob < ApplicationJob
     def perform arg: nil
       "DONE"
@@ -63,7 +69,18 @@ module StandardProcedure
       expect(command.command).to eq TestSingleJob.name
       expect(command.job_id).to_not be_blank
       expect(command.params[:arg]).to eq "Hello"
+      expect(command.result).to eq "DONE"
       expect(command.status).to eq "completed"
+    end
+
+    it "logs the target and user command for a single job" do
+      thing = a_saved Thing
+      user = a_saved User
+      TestParametersJob.perform_now thing, user: user, item: "Item"
+
+      command = StandardProcedure::Command.first
+      expect(command.target).to eq thing
+      expect(command.user).to eq user
     end
 
     it "logs the command for descendant jobs in the context of the parent job" do

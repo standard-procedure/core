@@ -10,31 +10,19 @@ module StandardProcedure
     has_array :assign_to
     has_array :actions
 
-    command :document_added do |document:, performed_by:|
-      user = performed_by
-      document.alerts.each { |existing_alert| existing_alert.amend status: "inactive", performed_by: user }
-
-      document.assign_to user: default_contact_for(document), performed_by: user if default_contact_for(document).present?
-
-      alerts.each do |alert_data|
-        alert_data.symbolize_keys!
-        #  Only add this alert if it meets any "if" clauses in the definition
-        next unless evaluate(alert_data, document)
-        recipients = alert_data[:recipients].map { |reference| document._workflow_find_user(reference) }.compact
-        hours = alert_data[:hours].hours
-        document.add_alert type: alert_data[:type], due_at: hours.from_now, message: alert_data[:message], recipients: recipients, performed_by: user
-      end
+    def document_added document:, performed_by:
+      WorkflowStatus::DocumentAddedJob.perform_now self, document: document, user: performed_by
     end
 
     # `perform_action action: "action", document: @document, performed_by: @user, **params`
-    command :perform_action do |action: nil, document: nil, performed_by: nil, **params|
+    def perform_action action: nil, document: nil, performed_by: nil, **params
       params = params.merge(configuration_for(action).excluding(:name, :reference))
       action_handler_for(action).perform(params.merge(document: document, performed_by: performed_by))
     end
 
-    command :add_alerts do |performed_by:, document: nil|
+    def add_alerts performed_by:, document: nil
       alerts.each do |alert|
-        document.add_alert due_at: nil, performed_by: performed_by
+        AddRecordJob.perform_now document, :alerts, user: performed_by, due_at: nil
       end
     end
 
@@ -61,8 +49,6 @@ module StandardProcedure
     def build_action(action_reference)
       action_handler_for(action_reference).prepare_from(configuration_for(action_reference))
     end
-
-    protected
 
     def default_contact_for(document)
       return nil if assign_to.blank?

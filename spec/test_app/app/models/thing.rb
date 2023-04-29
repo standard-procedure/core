@@ -8,7 +8,6 @@ class Thing < ApplicationRecord
   belongs_to :assigned_to, class_name: "User", optional: true
   belongs_to :status, class_name: "StandardProcedure::WorkflowStatus", foreign_key: "workflow_status_id", optional: true
   has_alerts
-
   # Workflow Methods
   def find_contact_from reference
     User.find_by reference: reference

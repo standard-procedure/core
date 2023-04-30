@@ -1,7 +1,7 @@
 module StandardProcedure
   class Alert < ApplicationRecord
     scope :due_now, -> { due_on(Time.now) }
-    scope :due_at, ->(time) { where(due_at: DateTime.beginning_of_time..time) }
+    scope :due_at, ->(time) { where(due_at: ..time) }
 
     has_fields
     has_array :recipients
@@ -22,6 +22,10 @@ module StandardProcedure
 
     def perform
       raise "Not yet implemented"
+    end
+
+    def subject
+      message.to_plain_text.strip.split("\n").first
     end
 
     class << self

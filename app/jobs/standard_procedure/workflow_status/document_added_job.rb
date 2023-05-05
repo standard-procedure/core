@@ -13,7 +13,7 @@ module StandardProcedure
         next unless workflow_status.evaluate(alert_data, document)
         recipients = alert_data[:recipients].map { |reference| document._workflow_find_user(reference) }.compact
         hours = alert_data[:hours].hours
-        StandardProcedure::AddRecordJob.perform_now document, :alerts, type: alert_data[:type], due_at: hours.from_now, message: alert_data[:message], recipients: recipients, performed_by: user
+        StandardProcedure::AddRecordJob.perform_now document, :alerts, type: alert_data[:type], due_at: hours.from_now, message: alert_data[:message], recipients: recipients, user: user
       end
     end
   end

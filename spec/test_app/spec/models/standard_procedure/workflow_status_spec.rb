@@ -38,7 +38,7 @@ module StandardProcedure
              fields: [{reference: "supplier", name: "Supplier", type: "StandardProcedure::FieldDefinition::Text"}],
              outcomes: [{type: "StandardProcedure::WorkflowAction::ChangeStatus", status: "dispatched"}]
            }},
-          {reference: "make_priority", name: "Make this a priority order", type: "MakePriorityOrder"}
+          {reference: "make_priority", name: "Make this a priority order", type: "StandardProcedure::MakePriorityOrder"}
         ],
         alerts: [
           {if: "name == 'For Anna'", hours: 24, type: "StandardProcedure::Alert::SendNotification", recipients: ["anna@example.com"]},
@@ -78,7 +78,7 @@ module StandardProcedure
     end
     it "builds an action" do
       expect(subject.build_action(:place_order_with_supplier).class.name).to eq "StandardProcedure::WorkflowAction::UserDefined"
-      expect(subject.build_action(:make_priority).class.name).to eq "MakePriorityOrder"
+      expect(subject.build_action(:make_priority).class.name).to eq "StandardProcedure::MakePriorityOrder"
       expect { subject.build_action(:something_else) }.to raise_exception(StandardProcedure::WorkflowStatus::InvalidActionReference)
     end
     it "performs an action via a ruby class" do

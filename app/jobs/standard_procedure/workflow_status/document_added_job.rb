@@ -4,8 +4,7 @@ module StandardProcedure
       document.alerts.each do |existing_alert|
         StandardProcedure::UpdateJob.perform_now existing_alert, user: user, status: "inactive"
       end
-
-      document.assign_to user: workflow_status.default_contact_for(document), performed_by: user if workflow_status.default_contact_for(document).present?
+      StandardProcedure::WorkflowStatus::AssignToUserJob.perform_now workflow_status, document: document, user: user
 
       workflow_status.alerts.each do |alert_data|
         alert_data.symbolize_keys!

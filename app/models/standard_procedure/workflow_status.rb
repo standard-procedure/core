@@ -55,7 +55,7 @@ module StandardProcedure
       return @default_contact unless @default_contact.blank?
       # Go through the rules to see if any apply
       rule = assign_to.find { |rule| evaluate(rule.symbolize_keys, document) }
-      @default_contact = rule.blank? ? nil : document.find_contact_from(rule.symbolize_keys[:contact])
+      @default_contact = rule.blank? ? nil : document._workflow_find_user(rule.symbolize_keys[:contact])
     end
 
     # If no "if" clause is supplied, we assume this is the default contact rule

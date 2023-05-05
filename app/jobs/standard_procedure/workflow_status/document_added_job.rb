@@ -10,7 +10,7 @@ module StandardProcedure
         alert_data.symbolize_keys!
         #  Only add this alert if it meets any "if" clauses in the definition
         next unless workflow_status.evaluate(alert_data, document)
-        recipients = alert_data[:recipients].map { |reference| document._workflow_find_user(reference) }.compact
+        recipients = Array.wrap(alert_data[:recipients]).map { |reference| document._workflow_find_user(reference) }.compact
         hours = alert_data[:hours].hours
         StandardProcedure::AddRecordJob.perform_now document, :alerts, type: alert_data[:type], due_at: hours.from_now, message: alert_data[:message], recipients: recipients, user: user
       end

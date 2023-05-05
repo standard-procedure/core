@@ -1,6 +1,19 @@
 require "rails_helper"
 
 module StandardProcedure
+  class Order < Thing
+    has_field :priority, default: "low"
+  end
+
+  class MakePriorityOrder < StandardProcedure::WorkflowAction
+    has_field :escalation_reason
+    validates :escalation_reason, presence: true
+
+    def perform
+      document.update! priority: "high"
+    end
+  end
+
   RSpec.describe WorkflowStatus, type: :model do
     subject { workflow.statuses.find_by reference: "incoming" }
     let(:account) { a_saved Category }
@@ -49,19 +62,6 @@ module StandardProcedure
 
       subject.document_added document: document, performed_by: user
       expect(document.assigned_to).to eq anna
-    end
-
-    class ::Order < Thing
-      has_field :priority, default: "low"
-    end
-
-    class ::MakePriorityOrder < StandardProcedure::WorkflowAction
-      has_field :escalation_reason
-      validates :escalation_reason, presence: true
-
-      def perform
-        document.update! priority: "high"
-      end
     end
 
     it "knows which actions are available" do

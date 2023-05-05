@@ -18,5 +18,9 @@ module StandardProcedure
       instance.has_field reader, default: default_value
       instance.singleton_class.validates reader, presence: true if mandatory?
     end
+
+    def as_json options = {}
+      super options.reverse_merge(only: [:reference, :name, :position, :mandatory])
+    end
   end
 end

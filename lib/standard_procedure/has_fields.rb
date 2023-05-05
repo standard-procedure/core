@@ -20,11 +20,23 @@ module StandardProcedure
           field_storage[name.to_s] = value
         end
 
-        define_method :with_fields_from do |source, &block|
-          source.field_definitions.each do |field_definition|
+        define_method :build_fields_from do |source|
+          Array.wrap(source&.field_definitions).each do |field_definition|
             field_definition.define_on self
           end
-          block&.call(self)
+          singleton_class.instance_eval do
+            define_method :field_names do
+              Array.wrap(source&.field_names)
+            end
+            define_method :field_accessors do
+              Array.wrap(source&.field_accessors)
+            end
+          end
+        end
+
+        define_method :with_fields_from do |source, &block|
+          build_fields_from source
+          block&.call self
           self
         end
       end

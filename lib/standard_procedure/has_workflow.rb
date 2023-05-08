@@ -5,9 +5,16 @@ module StandardProcedure
     class_methods do
       def has_workflow foreign_key: "status_id", optional: false
         belongs_to :status, class_name: "StandardProcedure::WorkflowStatus", foreign_key: foreign_key, optional: optional
+        delegate :workflow, to: :status
 
-        define_method :available_actions do
-          Array.wrap(status&.available_actions)
+        define_method :workflow_actions do
+          (status&.available_actions || []).each_with_object({}) do |action, result|
+            result[action] = status.action_handler_for(action).name
+          end
+        end
+
+        define_method :workflow_actions_for do |user|
+          workflow_actions.select { |action| user&.can? action, self }
         end
 
         define_method :perform_action do |action: nil, document: nil, performed_by: nil, **params|

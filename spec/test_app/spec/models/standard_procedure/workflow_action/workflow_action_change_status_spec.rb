@@ -12,7 +12,7 @@ module StandardProcedure
         reference: "move_forward",
         name: "Move forward",
         type: "StandardProcedure::WorkflowAction::ChangeStatus",
-        status: "stage_two"
+        new_status: "stage_two"
       }
     end
     it "changes the status of the given document" do
@@ -22,7 +22,7 @@ module StandardProcedure
       # have to use `expect_any_instance_of` as the actual status is going to be loaded dynamically so we don't
       # know which actual status-instance will receive the message
       expect_any_instance_of(StandardProcedure::WorkflowStatus).to receive(:document_added).with(performed_by: user, document: document)
-      WorkflowAction::ChangeStatus.perform(document: document, configuration: configuration, status: stage_two, performed_by: user)
+      WorkflowAction::ChangeStatus.perform(document: document, configuration: configuration, new_status: stage_two, performed_by: user)
     end
   end
 end

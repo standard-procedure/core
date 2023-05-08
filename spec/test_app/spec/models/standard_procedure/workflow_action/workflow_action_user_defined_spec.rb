@@ -25,7 +25,7 @@ module StandardProcedure
         outcomes: [
           {
             type: "StandardProcedure::WorkflowAction::ChangeStatus",
-            status: "stage_two"
+            new_status: "stage_two"
           },
           {
             type: "StandardProcedure::WorkflowAction::SendMessage",

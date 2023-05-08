@@ -8,8 +8,9 @@ module StandardProcedure
 
     def perform_outcome_from(configuration)
       class_name = configuration.delete(:type)
-      configuration[:status] = workflow.status(configuration[:status])
-      class_name.constantize.perform configuration.merge(performed_by: performed_by, document: document, configuration: configuration)
+
+      class_name.constantize.perform_now document, user: performed_by, **configuration
+      document
     end
 
     def prepare

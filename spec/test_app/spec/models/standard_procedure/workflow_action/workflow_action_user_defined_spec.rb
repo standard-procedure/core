@@ -24,13 +24,15 @@ module StandardProcedure
         ],
         outcomes: [
           {
-            type: "StandardProcedure::WorkflowAction::ChangeStatus",
-            new_status: "stage_two"
+            type: "StandardProcedure::WorkflowAction::ChangeStatusJob",
+            status_reference: "stage_two"
           },
           {
-            type: "StandardProcedure::WorkflowAction::SendMessage",
+            type: "StandardProcedure::WorkflowAction::SendMessageJob",
             recipients: ["contact"],
-            message: "Here we go"
+            subject: "Things",
+            contents: "Here we go",
+            reminder_after: 24
           }
         ]
       }
@@ -52,12 +54,9 @@ module StandardProcedure
     end
 
     it "invokes the given outcomes" do
-      change_status = spy("StandardProcedure::WorkflowAction::ChangeStatus")
-      expect(StandardProcedure::WorkflowAction::ChangeStatus).to receive(:prepare_from).and_return(change_status)
-      expect(change_status).to receive(:perform)
-      send_message = spy("StandardProcedure::WorkflowAction::SendMessage")
-      expect(StandardProcedure::WorkflowAction::SendMessage).to receive(:prepare_from).and_return(send_message)
-      expect(send_message).to receive(:perform)
+      expect(StandardProcedure::WorkflowAction::ChangeStatusJob).to receive(:perform_now).with(document, user: user, status_reference: "stage_two")
+
+      expect(StandardProcedure::WorkflowAction::SendMessageJob).to receive(:perform_now).with(document, user: user, subject: "Things", contents: "Here we go", recipients: ["contact"], reminder_after: 24)
 
       WorkflowAction::UserDefined.perform(performed_by: user, document: document, configuration: configuration)
     end

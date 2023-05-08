@@ -8,5 +8,6 @@ class Thing < ApplicationRecord
   belongs_to :user, optional: true
   belongs_to :assigned_to, class_name: "User", optional: true
   belongs_to :status, class_name: "StandardProcedure::WorkflowStatus", foreign_key: "workflow_status_id", optional: true
+  delegate :workflow, to: :status
   has_alerts
 end

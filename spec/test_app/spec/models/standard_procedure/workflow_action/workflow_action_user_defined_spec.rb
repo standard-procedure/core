@@ -13,8 +13,6 @@ module StandardProcedure
 
     let(:configuration) do
       {
-        reference: "some_action",
-        name: "Do something",
         fields: [
           {
             reference: "extra_information",
@@ -35,6 +33,7 @@ module StandardProcedure
             reminder_after: 24
           }
         ]
+
       }
     end
 

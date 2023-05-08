@@ -1,6 +1,7 @@
 module StandardProcedure
   class WorkflowAction < ApplicationRecord
     has_fields
+    has_field_definitions
     belongs_to :performed_by, polymorphic: true
     belongs_to :document, polymorphic: true
     has_hash :configuration
@@ -16,6 +17,7 @@ module StandardProcedure
 
     # Do any initialisation before the action is performed and return self
     def prepare
+      load_field_definitions
       self
     end
 
@@ -44,6 +46,7 @@ module StandardProcedure
       Array.wrap(configuration[:fields]).each do |field_data|
         field_definitions.where(reference: field_data[:reference]).first_or_initialize(field_data)
       end
+      build_fields_from self
     end
   end
 end

@@ -47,7 +47,7 @@ module StandardProcedure
     end
 
     def build_action(action_reference)
-      action_handler_for(action_reference).prepare_from(configuration_for(action_reference))
+      action_handler_for(action_reference).prepare_from(configuration_for(action_reference)[:configuration])
     end
 
     def default_contact_for(document)

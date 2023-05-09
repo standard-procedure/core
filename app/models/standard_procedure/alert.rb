@@ -5,9 +5,11 @@ module StandardProcedure
 
     has_fields
     has_array :recipients
+    has_field :sender
     belongs_to :alertable, polymorphic: true
     enum status: {active: 0, triggered: 100, inactive: 1000}
     validates :due_at, presence: true
+    validates :sender, presence: true
     has_rich_text :message
 
     def due?
@@ -26,6 +28,10 @@ module StandardProcedure
 
     def subject
       message.to_plain_text.strip.split("\n").first
+    end
+
+    def user
+      alertable._workflow_find_user(sender)
     end
 
     class << self

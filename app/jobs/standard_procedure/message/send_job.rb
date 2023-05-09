@@ -3,8 +3,7 @@ module StandardProcedure
     def perform subject:, user:, contents: "", recipients: [], links: []
       links = Array.wrap links
       recipients = Array.wrap recipients
-
-      Message.create!(sender: self, subject: subject, contents: contents).tap do |message|
+      Message.create!(sender: user, subject: subject, contents: contents).tap do |message|
         links.each { |link| message.link_to link }
         recipients.each do |recipient|
           message.message_recipients.create! recipient: recipient

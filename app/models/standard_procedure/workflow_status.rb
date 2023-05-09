@@ -20,12 +20,6 @@ module StandardProcedure
       action_handler_for(action).perform(params.merge(document: document, performed_by: performed_by))
     end
 
-    def add_alerts performed_by:, document: nil
-      alerts.each do |alert|
-        AddRecordJob.perform_now document, :alerts, user: performed_by, due_at: nil
-      end
-    end
-
     def available_actions
       actions.map { |a| a["reference"] }
     end

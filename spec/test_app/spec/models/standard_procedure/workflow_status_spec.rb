@@ -41,8 +41,8 @@ module StandardProcedure
           {reference: "make_priority", name: "Make this a priority order", type: "StandardProcedure::MakePriorityOrder"}
         ],
         alerts: [
-          {if: "name == 'For Anna'", hours: 24, type: "StandardProcedure::Alert::SendNotification", recipients: ["anna@example.com"]},
-          {hours: 48, type: "StandardProcedure::Alert::SendNotification", recipients: ["nichola@example.com"]}
+          {if: "name == 'For Anna'", sender: "anna@example.com", hours: 24, type: "StandardProcedure::Alert::SendNotification", recipients: ["anna@example.com"]},
+          {hours: 48, sender: "anna@example.com", type: "StandardProcedure::Alert::SendNotification", recipients: ["nichola@example.com"]}
         ]
       workflow.statuses.create name: "In progress", reference: "in_progress", position: 2
     end
@@ -126,7 +126,7 @@ module StandardProcedure
     it "deactivates any existing alerts when it is added" do
       anna.touch
       nichola.touch
-      existing_alert = document.alerts.create! due_at: 2.days.from_now, status: "active", recipients: [anna, nichola]
+      existing_alert = document.alerts.create! due_at: 2.days.from_now, sender: anna.reference, status: "active", recipients: [anna, nichola]
 
       subject.document_added document: document, performed_by: user
 

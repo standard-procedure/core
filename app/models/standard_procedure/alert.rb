@@ -6,6 +6,8 @@ module StandardProcedure
     has_fields
     has_array :recipients
     has_field :sender
+    has_field :status_reference
+    has_field :subject
     belongs_to :alertable, polymorphic: true
     enum status: {active: 0, triggered: 100, inactive: 1000}
     validates :due_at, presence: true

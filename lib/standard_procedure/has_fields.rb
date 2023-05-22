@@ -6,18 +6,22 @@ module StandardProcedure
       def has_fields(store_in: :field_data)
         storage = store_in.to_sym
         serialize storage, JSON
-        define_method :field_storage do
+        define_method :_field_storage do
           send(:"#{storage}=", {}) if send(storage).nil?
           send(storage)
         end
+        define_method :_model_cache do
+          @_model_cache ||= {}
+        end
+
         has_array :models
 
         define_method :get_field do |name|
-          field_storage[name.to_s]
+          _field_storage[name.to_s]
         end
 
         define_method :set_field do |name, value|
-          field_storage[name.to_s] = value
+          _field_storage[name.to_s] = value
         end
 
         define_method :build_fields_from do |source|
@@ -51,15 +55,21 @@ module StandardProcedure
         end
       end
 
-      def has_model(name, class_name = nil)
+      def has_model(name, class_name)
         has_field :"#{name}_id"
         class_name ||= name.to_s.classify
 
         define_method name.to_sym do
+          _model_cache[name.to_sym] ||= send(:"_#{name}")
+        end
+
+        define_method :"_#{name}" do
           model_id = send :"#{name}_id"
           model_id.blank? ? nil : class_name.constantize.find_by(id: model_id)
         end
+
         define_method :"#{name}=" do |model|
+          _model_cache[name.to_sym] = model
           _add_to_models model
           set_field "#{name}_id", model&.id
         end

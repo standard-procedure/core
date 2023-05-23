@@ -7,7 +7,7 @@ module StandardProcedure
         links.each { |link| message.link_to link }
         recipients.each do |recipient|
           message.message_recipients.create! recipient: recipient
-          Notification::SendJob.perform_later recipient: recipient, details: contents, type: "StandardProcedure::Notification::MessageReceived", links: links + [message]
+          Notification::SendJob.perform_now recipient: recipient, details: contents, type: "StandardProcedure::Notification::MessageReceived", links: links + [message]
         end
       end
     end

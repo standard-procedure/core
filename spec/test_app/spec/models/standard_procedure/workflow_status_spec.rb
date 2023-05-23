@@ -106,6 +106,7 @@ module StandardProcedure
         expect(alert.recipients).to include nichola
       end
     end
+
     it "adds conditional alerts to an document when it is added" do
       document.update name: "For Anna"
       Timecop.freeze(Time.now) do
@@ -122,6 +123,8 @@ module StandardProcedure
         expect(alert.recipients).to include nichola
       end
     end
+
+    it "evaluates any data in the context of the action that triggered the change"
 
     it "deactivates any existing alerts when it is added" do
       anna.touch

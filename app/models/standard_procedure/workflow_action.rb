@@ -21,6 +21,13 @@ module StandardProcedure
       self
     end
 
+    # Resolve any internal fields described in the configuration
+    def evaluate_contents contents
+      return send(contents.to_sym) if respond_to? contents.to_sym
+      return document.send(contents.to_sym) if document.respond_to? contents.to_sym
+      contents
+    end
+
     class << self
       # Create a new instance of this action,
       # then load the configuration, prepare any user-defined fields,

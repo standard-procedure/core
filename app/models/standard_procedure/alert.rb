@@ -7,7 +7,7 @@ module StandardProcedure
     has_array :recipients
     has_field :sender
     has_field :status_reference
-    has_field :subject
+    has_field :subject, default: nil
     belongs_to :alertable, polymorphic: true
     enum status: {active: 0, triggered: 100, inactive: 1000}
     validates :due_at, presence: true
@@ -29,7 +29,7 @@ module StandardProcedure
     end
 
     def subject
-      message.to_plain_text.strip.split("\n").first
+      get_field("subject") || message.to_plain_text.strip.split("\n").first
     end
 
     def user

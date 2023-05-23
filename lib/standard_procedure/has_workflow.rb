@@ -21,6 +21,7 @@ module StandardProcedure
           return nil if status.blank?
           raise StandardProcedure::WorkflowStatus::MissingConfiguration.new("find_user is not defined") unless respond_to? :_workflow_find_user
           raise StandardProcedure::WorkflowStatus::MissingConfiguration.new("assign_to is not defined") unless respond_to? :_workflow_assign_to
+          raise StandardProcedure::WorkflowStatus::MissingConfiguration.new("assign_to is not defined") unless respond_to? :_evaluate_contents
         end
       end
 
@@ -41,6 +42,12 @@ module StandardProcedure
       def assign_to &block
         instance_eval do
           define_method :_workflow_assign_to, &block
+        end
+      end
+
+      def evaluate_contents &block
+        instance_eval do
+          define_method :_evaluate_contents, &block
         end
       end
     end

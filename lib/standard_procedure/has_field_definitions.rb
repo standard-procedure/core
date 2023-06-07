@@ -42,5 +42,9 @@ module StandardProcedure
     def field_accessors
       field_definitions.collect(&:reader)
     end
+
+    def field_definition reference
+      field_definitions.find_by reference: reference
+    end
   end
 end

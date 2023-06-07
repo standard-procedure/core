@@ -7,6 +7,7 @@ module StandardProcedure
     has_fields
     has_field :default_value
     has_field :calculated_value
+
     enum :visible_to, %i[all owner manager], prefix: true, scopes: false
     enum :editable_by, %i[all owner manager], prefix: true, scopes: false
 

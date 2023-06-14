@@ -13,8 +13,35 @@ module StandardProcedure
     validates :command, presence: true
     after_save :link_related_items
 
+    scope :roots, -> { where(context: nil) }
+    scope :in_order, -> { order "updated_at desc" }
+
     def to_s
       command
+    end
+
+    def human_name
+      command.to_s.underscore.humanize.sub(" job", "")
+    end
+
+    def human_params
+      humanise(params).join(", ")
+    end
+
+    def humanise hash
+      hash.map do |key, value|
+        if value.is_a? Array
+          "#{key.to_s.humanize}: #{value.map(&:to_s).join(", ")}"
+        elsif value.is_a? Hash
+          "#{key.to_s.humanize}: #{humanise(value).join(", ")}"
+        else
+          [key.to_s.humanize, value.to_s]
+        end
+      end
+    end
+
+    def date
+      updated_at.to_date
     end
 
     def result

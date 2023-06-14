@@ -45,13 +45,19 @@ module StandardProcedure
         end
       end
 
-      def has_field(name, default: nil)
+      def has_field(name, default: nil, boolean: false)
         name = name.to_sym
         define_method name.to_sym do
-          get_field(name) || default
+          value = get_field(name) || default
+          boolean ? ActiveRecord::Type::Boolean.new.cast(value) : value
         end
         define_method :"#{name}=" do |value|
           set_field name, value
+        end
+        if boolean
+          define_method :"#{name}?" do
+            send name.to_sym
+          end
         end
       end
 
@@ -115,8 +121,8 @@ module StandardProcedure
       end
     end
 
-    def has_field(name, default: nil)
-      singleton_class.has_field name, default: default
+    def has_field(name, default: nil, boolean: false)
+      singleton_class.has_field name, default: default, boolean: boolean
     end
 
     def has_model(name, class_name)
@@ -138,6 +144,8 @@ module StandardProcedure
       array.map do |value|
         # is this a global ID (which is stored as { "uri" => "some_id"})?
         (value.respond_to?(:starts_with?) && value.starts_with?("gid")) ? GlobalID::Locator.locate(value) : value
+      rescue
+        nil
       end
     end
 
@@ -145,6 +153,8 @@ module StandardProcedure
       return [] if array.blank?
       array.map do |value|
         value.respond_to?(:to_global_id) ? value.to_global_id : value
+      rescue
+        nil
       end
     end
 
@@ -163,6 +173,8 @@ module StandardProcedure
       return {} if hash.blank?
       hash.transform_values do |value|
         value.respond_to?(:to_global_id) ? value.to_global_id.to_s : value
+      rescue
+        nil
       end
     end
 

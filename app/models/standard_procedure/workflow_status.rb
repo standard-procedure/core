@@ -16,8 +16,7 @@ module StandardProcedure
 
     # `perform_action action: "action", document: @document, performed_by: @user, **params`
     def perform_action action: nil, document: nil, performed_by: nil, **params
-      params = params.merge(configuration_for(action).excluding(:name, :reference))
-      action_handler_for(action).perform(params.merge(document: document, performed_by: performed_by))
+      WorkflowStatus::PerformActionJob.perform_now self, action: action, document: document, user: performed_by, **params
     end
 
     def available_actions

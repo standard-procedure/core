@@ -25,19 +25,25 @@ module StandardProcedure
     end
 
     def human_params
-      humanise(params).join(", ")
+      humanise_hash(params)
     end
 
-    def humanise hash
+    def humanise_hash hash
       hash.map do |key, value|
-        if value.is_a? Array
-          "#{key.to_s.humanize}: #{value.map(&:to_s).join(", ")}"
-        elsif value.is_a? Hash
-          "#{key.to_s.humanize}: #{humanise(value).join(", ")}"
-        else
-          [key.to_s.humanize, value.to_s]
-        end
+        HIDDEN_DATA_KEYS.include?(key.to_s) ? nil : "#{key.to_s.humanize}: #{humanise_value(value)}"
+      end.compact.join(", ")
+    end
+
+    def humanise_value value
+      case value
+      when Array then humanise_array(value)
+      when Hash then humanise_hash(value)
+      else value.to_s
       end
+    end
+
+    def humanise_array array
+      array.map { |value| humanise_value(value) }.compact.join(", ")
     end
 
     def date
@@ -71,5 +77,7 @@ module StandardProcedure
         link_to value if value.is_a? ActiveRecord::Base
       end
     end
+
+    HIDDEN_DATA_KEYS = %w[result action error].freeze
   end
 end

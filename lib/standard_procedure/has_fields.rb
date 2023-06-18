@@ -47,6 +47,7 @@ module StandardProcedure
 
       def has_field(name, default: nil, boolean: false)
         name = name.to_sym
+        default = -> { default } unless default.respond_to?(:call)
         define_method name.to_sym do
           value = get_field(name) || default
           boolean ? ActiveRecord::Type::Boolean.new.cast(value) : value

@@ -2,6 +2,7 @@ module StandardProcedure
   class ApplicationJob < ActiveJob::Base
     retry_on ActiveRecord::Deadlocked
     discard_on ActiveJob::DeserializationError
+
     attr_accessor :context_id
     around_perform do |job, block|
       context = job.context_id.blank? ? StandardProcedure::Command.context : StandardProcedure::Command.find(job.context_id)

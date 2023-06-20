@@ -1,11 +1,15 @@
 module StandardProcedure
   class WorkflowStatus::DocumentAddedJob < ApplicationJob
     def perform workflow_status, document:, user:, action: nil
+      # Clear existing alerts
       document.alerts.each do |existing_alert|
         StandardProcedure::UpdateJob.perform_now existing_alert, user: user, status: "inactive"
       end
+
+      # Assign to the relevant user
       StandardProcedure::WorkflowStatus::AssignToUserJob.perform_now workflow_status, document: document, user: user
 
+      # Add any alerts
       workflow_status.alerts.each do |alert_data|
         alert_data.symbolize_keys!
         #  Only add this alert if it meets any "if" clauses in the definition

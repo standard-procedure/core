@@ -12,7 +12,7 @@ module StandardProcedure
       stage_two.touch
       # have to use `expect_any_instance_of` as the actual status is going to be loaded dynamically so we don't
       # know which actual status-instance will receive the message
-      expect_any_instance_of(StandardProcedure::WorkflowStatus).to receive(:document_added).with(performed_by: user, document: document)
+      expect(WorkflowStatus::DocumentAddedJob).to receive(:perform_now).with(user: user, document: document)
 
       WorkflowAction::ChangeStatusJob.perform_now document, user: user, status_reference: "stage_two"
     end

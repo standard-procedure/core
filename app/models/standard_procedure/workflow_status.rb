@@ -10,10 +10,6 @@ module StandardProcedure
     has_array :assign_to
     has_array :actions
 
-    def document_added document:, performed_by:, action: nil
-      WorkflowStatus::DocumentAddedJob.perform_now self, document: document, user: performed_by, action: action
-    end
-
     # `perform_action action: "action", document: @document, performed_by: @user, **params`
     def perform_action action: nil, document: nil, performed_by: nil, **params
       WorkflowStatus::PerformActionJob.perform_now self, action: action, document: document, user: performed_by, **params
